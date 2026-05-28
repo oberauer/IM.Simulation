@@ -59,13 +59,16 @@ for id = 1:E.nsubj
 
     end
 
-    % compute probability that the changed item is ranked i (Eq. 2)
+    %%% compute probability that the changed item is ranked i (Eq. 2)
+    % fit Block-Marshak Inequalities to PC (advice by Y. He and David Kellen, May 28, 2026)
+    PC_BM = ones(1,5);
+    PC_BM(2:5) = BlockMarshakFit(PC(id,2:5));
     m = max(ResponseSetSize);
     R = zeros(1,m);
     for i = 1:m
         Sum = 0; 
         for j = (m-i+1):m
-            Sum = Sum + nchoosek(i-1, j-(m-i+1)) * (-1).^(j-(m-i+1)) * PC(id,j);
+            Sum = Sum + nchoosek(i-1, j-(m-i+1)) * (-1).^(j-(m-i+1)) * PC_BM(j);
         end
         R(i) = nchoosek(m-1, i-1) * Sum;
     end
@@ -91,8 +94,8 @@ hold on
 for id = 1:E.nsubj
     plot(PC(id,:), 'color', grayColor); 
 end
-plot(mean(PC), 'color', 'red');
-PostFigure([0, 1, 0, 1], 'RSS', 'P(Correct)');
+plot([1, ResponseSetSize], mean(PC), 'color', 'red');
+PostFigure([0, max(ResponseSetSize)+1, 0, 1.1], 'RSS', 'P(Correct)');
 
 output = 1; 
 
