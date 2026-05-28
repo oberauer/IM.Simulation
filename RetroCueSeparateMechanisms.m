@@ -11,6 +11,7 @@ E.cuevalidity = 1;
 setsize = 6;
 Titletext = {'Strength. Only', 'Consolid. Only', 'Removal Only', 'Visual Interf. Only', 'FX Only ', 'None'};
 
+IMprepareRecog; % set up criterion for expected size of change 
 Ptype = [1 1 2 3];  % 2 x positive, 1 x new, 1 x intrusion
 option = optimset('Display','off','TolFun',1e-10, 'FunValCheck','on', 'MaxIter', 2000);
 
