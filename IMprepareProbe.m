@@ -1,0 +1,24 @@
+function [probestim, probeIdx] = IMprepareProbe(F, setsize)
+% prepares probes for recognition test
+
+global E
+global C
+global P
+
+if E.test == 2
+    if E.ptype == 1, ProbeIdx = 1; probeIdx = F(1,1); end   % select the probe color for positive probes (equal to the first array item, which is always the target)
+    if E.ptype == 2, ProbeIdx = setsize+1; probeIdx = F(1,ProbeIdx); end  % select the color for new probes (randomly from all possible features in the candidate set)
+    if E.ptype == 3, ProbeIdx = randperm(setsize-1, 1)+1; probeIdx = F(1,ProbeIdx); end  % select the color of intrusion probes (randomly from any non-target, that is, from array items 2 to N
+    probestim = C.stim(probeIdx,:);  % define the probe stimulus
+end
+if E.test == 3
+    probestim = zeros(E.rss, C.nc);
+    probeIdx = zeros(1, E.rss);
+    lures = 1 + randperm(setsize-1); % shuffle the non-targets
+    if E.ptype == 2, probeIdx(1) = setsize+1; probestim(1,:) = C.stim(F(1, probeIdx(1)), :); end % replace the target with the first new item in the F list
+    if E.ptype == 3, probeIdx(1) = lures(end); probestim(1,:) = C.stim(F(1, probeIdx(1)), :); end % replace the target by the last in the shuffled item list
+    for j = 2:E.rss
+        probeIdx(j) = lures(j);
+        probestim(j,:) = C.stim(F(1, probeIdx(j)),:);  % the remainder of the response set remains unchanged
+    end
+end

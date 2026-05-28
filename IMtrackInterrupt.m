@@ -1,0 +1,104 @@
+function [Map, W, CDAg, CDAw, Alpha, Pangle, EEG_FX] = IMtrackInterrupt(interrupt, eW, eNoise)
+% encodes a single location into WM, then attends to a spatial cue for a
+% visual search trial (van Moorselaar et al., 2017, JoC), tracks neural
+% signals over time
+
+global P
+global E
+global C
+
+map = struct('FX', zeros(C.nc));   % feature map
+Map = repmat(map, C.nfeatures, 1);
+W = CreateConnections(C.nfeatures);
+G = zeros(1, P.nb); 
+GW = zeros(1, P.nb); 
+
+% Generate memory set for this trial
+if E.layout == 1, L = randperm(C.nloc); end      %shuffle locations of array objects
+if E.layout == 2, L = repmat(1, 1, C.nloc); end  % all in location 1
+F = zeros(C.nfeatures, C.nstim);
+for ff = 1:C.nfeatures
+    F(ff,:) = randperm(C.nstim);      %shuffle object features
+end
+
+cRate = gamrnd(P.cRate^2/P.cRateSD^2, P.cRateSD^2/P.cRate);  % generate the vector of consolidation rates
+cTime = -(log(1-P.cTau)./cRate); % vector of consolidation times needed to reach strength P.cTau
+
+Timepoints = E.RI/C.tstep + 1; 
+CDAg = zeros(1,Timepoints);
+CDAw = zeros(1,Timepoints);
+Alpha = zeros(1,Timepoints);
+nElectrodes = size(eW, 2);
+EEG_W = zeros(Timepoints, nElectrodes);
+EEG_FX = zeros(Timepoints, nElectrodes);
+SpatAttn = zeros(C.nc, 1);
+
+% presentation of visual-search placeholders (L(2) = cued location)
+for dist = 2:9
+    Map(1).FX = Map(1).FX + C.location(L(dist),:)' * C.stim(F(dist),:);
+    %SpatAttn = SpatAttn + C.location(L(dist),:)';
+end
+
+targOn = 0;
+distrOn = 0;
+shiftAttn = 0;
+t = 0;
+tcount = 1;
+ballistic = rand < P.cBallistic;  %  determine whether consolidation is ballistic or not
+
+while t < E.RI  % continue until end of RI, or end of consolidation of the WM stimulus
+    if targOn == 0   % if focus of attention is not yet on the memory target
+        % direct focus of attention to memory location
+        AfocusLoc = C.location(L(1),:);     % location attended to in the feature map
+        Afocus = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter to pull out the target feature from its feature map
+        content = C.stimnoise + Afocus * C.Mapping;
+        context = C.locationnoise + AfocusLoc * C.MappingC;
+        [W, G, GW, committedNew, ~] = IMencodeStim(W, context, content, G, GW, cRate, C.tstep, C.tstep);
+        committedNewNotBase = randsample(committedNew, round(length(committedNew)*(1-P.pBase))); % sample a subset of newly committed binding units as the to-be-released ones        
+        targOn = 1;
+    end
+    if targOn == 1 && interrupt == 0  % when attention is on the target, and the interruption has not yet happened
+            % continuing consolidation
+            pLoss = 1 - 1/exp(cRate./(cTime.*C.tstep)); % see StepByStepEncoding.m
+            nLoss = binornd(length(committedNewNotBase), pLoss);
+            decommitted = randsample(committedNewNotBase, nLoss);
+            committedNewNotBase = setdiff(committedNewNotBase, decommitted);
+            G(decommitted) = 0;
+            W(:, decommitted) = 0;  % remove weights to the now free binding units
+    end
+    if (interrupt == 1)  % when the interruption happens, encode the visual-search stimuli
+        if t > 1 && distrOn == 0
+            Map = UpdateFX(Map);
+            for dist = 2:9
+                Map(1).FX = Map(1).FX + C.location(L(dist),:)' * C.stim(F(dist),:);  % onset of the actual search stimuli
+            end
+            distrOn = 1;
+        end
+        if (ballistic == 0 || t > cTime(1)) && shiftAttn == 0   % if consolidation is done, shift attention to distractor location (whether distractor has been presented already or not
+            AfocusLoc = C.location(L(2),:);
+            Afocus = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter to pull out the target feature from its feature map
+            context = C.locationnoise + AfocusLoc * C.MappingC;
+            %content = C.stimnoise + Afocus * C.Mapping;
+            %SpatAttn = SpatAttn + P.TopDownSpatAttn.*AfocusLoc'; 
+            shiftAttn = 1;
+        end
+    end
+    [Map, W] = IMdecayFX(Map, W, C.tstep);   % decay of FX through one time step
+    SpatAttn = max( 0, SpatAttn + C.tstep * (mean(Map(1).FX,2) + P.TopDownSpatAttn.*AfocusLoc' - P.spatinhib*SpatAttn*sum(SpatAttn)) );  % attraction of spatial attention to locations in feature maps, top-down guidance by FoA, and global inhibition on spatial attention
+    %Map(1).FX = Map(1).FX + C.tstep * (-Map(1).FX + Map(1).FX .* repmat(SpatAttn, 1, C.nc)); % spatial attention (weakly) modulates feature maps
+    EEG_W(tcount,:) = (((context * W(1:C.nLocCat, :)) * W((C.nLocCat+1):end, :)') * C.Mapping') * eW + randn(1,nElectrodes)*eNoise;  % feed last-used context into weight matrix -> reactivate content -> project onto electrodes
+    EEG_FX(tcount,:) = SpatAttn' * eW + randn(1,nElectrodes)*eNoise; 
+    CDAg(tcount) = sum(G);
+    CDAw(tcount) = sum(abs(W(:)));
+    Alpha(tcount) = sum(abs(EEG_FX(tcount,:)));
+    tcount = tcount + 1;
+    t = t + C.tstep;
+    maxAtt = max(SpatAttn);
+    sumAtt = sum(SpatAttn);
+    
+end
+
+Pangle = L(1:2);
+
+end
+

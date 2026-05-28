@@ -1,0 +1,183 @@
+function [] = SetsizeTrackNeuralSignals(maxSetsize)
+% Simulation of Set-size, tracking CDA, alpha power, and IEM read-out
+% signals over time
+
+global E
+global C
+global P
+
+E.maxsetsize = maxSetsize;
+E.presentation = 1;
+E.RI = 3;
+Timepoints = 0:C.tstep:E.RI;
+
+% Calibrate amplification factor on population level, if desired
+if E.calibrateAmp == 1
+    CreateStimuli;
+    CreateMapping(1);
+end
+
+% generate parameters with individual differences
+ParX = CreateIndDiff;
+
+CDAg = NaN(E.nsubj, length(Timepoints), E.maxsetsize);  % id, timepoint, setsize
+CDAw = NaN(E.nsubj, length(Timepoints), E.maxsetsize);  % id, timepoint, setsize
+Alpha = NaN(E.nsubj, length(Timepoints), E.maxsetsize);  % id, timepoint, setsize
+cTime = struct('ctime', 0);
+CT = repmat(cTime, 1, E.maxsetsize);
+
+% variables for IEM
+nElectrodes = 50;
+eRegular = 0;  % factor of regular (distance-graded) to random projection weights in eW
+eGrad = 1;     % generalization gradient in space for regular mapping of screen location (of the stimulus) to head location of electrode responding to it
+eNoise = 0.25;  % trial-by-trial noise added to the EEG signal
+nChannels = 9; 
+
+for id = 1:E.nsubj
+    
+    % extract parameter values for each subject - for those parameters that vary between subjects
+    for ii = 1:length(C.indVar)
+        eval(['P.', C.indVar{ii}, ' = ParX(id, ii);']);
+    end
+    % for each subject, create stimuli, and an individual set of feature categories, and the corresponding mappings
+    CreateStimuli;
+    CreateMapping(E.calibrateAmp==2);
+    [basisSet, eW, eW2, nElectrodes, channelCenters] = CreateIEM(nElectrodes, nChannels, eRegular, eGrad);
+    
+    % Train IEM with set size = 1
+    setsize = 1;
+    nfactor = 5;
+    EEG_WX = zeros(nfactor*E.ntrials, nElectrodes);
+    EEG_FX = zeros(nfactor*E.ntrials, nElectrodes);
+    StimMask = zeros(nfactor*E.ntrials, C.nc);
+    for trial = 1:(nfactor*E.ntrials)
+        output = IMSim(P, setsize, 1);  % cueing = 1 (no cue)
+        EEG_WX(trial,:) = (((output.context * output.wx(1:C.nLocCat, :)) * output.wx((C.nLocCat+1):end, :)') * C.Mapping') * eW + randn(1,nElectrodes)*eNoise;  % feed last-used context into weight matrix -> reactivate content -> project onto electrodes
+        EEG_FX(trial,:) = output.SpatAttn' * eW + randn(1,nElectrodes)*eNoise; % read out locations (averaging over features) from feature map
+        StimMask(trial, round(C.Location(output.L(1:setsize)))) = 1; % stimulus mask: codes the stimulus location (set to 1 at presented location(s), and 0 everywhere else)
+    end
+    Wb = TrainIEM(StimMask, basisSet, EEG_WX);    % train IEM
+    Wfx = TrainIEM(StimMask, basisSet, EEG_FX);    % train IEM
+    
+    for setsize = 1:E.maxsetsize
+        cda_g = zeros(E.ntrials, length(Timepoints));
+        cda_w = zeros(E.ntrials, length(Timepoints));
+        alpha = zeros(E.ntrials, length(Timepoints));
+        ctime = zeros(E.ntrials, 1);
+        Pangle = zeros(E.ntrials, setsize);  % presented (angular) location in the channel space
+        ItemIdx = ones(E.ntrials, 1);  % only the target is to be tracked with IEM
+        EEG_WX = zeros(E.ntrials, E.RI/C.tstep+1, nElectrodes);
+        EEG_FX = zeros(E.ntrials, E.RI/C.tstep+1, nElectrodes);
+        for trial = 1:E.ntrials
+            [Map, W, cda_g(trial,:), cda_w(trial,:), alpha(trial,:), ctime(trial), Pangle(trial,:), eegW, eegfx] = IMtrackSignals(setsize, eW, eW2, eNoise);
+             EEG_WX(trial,:,:) = eegW;
+             EEG_FX(trial,:,:) = eegfx;
+        end
+        CDAg(id,:,setsize) = mean(cda_g);
+        CDAw(id,:,setsize) = mean(cda_w);
+        Alpha(id,:,setsize) = mean(alpha);
+        CT(setsize).ctime = [CT(setsize).ctime; ctime];
+        
+        for t = 1:E.RI/C.tstep
+            CTF(id,setsize,t).meanCTF_W = ApplyIEM(Wb, squeeze(EEG_WX(:,t,:)), 360*Pangle/C.nloc, channelCenters, ItemIdx);
+            CTF(id,setsize,t).meanCTF_FX = ApplyIEM(Wfx, squeeze(EEG_FX(:,t,:)), 360*Pangle/C.nloc, channelCenters, ItemIdx);
+        end
+        
+        disp('    ID        Setsize   CDA(Gate) CDA(W)    Alpha      ');
+        disp([id, setsize, mean(CDAg(id, :, setsize))/1000, mean(CDAw(id, :, setsize))/1000, mean(Alpha(id, :, setsize))]);
+
+    end %for setsize
+    
+    
+end  % for ID
+
+% plot summed-W CDA as a function of time and set size
+mCDAg = squeeze(mean(CDAg)); % CDA from summed G, average over subjects
+mCDAw = squeeze(mean(CDAw)); % CDA from summed W, average over subjects
+PreFigure([], [], 2);
+subplot(1,2,1);
+plot(Timepoints, mCDAg');
+PostFigure([0, E.RI, 0, 1.1*max(max(mCDAg))], 'Time (s)', 'CDA from G', [], vec2legend(1:E.maxsetsize));
+subplot(1,2,2);
+plot(Timepoints, mCDAw');
+PostFigure([0, E.RI, 0, 1.1*max(max(mCDAw))], 'Time (s)', 'CDA from W', [], vec2legend(1:E.maxsetsize));
+
+% plot Alpha as a function of time and set size
+mAlpha = squeeze(mean(Alpha)); % average over subjects
+PreFigure([], [], 2);
+plot(Timepoints, mAlpha');
+PostFigure([0, E.RI, 0, 1.1*max(max(mAlpha))], 'Time (s)', 'Alpha Power Suppression', [], vec2legend(1:E.maxsetsize));
+
+% save CDA and Alpha results
+if E.saveResults == 1
+    fid = fopen('IMSim.TrackAlphaCDA.dat', 'w');
+    for setsize = 1:E.maxsetsize
+        for t = 1:E.RI/C.tstep
+            fprintf(fid, '%d %d  %d %d \n', setsize, t, mCDAg(t, setsize), mAlpha(t, setsize));
+        end
+    end
+    fclose(fid);
+end
+
+% plot CTF as a function of time and set size
+if E.saveResults == 1, fid = fopen('IMSim.TrackCTF.dat', 'w'); end
+h1 = PreFigure;
+h2 = PreFigure; 
+for setsize = 1:E.maxsetsize
+   mCTFw = zeros(nChannels, E.RI/C.tstep);
+   mCTFfx = zeros(nChannels, E.RI/C.tstep);
+   for id = 1:E.nsubj
+       for t = 1:E.RI/C.tstep
+            mCTFw(:,t) = mCTFw(:,t) + CTF(id, setsize, t).meanCTF_W';
+            mCTFfx(:,t) = mCTFfx(:,t) + CTF(id, setsize, t).meanCTF_FX';
+       end
+   end
+   figure(h1);
+   subplot(3,2,setsize);
+   imagesc(mCTFw);
+   title(['Decoding from W; Setsize = ', num2str(setsize)]); 
+   figure(h2);
+   subplot(3,2,setsize);
+   imagesc(mCTFfx);
+   title(['Decoding from FX; Setsize = ', num2str(setsize)]); 
+   
+   if E.saveResults == 1
+       for t = 1:E.RI/C.tstep
+           fprintf(fid, '%d %d  ', setsize, t);
+           for channel = 1:nChannels
+               fprintf(fid, '%d ', mCTFfx(channel, t));
+           end
+           fprintf(fid, '\n');
+       end
+   end
+   
+end
+
+
+% Plot mean CDA, and CDA after 1 s, as a function of set size
+
+PreFigure;
+subplot(1,2,1);
+MCDA = squeeze(mean(mean(CDAg)));
+CDA1s = squeeze(mean(CDAg(:,round(1/C.tstep),:)));
+plotvector = [MCDA, CDA1s];
+ymax = max(max(plotvector));
+plot(1:E.maxsetsize, plotvector);
+PostFigure([0.8, E.maxsetsize+0.2, 0, 1.05*ymax], 'Set Size', 'CDA from G', [], {'mean CDA', 'CDA @ 1s'});
+
+subplot(1,2,2);
+MCDA = squeeze(mean(mean(CDAw)));
+CDA1s = squeeze(mean(CDAw(:,round(1/C.tstep),:)));
+plotvector = [MCDA, CDA1s];
+ymax = max(max(plotvector));
+plot(1:E.maxsetsize, plotvector);
+PostFigure([0.8, E.maxsetsize+0.2, 0, 1.05*ymax], 'Set Size', 'CDA from W', [], {'mean CDA', 'CDA @ 1s'});
+
+% plot cumulative consolidation times
+PreFigure;
+for setsize = 1:E.maxsetsize
+    subplot(3,2,setsize);
+    histogram(CT(setsize).ctime, 'BinWidth', 0.05);
+    PostFigure([], 'Consolidation Times', '', ['Setsize = ', mat2str(setsize)]);
+end
+
