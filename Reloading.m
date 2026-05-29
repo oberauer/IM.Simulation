@@ -105,8 +105,8 @@ for id = 1:E.nsubj
                 else
                     PC2(id, ss, ptype2, cueing) = 1-Pyes2(id, ss, ptype2, cueing);
                 end
-                RT1(id, ss, ptype1, cueing) = mean(rt1(:,condition))./1000;
-                RT2(id, ss, ptype2, cueing) = mean(rt2(:,condition))./1000;
+                RT1(id, ss, ptype1, cueing) = mean(rt1(:,condition));
+                RT2(id, ss, ptype2, cueing) = mean(rt2(:,condition));
             end
                         
         disp('     ID  Setsize');

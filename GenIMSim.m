@@ -3,7 +3,7 @@
 % Version using the KO/Manohar mediated-binding mechanism
 
 clear all
-%close all
+close all
 
 global E
 global C
@@ -58,7 +58,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 40;
+Exp = 8;
 
 % Exp's     1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
 Material = [1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2]; % 1 = 360 degrees, 2 = discrete items, 3 = 180 degrees 
@@ -70,7 +70,7 @@ fitIMSim = 0; % fit IM?
 %%% Experimental Constants/Defaults
 
 E.ntrials = 200;     % number of trials to run per subject and condition
-E.nsubj = 100;        % number of subjects
+E.nsubj = 50;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = Material(Exp);  % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -138,14 +138,14 @@ P.maskWindowSD = 0.75; % SD (as porportion of mean) of time window of integratio
 P.SDstrengthFX = 0.1; % SD of encoding strength into FX
 P.selfactFX = 1;     % self-activation of FX
 P.inhibFX = 0.002;   % global inhibition in FX that causes decay
-P.eraseFX = 0.4;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
+P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
 P.rRate = 4;         % rate of release of BP units
 P.cRateFactor = 1;   % proportional reduction of cRate for Ricker's dots on a ring
 P.cRateSD = 0.5;     % 0.7 - SD of consolidation rates (as proportion of mean)
 P.cStrength = 0.9;   % proportion of maximal strength that consolidation aims for - when that strength is reached, consolidation stops
 P.cBallistic = 0.5;  % probability of consolidation being ballistic
-P.filter = [0.1, 0.1, 0.1]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
+P.filter = [0.2, 0.2, 0.2]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
 P.rad1 = 0.7;        % proportion of radius of memory array to radius of color wheel (for computation of color-wheel interference as a function of distance between wheel and target location)
 P.outputinterference = 0; % proportion of reduction of W
 P.wnoise = 0.03;     % noise added to W at each time step to implement decay
@@ -186,7 +186,7 @@ if Exp == 4, SimSeqAlphaCDA(Model, Setsize); end % sequential or simultaneous pr
 if Exp == 5, SetsizeRI(Model, 1, fitMM, fitIMSim); end  % set size and retention-interval variation
 if Exp == 6, SimSeq(Model, fitMM); end % sequential/simultaneous encoding of 2 objects with 2 features
 if Exp == 7, SimSeqPresentationRate(Model, P.cRate, fitMM); end % simultaneous encoding vs. sequential encoding with varying presentation rates (2nd parameter: consolidation rate)
-if Exp == 8, P.cStrength = 0.7; SimSeqPresentationRate(Model, P.cRate, fitMM); end
+if Exp == 8, P.cStrength = 0.6; SimSeqPresentationRate(Model, P.cRate, fitMM); end
 if Exp == 9, TwoArrayISI; end    % two successive arrays with varying set sizes, varying inter-array interval
 if Exp == 10, Consolidation(Model, fitMM); end % consolidation time with SOA variation
 if Exp == 11, SetsizeMaskSOA(Model, fitMM); end  % Bays et al. (2011)
