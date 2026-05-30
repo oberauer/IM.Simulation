@@ -86,7 +86,7 @@ if E.presentation == 1
 
             % focus on the highest spatial peak
             SpatAttn = mean(Map(1).FX,2);
-            SpatAttn = max(0, SpatAttn - P.spatinhib*SpatAttn*sum(SpatAttn));
+            %SpatAttn = max(0, SpatAttn - P.spatinhib*SpatAttn*sum(SpatAttn));
 
             if max(SpatAttn) > 0
 
@@ -223,7 +223,7 @@ if E.presentation == 2
         end
 
         SpatAttn = mean(Map(1).FX,2);
-        SpatAttn = max(0, SpatAttn - P.spatinhib*SpatAttn*sum(SpatAttn));
+        %SpatAttn = max(0, SpatAttn - P.spatinhib*SpatAttn*sum(SpatAttn));
 
         % focus attention to the relevant stimulus location in the feature map(s) FX
         AfocusLoc = C.location(L(Focus),:);     % update location attended to in the feature maps
