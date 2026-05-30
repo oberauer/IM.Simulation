@@ -9,7 +9,7 @@ global C
 E.mask = 1;
 E.prestime = 0.15;
 E.MaskSOA = 0.15;  %
-E.presentation = 1; % each array is presented sequentially
+E.presentation = 1; % each array is presented simultaneously
 E.outsize = 1;
 InterArrayInterval = [0.2, 0.3, 0.4, 0.6, 1];
 
@@ -74,8 +74,8 @@ for id = 1:E.nsubj
 
                         % test
                         probed = 1;  % for now
-                        probestim = []; SameRange = []; ChangeRange = []; probeIdx = []; 
-                        [response, rt, Map, W, G, Focus, CWcolor] = IMretrieve(Map, W, G, Focus, Afocus, probed, 1, L(testedArray,:), F(testedArray,:), probestim, SameRange, ChangeRange, probeIdx);
+                        probestim = []; probeIdx = []; 
+                        [response, rt, Map, W, G, Focus, CWcolor] = IMretrieve(Map, W, G, Focus, Afocus, probed, 1, L(testedArray,:), F(testedArray,:), probestim, probeIdx);
                         fdistance(trial) = wrap(response-F(testedArray,1), 180);   %calculate distance between response and true feature in feature space (degrees!)
 
                     end
