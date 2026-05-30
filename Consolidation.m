@@ -88,8 +88,7 @@ for id = 1:E.nsubj
                     fdistance(trial, output.Inpos(outpos)) = wrap(output.response(outpos)-output.F(1,outpos), 180);   %calculate distance between response and true feature in feature space (degrees!)
                     RT(trial, output.Inpos(outpos)) = output.rt(outpos);
                 end
-                
-                
+                               
                 strength(trial, :) = output.Strength;
 
                 %collect data for further modeling - only the first item tested

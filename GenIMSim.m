@@ -58,10 +58,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 8;
-
-% Exp's     1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
-Material = [1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2]; % 1 = 360 degrees, 2 = discrete items, 3 = 180 degrees 
+Exp = 10;
 
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 0;   % fit mixture model?
@@ -72,7 +69,7 @@ fitIMSim = 0; % fit IM?
 E.ntrials = 200;     % number of trials to run per subject and condition
 E.nsubj = 50;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
-E.material = Material(Exp);  % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features
+E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
 E.test = 1;          % 1 = continuous reproduction, 2 = change detection (here: set default value, can be overwritten later)
 E.context = 1;       % 1 = spatial location, 2 = another feature

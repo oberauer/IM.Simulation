@@ -6,6 +6,7 @@ global E
 global C
 
 E.PreRetro = 2;  % this is all retro-cue
+E.material = 2; 
 setsize = 6; 
 E.cuevalidity = 1/setsize;  % analogous to the refreshing experiments, because the 1st and 2nd cue are often not valid
 ModelContinuousReprod = 0;  % model continuous reproduction for comparison?

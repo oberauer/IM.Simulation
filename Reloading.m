@@ -11,6 +11,7 @@ global C
 
 E.PreRetro = 2;  % this is all retro-cue
 E.cuevalidity = 1;
+E.material = 2; 
 E.mask = 3;
 E.ntrials = round(E.ntrials/12);  % because we're running 32 design cells
 IMprepareRecog;

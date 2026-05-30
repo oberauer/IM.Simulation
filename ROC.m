@@ -12,6 +12,7 @@ if E.calibrateAmp == 1
     CreateMapping(1);
 end
 
+E.material = 2; 
 E.test = 3; % change localization 
 E.ptype = ptype; % kind of change (2 = new, 3 = swap)
 setsize = 6; 

@@ -9,6 +9,7 @@ global C
 E.PreRetro = 2;
 setsize = 6;
 E.cuevalidity = 1;
+E.material = 2;
 
 IMprepareRecog; % set up criterion for expected size of change 
 Ptype = [1 1 2 3];  % 2 x positive, 1 x new, 1 x intrusion

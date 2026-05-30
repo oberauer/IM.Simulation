@@ -10,6 +10,7 @@ E.presentation = 1;
 E.outsize = 1;
 E.test = 2; 
 E.wheel = 0; 
+E.material = 2; 
 setsize = 3;
 cueing = 1; 
 nTrials = round(E.ntrials./4);

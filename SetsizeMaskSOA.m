@@ -8,6 +8,7 @@ option = optimset('Display','off','TolFun',1e-10, 'FunValCheck','on', 'MaxIter',
 fitIM = 0;
 E.maxsetsize = 6; 
 E.targetDim = 2;  % target dimension is orientation
+E.material = 3; 
 E.mask = 2;    % Bays et al. mask covering the entire field
 SOA = [0.025, 0.05, 0.075, 0.1, 0.125, 0.3, 0.5, 1, 1.5, 2];
 
