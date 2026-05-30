@@ -26,7 +26,7 @@ end
 % keep default values
 %cueStrength = P.cueingStrength;
 %retroCueConsolid = C.retroCueConsolid;
-wheel = E.wheel; 
+filter = P.filter; 
 removalThreshold = P.removalThreshold;
 eraseFX = P.eraseFX;
 
@@ -61,12 +61,12 @@ for task = Tasks
                 eval(['P.', C.indVar{ii}, ' = ParX(id, ii);']);
             end
 
-            if mechanism == 1, P.cueingStrength = 1; P.removalThreshold = 0; E.wheel = 0; C.retroCueConsolid = 0; P.eraseFX = 0; end  % leave only strengthening
-            if mechanism == 2, P.cueingStrength = 0; C.retroCueConsolid = 1; E.wheel = 0; P.removalThreshold = 0; P.eraseFX = 0; end  % leave ony consolidation for retrieval
-            if mechanism == 3, P.cueingStrength = 0; P.removalThreshold = removalThreshold; E.wheel = 0; C.retroCueConsolid = 0; P.eraseFX = 0; end  % leave only removal
-            if mechanism == 4, P.cueingStrength = 0; E.wheel = wheel; P.removalThreshold = 0; C.retroCueConsolid = 0; P.eraseFX = 0; end  % leave only visual interference
-            if mechanism == 5, P.cueingStrength = 0; P.eraseFX = eraseFX; P.removalThreshold = 0; E.wheel = 0; C.retroCueConsolid = 0; end  % leave only head start for read-out from FX
-            if mechanism == 6, P.cueingStrength = 0; P.removalThreshold = 0; E.wheel = 0; C.retroCueConsolid = 0; P.eraseFX = 0; end  % baseline without any retro-cue mechanism, except for head-start for retrieval
+            if mechanism == 1, P.cueingStrength = 1; P.removalThreshold = 0; P.filter = 0; C.retroCueConsolid = 0; P.eraseFX = 0; end  % leave only strengthening
+            if mechanism == 2, P.cueingStrength = 0; C.retroCueConsolid = 1; P.filter = 0; P.removalThreshold = 0; P.eraseFX = 0; end  % leave ony consolidation for retrieval
+            if mechanism == 3, P.cueingStrength = 0; P.removalThreshold = removalThreshold; P.filter = 0; C.retroCueConsolid = 0; P.eraseFX = 0; end  % leave only removal
+            if mechanism == 4, P.cueingStrength = 0; P.filter = filter; P.removalThreshold = 0; C.retroCueConsolid = 0; P.eraseFX = 0; end  % leave only visual interference
+            if mechanism == 5, P.cueingStrength = 0; P.eraseFX = eraseFX; P.removalThreshold = 0; P.filter = 0; C.retroCueConsolid = 0; end  % leave only head start for read-out from FX
+            if mechanism == 6, P.cueingStrength = 0; P.removalThreshold = 0; P.filter = 0; C.retroCueConsolid = 0; P.eraseFX = 0; end  % baseline without any retro-cue mechanism, except for head-start for retrieval
             
             % for each subject, create stimuli, and an individual set of feature categories, and the corresponding mappings
             CreateStimuli;
