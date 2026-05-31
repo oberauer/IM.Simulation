@@ -1,4 +1,4 @@
-function [Map, L, CDAg, CDAw, Alpha, sumCtime, Pangle, EEG_W, EEG_FX] = IMtrackSignals(setsize, eW, eW2, eNoise)
+function [Map, L, F, CDAg, CDAw, Alpha, sumCtime, Pangle, Cangle, EEG_W, EEG_FX] = IMtrackSignals(setsize, eW, eW2, eNoise)
 % encodes a memory set simultaneously, simulates the proces time-step wise
 % to track CDA and alpha over time
 
@@ -115,6 +115,7 @@ for inpos = 1:setsize
     Inpos(encorder(inpos)) = inpos;
 end
 Pangle = L(1:setsize);
+Cangle = F(1:setsize);
 
 end
 

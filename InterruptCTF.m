@@ -1,6 +1,7 @@
 function [] = InterruptCTF
 % Simulation of memory for 1 location, plus interruption by a distractor
 % task demanding attention to another location (van Moorselar et al., 2017)
+% Decode spatial location (of attention)
 
 global E
 global C
@@ -31,8 +32,12 @@ eGrad = 1;     % generalization gradient in space for regular mapping of screen 
 eNoise = 0.25;  % trial-by-trial noise added to the EEG signal
 nChannels = 9; 
 [basisSet, eW, eW2, nElectrodes, channelCenters] = CreateIEM(nElectrodes, nChannels, eRegular, eGrad);
+
 iem = struct('Wb', zeros(nChannels, nElectrodes), 'Wfx', zeros(nChannels, nElectrodes));
 IEM = repmat(iem, 1, round(E.RI/C.tstep));
+ctf = struct('meanCTF_FX', zeros(2, nChannels)); 
+CTF = repmat(ctf, [E.nsubj, 2, round(E.RI/C.tstep)]); 
+
 
 for id = 1:E.nsubj
     
@@ -60,7 +65,7 @@ for id = 1:E.nsubj
 
 
     for trial = 1:(nfactor*E.ntrials)
-        [~, L, ~, ~, ~, ~, ~, eegW, eegfx] = IMtrackSignals(setsize, eW, eW2, eNoise);
+        [~, L, F, ~, ~, ~, ~, ~, ~, eegW, eegfx] = IMtrackSignals(setsize, eW, eW2, eNoise);
         EEG_FX(trial,:,:) = eegfx; % read out locations (averaging over features) from feature map
         StimMask(trial, round(C.Location(L(1:setsize)))) = 1; % stimulus mask: codes the stimulus location (set to 1 at presented location(s), and 0 everywhere else)
     end

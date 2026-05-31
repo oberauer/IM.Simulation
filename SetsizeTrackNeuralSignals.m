@@ -36,6 +36,9 @@ nChannels = 9;
 iem = struct('Wb', zeros(nChannels, nElectrodes), 'Wfx', zeros(nChannels, nElectrodes));
 IEM = repmat(iem, 1, round(E.RI/C.tstep));
 
+ctf = struct('meanCTF_FX', zeros(1, nChannels), 'meanCTF_WX', zeros(1, nChannels)); 
+CTF = repmat(ctf, [E.nsubj, E.maxsetsize, round(E.RI/C.tstep)]); 
+
 for id = 1:E.nsubj
     
     % extract parameter values for each subject - for those parameters that vary between subjects
@@ -52,17 +55,19 @@ for id = 1:E.nsubj
     nfactor = 5;
     EEG_WX = zeros(E.ntrials, E.RI/C.tstep+1, nElectrodes);
     EEG_FX = zeros(E.ntrials, E.RI/C.tstep+1, nElectrodes);
+    LocationMask = zeros(nfactor*E.ntrials, C.nc);
     StimMask = zeros(nfactor*E.ntrials, C.nc);
     for trial = 1:(nfactor*E.ntrials)
         %output = IMSim(P, setsize, 1);  % cueing = 1 (no cue)
-        [~, L, ~, ~, ~, ~, ~, eegW, eegfx] = IMtrackSignals(setsize, eW, eW2, eNoise);
+        [~, L, F, ~, ~, ~, ~, ~, ~, eegW, eegfx] = IMtrackSignals(setsize, eW, eW2, eNoise);
         EEG_WX(trial,:,:) = eegW;  % feed last-used context into weight matrix -> reactivate content -> project onto electrodes
         EEG_FX(trial,:,:) = eegfx; % read out locations (averaging over features) from feature map
-        StimMask(trial, round(C.Location(L(1:setsize)))) = 1; % stimulus mask: codes the stimulus location (set to 1 at presented location(s), and 0 everywhere else)
+        LocationMask(trial, round(C.Location(L(1:setsize)))) = 1; % stimulus mask: codes the stimulus location (set to 1 at presented location(s), and 0 everywhere else)
+        StimMask(trial, F(1:setsize)) = 1; 
     end
     for t = 1:E.RI/C.tstep
         IEM(t).Wb = TrainIEM(StimMask, basisSet, squeeze(EEG_WX(:,t,:)));    % train IEM at each time point
-        IEM(t).Wfx = TrainIEM(StimMask, basisSet, squeeze(EEG_FX(:,t,:)));    % train IEM at each time point
+        IEM(t).Wfx = TrainIEM(LocationMask, basisSet, squeeze(EEG_FX(:,t,:)));    % train IEM at each time point
     end
     
     for setsize = 1:E.maxsetsize
@@ -70,12 +75,13 @@ for id = 1:E.nsubj
         cda_w = zeros(E.ntrials, length(Timepoints));
         alpha = zeros(E.ntrials, length(Timepoints));
         ctime = zeros(E.ntrials, 1);
-        Pangle = zeros(E.ntrials, setsize);  % presented (angular) location in the channel space
+        Pangle = zeros(E.ntrials, setsize);  % presented (angular) location in the channel space of CTF_FX
+        Cangle = zeros(E.ntrials, setsize);  % presented (angular) feature in the channel space of CTF_W
         ItemIdx = ones(E.ntrials, 1);  % only the target is to be tracked with IEM
         EEG_WX = zeros(E.ntrials, E.RI/C.tstep+1, nElectrodes);
         EEG_FX = zeros(E.ntrials, E.RI/C.tstep+1, nElectrodes);
         for trial = 1:E.ntrials
-            [Map, L, cda_g(trial,:), cda_w(trial,:), alpha(trial,:), ctime(trial), Pangle(trial,:), eegW, eegfx] = IMtrackSignals(setsize, eW, eW2, eNoise);
+            [Map, L, F, cda_g(trial,:), cda_w(trial,:), alpha(trial,:), ctime(trial), Pangle(trial,:), Cangle(trial,:), eegW, eegfx] = IMtrackSignals(setsize, eW, eW2, eNoise);
              EEG_WX(trial,:,:) = eegW;
              EEG_FX(trial,:,:) = eegfx;
         end
@@ -85,7 +91,7 @@ for id = 1:E.nsubj
         CT(setsize).ctime = [CT(setsize).ctime; ctime];
         
         for t = 1:E.RI/C.tstep
-            CTF(id,setsize,t).meanCTF_W = ApplyIEM(IEM(t).Wb, squeeze(EEG_WX(:,t,:)), 360*Pangle/C.nloc, channelCenters, ItemIdx);
+            CTF(id,setsize,t).meanCTF_W = ApplyIEM(IEM(t).Wb, squeeze(EEG_WX(:,t,:)), Cangle, channelCenters, ItemIdx);
             CTF(id,setsize,t).meanCTF_FX = ApplyIEM(IEM(t).Wfx, squeeze(EEG_FX(:,t,:)), 360*Pangle/C.nloc, channelCenters, ItemIdx);
         end
         
