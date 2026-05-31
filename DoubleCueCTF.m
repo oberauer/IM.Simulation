@@ -28,10 +28,10 @@ end
 ParX = CreateIndDiff;
 
 % setting up containers for results
-Pyes1 = zeros(E.nsubj, 2, 2);  % Prob. of saying "Yes" (="Same") for the item tested in the first array
-Pyes2 = zeros(E.nsubj, 2, 2);  % P(yes) for second array, by subject, cueing (repeat/switch), pinging (no/yes)
-PC1 = zeros(E.nsubj, 2, 2);    % Proportion correct
-PC2 = zeros(E.nsubj, 2, 2);
+Pyes1 = zeros(E.nsubj, 2, 3, 2);  % Prob. of saying "Yes" (="Same") for the item tested in the first array (subject, pinging (yes/no), ptype, cueing (repeat/switch))
+Pyes2 = zeros(E.nsubj, 2, 3, 2);  % P(yes) for second array, (subject, pinging (yes/no), ptype, cueing (repeat/switch))
+PC1 = zeros(E.nsubj, 2, 3, 2);    % Proportion correct
+PC2 = zeros(E.nsubj, 2, 3, 2);
 
 Cueing = 1:2;           % levels of the cueing variable: 1 = cue-repetition, 2 = cue switch
 Ptype = [1, 1, 2, 3];   % levels of the probetype variable 2 x positive, 1 x new, 1 x intrusion
@@ -48,6 +48,8 @@ eGrad = 1;     % generalization gradient in space for regular mapping of screen 
 eNoise = 0.25;  % trial-by-trial noise added to the EEG signal
 [basisSet, eW, eW2, nElectrodes, channelCenters] = CreateIEM(nElectrodes, nChannels, eRegular, eGrad);
 
+ctf = struct('meanCTF_FX', zeros(setsize, nChannels), 'meanCTF_WX', zeros(setsize, nChannels)); 
+CTF = repmat(ctf, [E.nsubj, 2, 2, 3]); 
 
 for id = 1:E.nsubj
     
@@ -59,8 +61,7 @@ for id = 1:E.nsubj
     % for each subject, create stimuli, and an individual set of feature categories, and the corresponding mappings
     CreateStimuli;
     CreateMapping(E.calibrateAmp==2);
-    
-    Cangle = zeros(E.ntrials,setsize);
+
     EEG_WX = zeros(E.ntrials, nElectrodes);
     EEG_FX = zeros(E.ntrials, nElectrodes);
     StimMask = zeros(E.ntrials, C.nc);
@@ -68,7 +69,6 @@ for id = 1:E.nsubj
     for trial = 1:(10*E.ntrials)
         E.ptype = randperm(3,1); 
         output = Model(P, setsize, 1);  % cueing = 1 (no cue)
-        %Cangle(trial,:) = round(nChannels*output.F(1:setsize)/C.nc);  % map from degree space into channel space
         EEG_WX(trial,:) = (((output.context * output.wx(1:C.nLocCat, :)) * output.wx((C.nLocCat+1):end, :)') * C.Mapping') * eW + randn(1,nElectrodes)*eNoise;  % feed last-used context into weight matrix -> reactivate content -> project onto electrodes
         EEG_FX(trial,:) = mean(output.fx, 1) * eW + randn(1,nElectrodes)*eNoise; % read out features (averaging over locations) from feature map
         StimMask(trial, output.F(1:setsize)) = 1; % stimulus mask: codes the stimulus feature (set to 1 at presented feature(s), and 0 everywhere else)
@@ -104,11 +104,9 @@ for id = 1:E.nsubj
             GW = zeros(1, P.nb); % gate-closing weights
             L = randperm(C.nloc);
             F(1,:) = randperm(C.nstim);
-            
-            [probestim, probeIdx, SameRange, ChangeRange] = IMprepareProbe(F, setsize);
-            
+                        
             % encode memory set
-            [Map, w, G, GW, Focus, Afocus, content, context, ~, ~, ~, ~] = IMencoding(Map, w, G, GW, L, F, setsize); 
+            [Map, w, G, GW, Focus, Afocus, content, context, Inpos, Strength, ~, ~] = IMencoding(Map, w, G, GW, L, F, setsize); 
             %Cangle(trial,:) = round(nChannels*F(1:setsize)/C.nc);
             Cangle(trial,:) = F(1:setsize);
             %StimMask(trial, round(C.Location(L(1:setsize)))) = 1; % stimulus mask: codes the stimulus location (set to 1 at presented location(s), and 0 everywhere else)
@@ -116,14 +114,15 @@ for id = 1:E.nsubj
             EEG_FX(1, trial,:) = mean(Map(1).FX, 1) * eW + randn(1,nElectrodes)*eNoise; % read out locations (averaging over features) from feature map
 
             % first cue, first test
+            [probestim, probeIdx] = IMprepareProbe(F, setsize);
             E.cuevalidity = 1/setsize;  % although the first cue is 100% valid, people don't know whether the not-cued item will become relevant again -> be conservative with removal!
-            [Map, w, G, GW, Focus, Afocus, ~] = IMcueing(Map, w, G, GW, Focus, Afocus, L, F, setsize, cueing, 0);  
+            [Map, w, G, GW, Focus, Afocus, ~] = IMcueing(Map, w, G, GW, Strength, Focus, Afocus, L, F, setsize, cueing, 0);  
             AfocusLoc = C.location(L(Focus),:); % use currently focused location as retrieval cue (= CuedLoc)
             context = AfocusLoc * C.MappingC + C.locationnoise;
             EEG_WX(2, trial,:) = (((context * w(1:C.nLocCat, :)) * w((C.nLocCat+1):end, :)') * C.Mapping') * eW + randn(1,nElectrodes)*eNoise;  % feed stimnoise into weight matrix -> reactivate locations -> project onto electrode             
             EEG_FX(2, trial,:) = mean(Map(1).FX, 1) * eW + randn(1,nElectrodes)*eNoise; % read out locations (averaging over features) from feature map
-            [Testdisplay, ~] = IMdisplay(L, probestim);
-            [resp, rt, Map, w, G, Focus] = IMretrieve(Map, w, G, Focus, Afocus, probed, cueing, L, F, Testdisplay, SameRange, ChangeRange, probeIdx);
+            %[Map, CWcolor, eraseFX] = IMdisplay(Map, L, probestim);
+            [resp, rt, Map, w, G, Focus] = IMretrieve(Map, w, G, Focus, Afocus, probed, cueing, L, F, probestim, probeIdx);
             response1(ConditionCount(condition), condition) = resp(1); 
 
             E.ptype = Ptype(Design(condition, 3));
@@ -132,16 +131,16 @@ for id = 1:E.nsubj
                 F(:,1:2) = F(:,[2,1]);  % reverse order of items and locations
                 L(1:2) = L([2,1]);
             end
-            [probestim, probeIdx, SameRange, ChangeRange] = IMprepareProbe(F, setsize);
+            [probestim, probeIdx] = IMprepareProbe(F, setsize);
             % second cue, second test
             E.cuevalidity = 1; 
-            [Map, w, G, GW, Focus, Afocus, ~] = IMcueing(Map, w, G, GW, Focus, Afocus, L, F, setsize, cueing, 0);  % 2 = valid retro-cue
+            [Map, w, G, GW, Focus, Afocus, ~] = IMcueing(Map, w, G, GW, Strength, Focus, Afocus, L, F, setsize, cueing, 0);  % 2 = valid retro-cue
             AfocusLoc = C.location(L(Focus),:); % use currently focused location as retrieval cue (= CuedLoc)
             context = AfocusLoc * C.MappingC + C.locationnoise;
             EEG_WX(3, trial,:) = (((context * w(1:C.nLocCat, :)) * w((C.nLocCat+1):end, :)') * C.Mapping') * eW + randn(1,nElectrodes)*eNoise;  % feed stimnoise into weight matrix -> reactivate locations -> project onto electrodes
             EEG_FX(3, trial,:) = mean(Map(1).FX, 1) * eW + randn(1,nElectrodes)*eNoise; % read out locations (averaging over features) from feature map
-            [Testdisplay, ~] = IMdisplay(L, probestim);
-            [resp, rt, ~, ~, ~, ~] = IMretrieve(Map, w, G, Focus, Afocus, probed, cueing, L, F, Testdisplay, SameRange, ChangeRange, probeIdx);
+           % [Testdisplay, ~] = IMdisplay(Map, L, probestim);
+            [resp, rt, ~, ~, ~, ~] = IMretrieve(Map, w, G, Focus, Afocus, probed, cueing, L, F, probestim, probeIdx);
             response2(ConditionCount(condition), condition) = resp(1);
             
         end
@@ -175,7 +174,8 @@ for id = 1:E.nsubj
         
     end  % for ping
 
-    disp(["ID = ", num2str(id)]);
+    disp('    ID        Pinging    PC1        PC2      ');
+    disp([id, ping, PC1(id, ping, ptype1, cuesequence), PC2(id, ping, ptype1, cuesequence)]);
 
 end  % for ID
 
