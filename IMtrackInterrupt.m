@@ -30,14 +30,14 @@ CDAg = zeros(1,Timepoints);
 CDAw = zeros(1,Timepoints);
 Alpha = zeros(1,Timepoints);
 nElectrodes = size(eW, 2);
-EEG_W = zeros(Timepoints, nElectrodes);
+%EEG_W = zeros(Timepoints, nElectrodes);
 EEG_FX = zeros(Timepoints, nElectrodes);
-SpatAttn = zeros(C.nc, 1);
 
+% presentation of target location
+Map(1).FX = C.location(L(1),:)' * C.stim(F(1),:); 
 % presentation of visual-search placeholders (L(2) = cued location)
 for dist = 2:9
-    Map(1).FX = Map(1).FX + C.location(L(dist),:)' * C.stim(F(dist),:);
-    %SpatAttn = SpatAttn + C.location(L(dist),:)';
+    Map(1).FX = Map(1).FX + P.filter(E.task) * C.location(L(dist),:)' * C.stim(F(dist),:);
     if dist==1
         P.asyFX = max(Map(ff).FX(:));
     end
@@ -62,13 +62,13 @@ while t < E.RI  % continue until end of RI, or end of consolidation of the WM st
         targOn = 1;
     end
     if targOn == 1 && interrupt == 0  % when attention is on the target, and the interruption has not yet happened
-            % continuing consolidation
-            pLoss = 1 - 1/exp(cRate./(cTime.*C.tstep)); % see StepByStepEncoding.m
-            nLoss = binornd(length(committedNewNotBase), pLoss);
-            decommitted = randsample(committedNewNotBase, nLoss);
-            committedNewNotBase = setdiff(committedNewNotBase, decommitted);
-            G(decommitted) = 0;
-            W(:, decommitted) = 0;  % remove weights to the now free binding units
+        % continuing consolidation
+        pLoss = 1 - 1/exp(cRate./(cTime.*C.tstep)); % see StepByStepEncoding.m
+        nLoss = binornd(length(committedNewNotBase), pLoss);
+        decommitted = randsample(committedNewNotBase, nLoss);
+        committedNewNotBase = setdiff(committedNewNotBase, decommitted);
+        G(decommitted) = 0;
+        W(:, decommitted) = 0;  % remove weights to the now free binding units
     end
     if (interrupt == 1)  % when the interruption happens, encode the visual-search stimuli
         if t > 1 && distrOn == 0
@@ -91,7 +91,7 @@ while t < E.RI  % continue until end of RI, or end of consolidation of the WM st
     %SpatAttn = max( 0, SpatAttn + C.tstep * (mean(Map(1).FX,2) + P.TopDownSpatAttn.*AfocusLoc' - P.spatinhib*SpatAttn*sum(SpatAttn)) );  % attraction of spatial attention to locations in feature maps, top-down guidance by FoA, and global inhibition on spatial attention
     %Map(1).FX = Map(1).FX + C.tstep * (-Map(1).FX + Map(1).FX .* repmat(SpatAttn, 1, C.nc)); % spatial attention (weakly) modulates feature maps
     SpatAttn = mean(Map(1).FX,2); 
-    EEG_W(tcount,:) = (((context * W(1:C.nLocCat, :)) * W((C.nLocCat+1):end, :)') * C.Mapping') * eW + randn(1,nElectrodes)*eNoise;  % feed last-used context into weight matrix -> reactivate content -> project onto electrodes
+    %EEG_W(tcount,:) = (((context * W(1:C.nLocCat, :)) * W((C.nLocCat+1):end, :)') * C.Mapping') * eW + randn(1,nElectrodes)*eNoise;  % feed last-used context into weight matrix -> reactivate content -> project onto electrodes
     EEG_FX(tcount,:) = SpatAttn' * eW + randn(1,nElectrodes)*eNoise; 
     CDAg(tcount) = sum(G);
     CDAw(tcount) = sum(abs(W(:)));

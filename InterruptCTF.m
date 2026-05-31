@@ -92,7 +92,10 @@ for id = 1:E.nsubj
         for t = 1:E.RI/C.tstep
             CTF(id,interrupt,t).meanCTF_FX = ApplyIEM(IEM(t).Wfx, squeeze(EEG_FX(:,t,:)), 360*Pangle/C.nloc, channelCenters, ItemIdx);
         end
-        
+    
+        disp('    ID        interruption      ');
+        disp([id, interrupt]);
+
     end %for interrupt
     
     
@@ -103,6 +106,25 @@ mAlpha = squeeze(mean(Alpha)); % average over subjects
 PreFigure([], [], 2);
 plot(Timepoints, mAlpha');
 PostFigure([0, E.RI, 0, 1.1*max(max(mAlpha))], 'Time (s)', 'Alpha Power Suppression', [], {'No interruption', 'Interruption'});
+
+% plot CTF as function of time and interruption condition
+CondText = {'Target, No Inter', 'Distr., No Inter.', 'Target, Inter.', 'Distr., Inter'};
+PreFigure;
+idx = 1;
+for interrupt = 1:2
+    for targetDistractor = 1:2
+        mCTFfx = zeros(nChannels, E.RI/C.tstep);
+        for id = 1:E.nsubj
+            for t = 1:E.RI/C.tstep
+                mCTFfx(:,t) = mCTFfx(:,t) + CTF(id, interrupt, t).meanCTF_FX(targetDistractor,:)';
+            end
+        end
+        subplot(2,2,idx);
+        imagesc(mCTFfx);
+        title(['Decoding from FX; Setsize = ', CondText{idx}]);
+        idx = idx + 1;
+    end
+end
 
 % plot CTF as a function of time and interruption condition
 if mod(nChannels, 2) == 1, x = 0:(nChannels/2); end
@@ -132,7 +154,9 @@ for interrupt = 1:2
         figure(h2);
         subplot(2,2,2*(interrupt-1)+targDist);
         plot(C.tstep:C.tstep:E.RI, mean(slope));
-        PostFigure([0, E.RI, 0, slopeY], 'Time (0.05 s)', 'CTF Slope', [Itext{interrupt}, TDtext{targDist}]);
+        PostFigure([0, E.RI, -0.1, 0.1], 'Time (0.05 s)', 'CTF Slope', [Itext{interrupt}, TDtext{targDist}]);
     end
 end
+
+output = 1;
 

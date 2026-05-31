@@ -49,22 +49,7 @@ if E.test == 1 || E.test == 2
     retrievedBinding = cue * W;
     retrievedVec = retrievedBinding * W';
     retrievedFeature = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat));
-
-    % responseFocus = find(Afocus == max(Afocus));
-    % responseRetrieved = find(retrievedFeature * C.Mapping' == max(retrievedFeature * C.Mapping'));
-
     Adrift = Afocus + retrievedFeature * C.Mapping'; % vector of drift rates (one for each of the 360 colors) is computed as the strength with which each color is bound to the location cue
-
-    %disp([max(testInterference), max(retrievedFeature * C.Mapping')]);
-
-    % responseDrift = find(Adrift == max(Adrift));
-    % errorFocus = abs(responseFocus - 180);
-    % errorRetrieved = abs(responseRetrieved - 180);
-    % errorDrift = abs(responseDrift - 180);
-    % disp('     Foc  Retr  Drift');
-    % disp([errorFocus, errorRetrieved, errorDrift]);
-
-
     nsteps = round(5./C.tstep);   % that should be more than enough (5 sec)
     drate = ones(nsteps, 1);
     A = A + cumsum(drate * Adrift + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
