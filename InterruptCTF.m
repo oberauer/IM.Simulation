@@ -31,7 +31,8 @@ eGrad = 1;     % generalization gradient in space for regular mapping of screen 
 eNoise = 0.25;  % trial-by-trial noise added to the EEG signal
 nChannels = 9; 
 [basisSet, eW, eW2, nElectrodes, channelCenters] = CreateIEM(nElectrodes, nChannels, eRegular, eGrad);
-
+iem = struct('Wb', zeros(nChannels, nElectrodes), 'Wfx', zeros(nChannels, nElectrodes));
+IEM = repmat(iem, 1, round(E.RI/C.tstep));
 
 for id = 1:E.nsubj
     
@@ -46,15 +47,27 @@ for id = 1:E.nsubj
     % Train IEM with set size = 1
     setsize = 1;
     nfactor = 5;
-    EEG_FX = zeros(nfactor*E.ntrials, nElectrodes);
+    %EEG_FX = zeros(nfactor*E.ntrials, nElectrodes);
+    EEG_FX = zeros(E.ntrials, E.RI/C.tstep+1, nElectrodes);
     StimMask = zeros(nfactor*E.ntrials, C.nc);
+    % for trial = 1:(nfactor*E.ntrials)
+    %     output = IMSim(P, setsize, 1);  % cueing = 1 (no cue)
+    %     %EEG_FX(trial,:) = mean(output.fx, 2)' * eW + randn(1,nElectrodes)*eNoise; % read out locations (averaging over features) from feature map
+    %     EEG_FX(trial,:) = output.SpatAttn' * eW + randn(1,nElectrodes)*eNoise; % read out locations (averaging over features) from feature map
+    %     StimMask(trial, round(C.Location(output.L(1:setsize)))) = 1; % stimulus mask: codes the stimulus location (set to 1 at presented location(s), and 0 everywhere else)
+    % end
+    % Wfx = TrainIEM(StimMask, basisSet, EEG_FX);    % train IEM
+
+
     for trial = 1:(nfactor*E.ntrials)
-        output = IMSim(P, setsize, 1);  % cueing = 1 (no cue)
-        %EEG_FX(trial,:) = mean(output.fx, 2)' * eW + randn(1,nElectrodes)*eNoise; % read out locations (averaging over features) from feature map
-        EEG_FX(trial,:) = output.SpatAttn' * eW + randn(1,nElectrodes)*eNoise; % read out locations (averaging over features) from feature map
-        StimMask(trial, round(C.Location(output.L(1:setsize)))) = 1; % stimulus mask: codes the stimulus location (set to 1 at presented location(s), and 0 everywhere else)
+        [~, L, ~, ~, ~, ~, ~, eegW, eegfx] = IMtrackSignals(setsize, eW, eW2, eNoise);
+        EEG_FX(trial,:,:) = eegfx; % read out locations (averaging over features) from feature map
+        StimMask(trial, round(C.Location(L(1:setsize)))) = 1; % stimulus mask: codes the stimulus location (set to 1 at presented location(s), and 0 everywhere else)
     end
-    Wfx = TrainIEM(StimMask, basisSet, EEG_FX);    % train IEM
+    for t = 1:E.RI/C.tstep
+        IEM(t).Wfx = TrainIEM(StimMask, basisSet, squeeze(EEG_FX(:,t,:)));    % train IEM at each time point
+    end
+
     
     for interrupt = 1:2
         CDAw = zeros(E.ntrials, length(Timepoints));
@@ -72,7 +85,7 @@ for id = 1:E.nsubj
         Alpha(id,:,interrupt) = mean(alpha);
         %Alpha(id,:,interrupt) = squeeze(mean(mean(abs(EEG_FX),3),1));  % average over electrodes (3) and trials (1)
         for t = 1:E.RI/C.tstep
-            CTF(id,interrupt,t).meanCTF_FX = ApplyIEM(Wfx, squeeze(EEG_FX(:,t,:)), 360*Pangle/C.nloc, channelCenters, ItemIdx);
+            CTF(id,interrupt,t).meanCTF_FX = ApplyIEM(IEM(t).Wfx, squeeze(EEG_FX(:,t,:)), 360*Pangle/C.nloc, channelCenters, ItemIdx);
         end
         
     end %for interrupt

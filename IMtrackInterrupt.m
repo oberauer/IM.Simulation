@@ -21,8 +21,9 @@ for ff = 1:C.nfeatures
     F(ff,:) = randperm(C.nstim);      %shuffle object features
 end
 
-cRate = gamrnd(P.cRate^2/P.cRateSD^2, P.cRateSD^2/P.cRate);  % generate the vector of consolidation rates
-cTime = -(log(1-P.cTau)./cRate); % vector of consolidation times needed to reach strength P.cTau
+cRateSD = P.cRateSD*P.cRate;
+cRate = gamrnd(P.cRate^2/cRateSD^2, cRateSD^2/P.cRate, 1, 1);  % generate the vector of consolidation rates
+cTime = -(log(1-P.cStrength)./cRate);
 
 Timepoints = E.RI/C.tstep + 1; 
 CDAg = zeros(1,Timepoints);

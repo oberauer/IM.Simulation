@@ -9,7 +9,7 @@ global C
 E.PreRetro = 2;
 E.cuevalidity = 1;
 setsize = 6;
-Titletext = {'Strength. Only', 'Consolid. Only', 'Removal Only', 'Visual Interf. Only', 'FX Only ', 'None'};
+Titletext = {'Strength. Only', 'Consolid. Only', 'Removal Only', 'Visual Interf. Only', 'FX Only ', 'Headstart Only', 'None'};
 
 IMprepareRecog; % set up criterion for expected size of change 
 Ptype = [1 1 2 3];  % 2 x positive, 1 x new, 1 x intrusion
@@ -41,6 +41,14 @@ for task = Tasks
     E.material = task; % for change detection, use small set of highly distinct stimuli
     
     for mechanism = Mechanisms
+
+        % eliminate all retro-cue mechanisms
+        P.cueingStrength = 0; 
+        P.removalThreshold = 0; 
+        P.filter = zeros(1,3); 
+        C.retroCueConsolid = 0; 
+        E.CTI(2) = 0; 
+        P.eraseFX = 0;
         
         Mdevobs = NaN(E.nsubj, 3);  % mean observed deviation of responses from target feature for subjects, cueing conditions,
         Mrt = NaN(E.nsubj, 3);      % mean RT
@@ -61,12 +69,13 @@ for task = Tasks
                 eval(['P.', C.indVar{ii}, ' = ParX(id, ii);']);
             end
 
-            if mechanism == 1, P.cueingStrength = 1; P.removalThreshold = 0; P.filter = zeros(1,3); C.retroCueConsolid = 0; P.eraseFX = 0; end  % leave only strengthening
-            if mechanism == 2, P.cueingStrength = 0; C.retroCueConsolid = 1; P.filter = zeros(1,3); P.removalThreshold = 0; P.eraseFX = 0; end  % leave ony consolidation for retrieval
-            if mechanism == 3, P.cueingStrength = 0; P.removalThreshold = removalThreshold; P.filter = zeros(1,3); C.retroCueConsolid = 0; P.eraseFX = 0; end  % leave only removal
-            if mechanism == 4, P.cueingStrength = 0; P.filter = filter; P.removalThreshold = 0; C.retroCueConsolid = 0; P.eraseFX = 0; end  % leave only visual interference
-            if mechanism == 5, P.cueingStrength = 0; P.eraseFX = eraseFX; P.removalThreshold = 0; P.filter = zeros(1,3); C.retroCueConsolid = 0; end  % leave only head start for read-out from FX
-            if mechanism == 6, P.cueingStrength = 0; P.removalThreshold = 0; P.filter = zeros(1,3); C.retroCueConsolid = 0; P.eraseFX = 0; end  % baseline without any retro-cue mechanism, except for head-start for retrieval
+            % re-introduce individual mechanisms
+            if mechanism == 1, P.cueingStrength = 1; end  % leave only strengthening
+            if mechanism == 2, C.retroCueConsolid = 1; end  % leave ony consolidation for retrieval
+            if mechanism == 3, P.removalThreshold = removalThreshold; end  % leave only removal
+            if mechanism == 4, P.filter = filter; end  % leave only visual interference
+            if mechanism == 5, E.CTI(2) = 1; P.eraseFX = eraseFX; end  % leave only head start for read-out from FX
+            if mechanism == 6, E.CTI(2) = 1; end  % leave only headstart
             
             % for each subject, create stimuli, and an individual set of feature categories, and the corresponding mappings
             CreateStimuli;
