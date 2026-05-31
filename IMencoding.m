@@ -2,7 +2,7 @@ function [Map, W, GateClosed, gWeight, Focus, Afocus, content, context, Inpos, S
 % encodes a memory set, simultaneously or sequentially
 
 if nargin < 9, overTime = 0; end %overTime is the time for ballistic consolidation that might have been taken by a preceding encoding event
-
+as
 global P
 global E
 global C

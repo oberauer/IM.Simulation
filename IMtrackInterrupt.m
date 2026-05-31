@@ -37,6 +37,9 @@ SpatAttn = zeros(C.nc, 1);
 for dist = 2:9
     Map(1).FX = Map(1).FX + C.location(L(dist),:)' * C.stim(F(dist),:);
     %SpatAttn = SpatAttn + C.location(L(dist),:)';
+    if dist==1
+        P.asyFX = max(Map(ff).FX(:));
+    end
 end
 
 targOn = 0;

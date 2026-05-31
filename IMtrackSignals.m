@@ -1,4 +1,4 @@
-function [Map, W, CDAg, CDAw, Alpha, sumCtime, Pangle, EEG_W, EEG_FX] = IMtrackSignals(setsize, eW, eW2, eNoise)
+function [Map, L, CDAg, CDAw, Alpha, sumCtime, Pangle, EEG_W, EEG_FX] = IMtrackSignals(setsize, eW, eW2, eNoise)
 % encodes a memory set simultaneously, simulates the proces time-step wise
 % to track CDA and alpha over time
 
@@ -54,8 +54,12 @@ SpatAttn = zeros(C.nc, 1);
 for ff = 1:C.nfeatures
     for inpos = 1:setsize
         Map(ff).FX = Map(ff).FX + masking(inpos) .* C.maskStim + (1-masking(inpos)) .* C.location(L(inpos),:)' * (C.stim(F(ff,inpos),:));
+        if inpos==1
+            P.asyFX = max(Map(ff).FX(:));
+        end
     end
 end
+
 
 cumCtime = [0, cumsum(cTime(1:setsize)), E.RI];
 sumCtime = sum(cTime);
@@ -96,7 +100,7 @@ while t < E.RI  % continue until end of RI
     [Map, W] = IMdecayFX(Map, W, C.tstep);   % decay of FX through one time step
     %SpatAttn = max( 0, SpatAttn + C.tstep * (mean(Map(1).FX,2) + P.TopDownSpatAttn.*AfocusLoc' - P.spatinhib*SpatAttn*sum(SpatAttn)) );  % attraction of spatial attention to locations in feature maps, top-down guidance by FoA, and global inhibition on spatial attention
     %Map(1).FX = Map(1).FX + C.tstep * (-Map(1).FX + Map(1).FX .* repmat(SpatAttn, 1, C.nc)); % spatial attention modulates feature maps
-    SpatAttn = mean(Map(1).FX,2); 
+    SpatAttn = mean(Map(1).FX,2);
 
     EEG_W(tcount,:) = (((context * W(1:C.nLocCat, :)) * W((C.nLocCat+1):end, :)') * C.Mapping') * eW + randn(1,nElectrodes)*eNoise;  % feed last-used context into weight matrix -> reactivate content -> project onto electrodes
     EEG_FX(tcount,:) = SpatAttn' * eW + randn(1,nElectrodes)*eNoise;
