@@ -1,0 +1,140 @@
+function [response, rt, Map, W, GateClosed, Focus, CWcolor] = IMretrieve(Map, W, GateClosed, Focus, Afocus, probed, cueing, L, F, probestim, probeIdx)
+% Retrieves one item
+
+global E
+global C
+global P
+
+Afocus = Afocus(1,:); % reduce to 1 vector in case E.nfeat > 1: Only the first feature is tested
+
+if E.test == 1 || E.test == 2
+
+    if E.CTI(cueing) > 0
+        % drift before probe
+        Adrift = Afocus; % cueing already includes retrieval into Afocus
+        nsteps = E.CTI(cueing)./C.tstep;
+        drate = ones(nsteps, 1);
+        A = sum(drate * Adrift + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
+        [Map, W] = IMdecayFX(Map, W, E.CTI(cueing));
+    else
+        A = zeros(1, C.nc);
+    end
+
+    % drift after probe
+
+    [Map, CWcolor, erase] = IMdisplay(Map, L, probestim);  % update Map.FX and add test display
+
+    refocus = 0;
+    if Focus ~= probed   % if, at the onset of the probe, the focus is NOT on it, then ...
+        refocus = 1;
+        Focus = probed;  % ... shift focus to the probe, and ...
+        Afocus = zeros(1,C.nc); ... reset feature focus, and ...
+        A = zeros(1,C.nc); % ... throw away all evidence accumulated so far, because it is misleading, and ...
+    end
+    if E.context == 1
+        AfocusLoc = C.location(L(Focus),:); % set retrieval cue to the probed location
+        cue = [AfocusLoc * C.MappingC + C.locationnoise, zeros(1, C.nCat*E.nfeat)];
+    end
+    if E.context == 2
+        cue = [C.stim(F(2,Focus),:) * C.Mapping + C.stimnoise, zeros(1, C.nCat)]; % the 2nd feature is the retrieval cue for the first (= target) feature.
+        AfocusLoc = ones(1,C.nc)*mean(C.location(L(Focus),:)); % uniformly distributed spatial focus with overall activation strength matching a locally focused focus
+    end
+    if E.CTI(cueing) == 0 || refocus == 1  % if FX has not been read out yet in the CTI from the same location ...
+        cRate = gamrnd(P.cRate^2/P.cRateSD^2, P.cRateSD^2/P.cRate);
+        refocusDuration = -(log(1-P.cStrength)./cRate); % consolidation time determines the time for switching the focus to a new visual object
+        [Map, W] = IMdecayFX(Map, W, refocusDuration, 0.005); % let FX decay with fine-grained time step (--> diminishes strength of the color wheel)
+        retrievedFX = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter for FX
+        Afocus = Afocus + retrievedFX;
+    end
+    retrievedBinding = cue * W;
+    retrievedVec = retrievedBinding * W';
+    retrievedFeature = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat));
+
+    % responseFocus = find(Afocus == max(Afocus));
+    % responseRetrieved = find(retrievedFeature * C.Mapping' == max(retrievedFeature * C.Mapping'));
+
+    Adrift = Afocus + retrievedFeature * C.Mapping'; % vector of drift rates (one for each of the 360 colors) is computed as the strength with which each color is bound to the location cue
+
+    %disp([max(testInterference), max(retrievedFeature * C.Mapping')]);
+
+    % responseDrift = find(Adrift == max(Adrift));
+    % errorFocus = abs(responseFocus - 180);
+    % errorRetrieved = abs(responseRetrieved - 180);
+    % errorDrift = abs(responseDrift - 180);
+    % disp('     Foc  Retr  Drift');
+    % disp([errorFocus, errorRetrieved, errorDrift]);
+
+    nsteps = round(5./C.tstep);   % that should be more than enough (5 sec)
+    drate = ones(nsteps, 1);
+    A = A + cumsum(drate * Adrift + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
+    maxA = max(A, [], 2); % maximum value in each row of A = maximum after each time step
+    t = find(maxA > P.boundary(1), 1);
+    if isempty(t), t=nsteps; end
+
+    %%% If recall test: give the retrieved response %%%
+    if E.test == 1   % recall test
+        response = find(A(t,:)==max(A(t,:)), 1);  % responses are ordered by output position ("probed" is incremented from 1 to E.outsize)
+        rt = t.*C.tstep;
+    end
+
+    if E.test == 2  %recognition: after deciding on which feature is retrieved, now decide on which response to give
+        YesNo = randn(1,2)*P.sz;  % initialize the YesNo acccumulator for "same" vs. "change" decisions
+        if E.CQI(cueing) > t, t = E.CQI(cueing); end % if retrieval boundary is reached before presentation of the question, continue retrieving until onset of question
+        % after retrieval boundary has been reached: settle on one final retrieved feature value for comparison with the probe
+        retrieved1 = find(A(t,:)==max(A(t,:)), 1);
+        probe = find(C.stim(probeIdx,:) == max(C.stim(probeIdx, :)), 1);
+        SameRange = circshift(E.SameRange, [1, probe-180]); % E.SameRange is centered on pi
+        ChangeRange = 1-SameRange;
+        v1 = [SameRange(retrieved1), ChangeRange(retrieved1)]; % now a unique feature value has actually been retrieved -> compare probe to that: Similar enough -> positive drift = 1 (otherwise 0); Dissimilar enough -> negative drift = 1 (otherwise 0)
+        drate = v1 + randn(nsteps, 2) * P.driftnoise;
+        YesNo = YesNo + cumsum(drate);
+        maxYN = max(YesNo, [], 2);
+        t2 = find(maxYN > P.boundary(2), 1);
+        if isempty(t2), t2=nsteps; end
+        response(1) = find(YesNo(t2,:)==max(YesNo(t2,:)), 1);
+        rt = (t + t2).*C.tstep;
+        response(2) = retrieved1;
+    end
+
+end
+
+if E.test == 3
+    nsteps = round(5./C.tstep);   % that should be more than enough (5 sec)
+    drate = ones(nsteps, 1);
+    Delta = zeros(1, E.rss);
+    rt = 0; 
+    [Map, CWcolor] = IMdisplay(Map, L, probestim, probeIdx);  % update Map.FX and add test display
+    probeLoc = probeIdx;
+    probeLoc(1) = 1; % for the target (where the stimulus was changed), probeIdx indexes the stimulus displayed, not the location
+    for probe = 1:E.rss
+        Focus = probeLoc(probe);
+        AfocusLoc = C.location(L(Focus),:); % set retrieval cue to the probed location
+        cue = [AfocusLoc * C.MappingC + C.locationnoise, zeros(1, C.nCat*E.nfeat)];
+        retrievedFX = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter for FX
+        Afocus = Afocus + retrievedFX;
+        retrievedBinding = cue * W;
+        retrievedVec = retrievedBinding * W';
+        retrievedFeature = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat));
+        Adrift = Afocus + retrievedFeature * C.Mapping';
+        A = cumsum(drate * Adrift + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
+        maxA = max(A, [], 2); % maximum value in each row of A = maximum after each time step
+        t = find(maxA > P.boundary(1), 1);
+        if isempty(t), t=nsteps; end
+        retrieved1 = find(A(t,:)==max(A(t,:)), 1);
+        probefeature = find(probestim(probe,:) == max(probestim(probe,:)), 1);
+        Delta(probe) = abs(wrap(retrieved1 - probefeature, 180));
+        rt = rt + t*C.tstep; 
+    end
+    response = find(Delta==max(Delta),1);  % the location with the largest deviation between retrieved feature and probe is the change location
+end
+
+if E.outsize > 1   % only if further tests follow
+    % output interference, decay and erasure of FX
+    W = W * (1-P.outputinterference);
+    [Map, W] = IMdecayFX(Map, W, rt);
+    Map = UpdateFX(Map); % response --> erase FX
+end
+
+
+end
+

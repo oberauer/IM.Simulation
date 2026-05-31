@@ -61,8 +61,7 @@ for id = 1:E.nsubj
     % for each subject, create stimuli, and an individual set of feature categories, and the corresponding mappings
     CreateStimuli;
     CreateMapping(E.calibrateAmp==2);
-    
-    Cangle = zeros(E.ntrials,setsize);
+
     EEG_WX = zeros(E.ntrials, nElectrodes);
     EEG_FX = zeros(E.ntrials, nElectrodes);
     StimMask = zeros(E.ntrials, C.nc);
@@ -70,7 +69,6 @@ for id = 1:E.nsubj
     for trial = 1:(10*E.ntrials)
         E.ptype = randperm(3,1); 
         output = Model(P, setsize, 1);  % cueing = 1 (no cue)
-        %Cangle(trial,:) = round(nChannels*output.F(1:setsize)/C.nc);  % map from degree space into channel space
         EEG_WX(trial,:) = (((output.context * output.wx(1:C.nLocCat, :)) * output.wx((C.nLocCat+1):end, :)') * C.Mapping') * eW + randn(1,nElectrodes)*eNoise;  % feed last-used context into weight matrix -> reactivate content -> project onto electrodes
         EEG_FX(trial,:) = mean(output.fx, 1) * eW + randn(1,nElectrodes)*eNoise; % read out features (averaging over locations) from feature map
         StimMask(trial, output.F(1:setsize)) = 1; % stimulus mask: codes the stimulus feature (set to 1 at presented feature(s), and 0 everywhere else)
@@ -173,11 +171,11 @@ for id = 1:E.nsubj
             end
             
         end
+
+        disp('    ID        Pinging    PC1        PC2      ');
+        disp([id, ping, mean(mean(PC1(id, ping, :, cuesequence))), mean(PC2(id, ping, :, cuesequence))]);
         
     end  % for ping
-
-        disp('    ID        Setsize   CDA(Gate) CDA(W)    Alpha      ');
-        disp([id, setsize, mean(CDAg(id, :, setsize))/1000, mean(CDAw(id, :, setsize))/1000, mean(Alpha(id, :, setsize))]);
 
 end  % for ID
 

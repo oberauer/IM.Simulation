@@ -160,22 +160,22 @@ for id = 1:E.nsubj
             Pyes1(id, ping, ptype1, cuesequence) = mean(2-response1(:,condition));  % Yes/No: response = 1/2
             Pyes2(id, ping, ptype2, cuesequence) = mean(2-response2(:,condition));
             if (ptype1 == 1)
-                PC1(id, ping, ptype1, cuesequence) = PC1(id, ping, ptype1, cuesequence) + Pyes1(id, ping, ptype1, cuesequence)./2; % 2 conditions include positive probes, so add each with 1/2
+                PC1(id, ping, ptype1, cuesequence) = PC1(id, ping, ptype1, cuesequence) + Pyes1(id, ping, ptype1, cuesequence)./8; % 2 conditions include positive probes, so add each with 1/2. Divide further by 4 because each ptype1 is repeated for the 4 levels of ptype4 (and vice versa)
             else
                 PC1(id, ping, ptype1, cuesequence) = 1-Pyes1(id, ping, ptype1, cuesequence);
             end
             if (ptype2 == 1)
-                PC2(id, ping, ptype2, cuesequence) = PC2(id, ping, ptype2, cuesequence) + Pyes2(id, ping, ptype2, cuesequence)./2;
+                PC2(id, ping, ptype2, cuesequence) = PC2(id, ping, ptype2, cuesequence) + Pyes2(id, ping, ptype2, cuesequence)./8;
             else
                 PC2(id, ping, ptype2, cuesequence) = 1-Pyes2(id, ping, ptype2, cuesequence);
             end
             
         end
+
+        disp('    ID        Pinging    PC1        PC2      ');
+        disp([id, ping, mean(mean(PC1(id, ping, :, :))), mean(mean(PC2(id, ping, :, :)))]);
         
     end  % for ping
-
-    disp('    ID        Pinging    PC1        PC2      ');
-    disp([id, ping, PC1(id, ping, ptype1, cuesequence), PC2(id, ping, ptype1, cuesequence)]);
 
 end  % for ID
 
