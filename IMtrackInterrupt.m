@@ -82,12 +82,13 @@ while t < E.RI  % continue until end of RI, or end of consolidation of the WM st
             end
             distrEncoded = 1;
         end
-        if (ballistic == 0 || t > cTime(1)) && shiftAttn == 0   % if consolidation is done, shift attention to distractor location (whether distractor has been presented already or not
+        if ((t > TimeOfDistractor && ballistic == 0) || t > cTime(1)) && shiftAttn == 0   % if consolidation is done, shift attention to distractor location (whether distractor has been presented already or not
             % AfocusLoc = C.location(L(2),:);
             % Afocus = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter to pull out the target feature from its feature map
             % context = C.locationnoise + AfocusLoc * C.MappingC;
             %content = C.stimnoise + Afocus * C.Mapping;
             %SpatAttn = SpatAttn + P.TopDownSpatAttn.*AfocusLoc'; 
+            Map(1).FX = max(0, Map(1).FX - AfocusLoc'*Afocus);  % inhibition of return: Remove the target from FX when its consolidation is finished
             Map(1).FX = Map(1).FX + (1-P.filter(E.test)) .* C.location(L(2),:)' * C.stim(F(2),:);  % through top-down attention, now attend fully to the relevant location in the search display --> encode it unfiltered into FX
             shiftAttn = 1;
         end

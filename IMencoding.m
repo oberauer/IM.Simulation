@@ -126,7 +126,6 @@ if E.presentation == 1
                 Bstrength(inpos, :) = bStrength;
                 Strength(outpos(inpos)) = 1-exp(-cRate(inpos).*cTime(inpos)); % effectively reached cStrength in light of the actually realized cTime
 
-
                 % remove target feature, so that anther one is the highest peak next (a form of inhibition of return)
                 for ff = 1:E.nfeat
                     Map(ff).FX = max(0, Map(ff).FX - AfocusLoc'*Afocus(ff,:));

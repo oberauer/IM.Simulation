@@ -60,27 +60,44 @@ while t < E.RI  % continue until end of RI
         % addition of mask if the mask falls within the replacement window
         for ff = 1:C.nfeatures
             maxFX = max(Map(ff).FX(:));
-            for inpos = 1:setsize
-                Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * C.location(L(inpos),:)' * (C.stim(F(ff,inpos),:));
+            for item = 1:setsize
+                Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * C.location(L(item),:)' * (C.stim(F(ff,item),:));
             end
             if masking(1) == 1  % masking is all-or-none for simultaneous array
                 %Map = UpdateFX(Map); % partial erasue of just-encoded stimuli
-                for inpos = 1:setsize
-                    Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * C.location(L(inpos),:)' * C.maskStim;
+                for item = 1:setsize
+                    Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * C.location(L(item),:)' * C.maskStim;
                 end
             end
         end
     end
 
+    SpatAttn = mean(Map(1).FX,2);
+    %SpatAttn = max( 0, SpatAttn + C.tstep * (mean(Map(1).FX,2) + P.TopDownSpatAttn.*AfocusLoc' - P.spatinhib*SpatAttn*sum(SpatAttn)) );  % attraction of spatial attention to locations in feature maps, top-down guidance by FoA, and global inhibition on spatial attention
+    %Map(1).FX = Map(1).FX + C.tstep * (-Map(1).FX + Map(1).FX .* repmat(SpatAttn, 1, C.nc)); % spatial attention modulates feature maps
+
     if t >= cumCtime(inpos+1)  % if the cTime for item inpos+1 starts, ...
+        if inpos > 0
+            % remove just-consolidated feature, so that anther one is the highest peak next (a form of inhibition of return)
+            for ff = 1:E.nfeat
+                Map(ff).FX = max(0, Map(ff).FX - AfocusLoc'*Afocus(ff,:));
+            end
+            if E.context == 2
+                cueFromFX = (AfocusLoc./sum(AfocusLoc)) * Map(2).FX;
+                Map(2).FX = max(0, Map(2).FX - AfocusLoc'*cueFromFX);
+            end
+        end
+        spatPeak = find(SpatAttn==max(SpatAttn), 1);    % find the peak of spatial attention ...
+        AfocusLoc = C.ContextFun(C.x, deg2rad(spatPeak), P.kappaf_ctx);  % ... and move the FoA to that location
+        % sim2originalLoc = cosines(AfocusLoc', C.location(L(1:setsize), :)');
+        % Focus = find(sim2originalLoc == max(sim2originalLoc), 1);
         inpos = inpos + 1;  % ... move to inpos+1
     end
 
     if inpos <= setsize
         if consolStarted(inpos) == 0
             % initial consolidation (for 1 time step)
-            Focus = encorder(inpos);
-            AfocusLoc = C.location(L(Focus),:);     % update location attended to in the feature maps
+            %AfocusLoc = C.location(L(Focus),:);     % update location attended to in the feature maps
             Afocus = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter to pull out the target feature from its feature map
             content = C.stimnoise + Afocus * C.Mapping;
             if E.context == 1, context = C.locationnoise + AfocusLoc * C.MappingC; end
@@ -100,9 +117,6 @@ while t < E.RI  % continue until end of RI
     end
 
     [Map, W] = IMdecayFX(Map, W, C.tstep);   % decay of FX through one time step
-    %SpatAttn = max( 0, SpatAttn + C.tstep * (mean(Map(1).FX,2) + P.TopDownSpatAttn.*AfocusLoc' - P.spatinhib*SpatAttn*sum(SpatAttn)) );  % attraction of spatial attention to locations in feature maps, top-down guidance by FoA, and global inhibition on spatial attention
-    %Map(1).FX = Map(1).FX + C.tstep * (-Map(1).FX + Map(1).FX .* repmat(SpatAttn, 1, C.nc)); % spatial attention modulates feature maps
-    SpatAttn = mean(Map(1).FX,2);
 
     EEG_W(tcount,:) = (((context * W(1:C.nLocCat, :)) * W((C.nLocCat+1):end, :)') * C.Mapping') * eW + randn(1,nElectrodes)*eNoise;  % feed last-used context into weight matrix -> reactivate content -> project onto electrodes
     EEG_FX(tcount,:) = SpatAttn' * eW + randn(1,nElectrodes)*eNoise;
