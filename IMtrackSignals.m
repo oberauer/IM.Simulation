@@ -21,6 +21,8 @@ for ff = 1:C.nfeatures
 end
 
 if E.forwardrecall, encorder = 1:setsize; else, encorder = randperm(setsize); end % for consolidation: array items are encoded sequentially (in a random order chosen by the subject). This variable codes the planned output position of the encoded items
+E.prestime = 0.15; % presentation time in Fukuda et al. (2015)
+P.asyFX = 5; 
 
 % determine whether a stimulus is integrated with a mask
 maskWindow = ones(1, setsize) * P.maskWindow;
@@ -44,23 +46,6 @@ EEG_FX = zeros(Timepoints, nElectrodes);
 Inpos = zeros(1,setsize);  % initialize vector coding the input positions of the items (in the encoding order).
 % In this vector, and the result vectors, the items are ordered by output position!
 
-%Focus = randperm(setsize, 1);  % start with random location of the focus
-% AfocusLoc = C.location(L(Focus),:);     % location attended to
-% Afocus = zeros(1,C.nc);                 % just to initialize it
-SpatAttn = zeros(C.nc, 1);
-
-% simultaneous presentation: parallel encoding into spatially organized feature maps;
-% replacment by mask if the mask falls within the replacement window
-for ff = 1:C.nfeatures
-    for inpos = 1:setsize
-        Map(ff).FX = Map(ff).FX + masking(inpos) .* C.maskStim + (1-masking(inpos)) .* C.location(L(inpos),:)' * (C.stim(F(ff,inpos),:));
-        if inpos==1
-            P.asyFX = max(Map(ff).FX(:));
-        end
-    end
-end
-
-
 cumCtime = [0, cumsum(cTime(1:setsize)), E.RI];
 sumCtime = sum(cTime);
 inpos = 0;
@@ -69,7 +54,24 @@ tcount = 1;
 consolStarted = zeros(1, setsize);
 
 while t < E.RI  % continue until end of RI
-    % presentation of next stimulus: encode into feature map
+    % presentation of stimuli: encode into feature map
+    if t < E.prestime
+        % simultaneous presentation: parallel encoding into spatially organized feature maps;
+        % addition of mask if the mask falls within the replacement window
+        for ff = 1:C.nfeatures
+            maxFX = max(Map(ff).FX(:));
+            for inpos = 1:setsize
+                Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * C.location(L(inpos),:)' * (C.stim(F(ff,inpos),:));
+            end
+            if masking(1) == 1  % masking is all-or-none for simultaneous array
+                %Map = UpdateFX(Map); % partial erasue of just-encoded stimuli
+                for inpos = 1:setsize
+                    Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * C.location(L(inpos),:)' * C.maskStim;
+                end
+            end
+        end
+    end
+
     if t >= cumCtime(inpos+1)  % if the cTime for item inpos+1 starts, ...
         inpos = inpos + 1;  % ... move to inpos+1
     end

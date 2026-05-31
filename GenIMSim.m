@@ -132,6 +132,7 @@ P.nbNorm = sqrt(P.nb); % normalization constant depends on mean P.nb, not on ind
 %P.TopDownSpatAttn = 0; % strength of top-down modulation of spatial attention from the FoA in WM (AfocusLoc)
 P.maskWindow = 0.05;  % mean of time window within which a mask or a cue is integrated with the current feature Map
 P.maskWindowSD = 0.75; % SD (as porportion of mean) of time window of integration
+P.stimDrive = 0.08;    % stimulus drive into FX (only relevant for timestep-by-timestep simulations)
 P.SDstrengthFX = 0.1; % SD of encoding strength into FX
 P.selfactFX = 1;     % self-activation of FX
 P.inhibFX = 0.002;   % global inhibition in FX that causes decay
