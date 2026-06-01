@@ -204,20 +204,21 @@ end  % task
 
 for task = Tasks
     legendtext = {'With Mechanism', 'Without Any'};
+    xlabel = {'Neu', 'Val', 'Inv'};
     PreFigure;
     index = 1;
     for mechanism = setdiff(Mechanisms, max(Mechanisms))
         if length(Mechanisms) < 4, subplot(1,2,index); end
-        if length(Mechanisms) > 3, subplot(2,2,index); end
-        if length(Mechanisms) > 5, subplot(2,3,index); end
+        if length(Mechanisms) > 3 && length(Mechanisms) < 6, subplot(2,2,index); end
+        if length(Mechanisms) > 5 && length(Mechanisms) < 8, subplot(2,3,index); end
         plotX = squeeze(meanAcc(task,mechanism,:));
-        plot(1:3, plotX);
+        plot(Cueconds, plotX);
         hold on
         plotX = squeeze(meanAcc(task, max(Mechanisms), :));  % the last mechanism level is always: all mechanisms off
         plot(1:3, plotX, 'r');
         if (task==1), PostFigure([0.5, 3.5, 0, 90], 'Cueing Condition', 'Error (deg)', Titletext{mechanism}, legendtext); end
         if (task==2), PostFigure([0.5, 3.5, 0.5, 1], 'Cueing Condition', 'Accuracy', Titletext{mechanism}, legendtext); end
-        xticklabels({'Neu', 'Val', 'Inv'});
+        xticklabels(xlabel(Cueconds));
         index = index + 1;
     end
 end
