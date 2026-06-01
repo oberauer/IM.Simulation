@@ -96,7 +96,7 @@ for id = 1:E.nsubj
         end
         
         disp('    ID        Setsize   CDA(Gate) CDA(W)    Alpha      ');
-        disp([id, setsize, mean(CDAg(id, :, setsize))/1000, mean(CDAw(id, :, setsize))/1000, mean(Alpha(id, :, setsize))]);
+        disp([id, setsize, mean(CDAg(id, :, setsize))/1000, mean(CDAw(id, :, setsize))/1000, mean(Alpha(id, 6:20, setsize))]); % time window 300-1000 ms for alpha = Fukuda et al. (2015)
 
     end %for setsize
     
@@ -165,8 +165,8 @@ for setsize = 1:E.maxsetsize
    
 end
 
-
 % Plot mean CDA, and CDA after 1 s, as a function of set size
+% + Alpha from 300 to 1000 ms (as in Fukuda et al., 2015)
 
 PreFigure;
 subplot(1,2,1);
@@ -178,12 +178,10 @@ plot(1:E.maxsetsize, plotvector);
 PostFigure([0.8, E.maxsetsize+0.2, 0, 1.05*ymax], 'Set Size', 'CDA from G', [], {'mean CDA', 'CDA @ 1s'});
 
 subplot(1,2,2);
-MCDA = squeeze(mean(mean(CDAw)));
-CDA1s = squeeze(mean(CDAw(:,round(1/C.tstep),:)));
-plotvector = [MCDA, CDA1s];
-ymax = max(max(plotvector));
-plot(1:E.maxsetsize, plotvector);
-PostFigure([0.8, E.maxsetsize+0.2, 0, 1.05*ymax], 'Set Size', 'CDA from W', [], {'mean CDA', 'CDA @ 1s'});
+Alpha300 = mean(Alpha(id, 6:20, :),1); % starting at 300 ms, ending at 1000 ms
+ymax = 1.2*max(max(Alpha300));
+plot(1:E.maxsetsize, Alpha300);
+PostFigure([0.8, E.maxsetsize+0.2, 0, ymax], 'Set Size', 'Alpha Power 300-1000 ms');
 
 % plot cumulative consolidation times
 PreFigure;

@@ -81,11 +81,11 @@ while t < E.RI  % continue until end of RI
         if inpos > 0
             % remove just-consolidated feature, so that anther one is the highest peak next (a form of inhibition of return)
             for ff = 1:E.nfeat
-                Map(ff).FX = max(0, Map(ff).FX - AfocusLoc'*Afocus(ff,:));
+                Map(ff).FX = max(0, Map(ff).FX - P.IOR * AfocusLoc'*Afocus(ff,:));
             end
             if E.context == 2
                 cueFromFX = (AfocusLoc./sum(AfocusLoc)) * Map(2).FX;
-                Map(2).FX = max(0, Map(2).FX - AfocusLoc'*cueFromFX);
+                Map(2).FX = max(0, Map(2).FX - P.IOR * AfocusLoc'*cueFromFX);
             end
         end
         SpatAttn = mean(Map(1).FX,2);

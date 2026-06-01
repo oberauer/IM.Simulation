@@ -136,6 +136,7 @@ P.stimDrive = 0.08;    % stimulus drive into FX (only relevant for timestep-by-t
 P.SDstrengthFX = 0.1; % SD of encoding strength into FX
 P.selfactFX = 1;     % self-activation of FX
 P.inhibFX = 0.002;   % global inhibition in FX that causes decay
+P.IOR = 0.3;         % inhibition of return in FX
 P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
 P.rRate = 4;         % rate of release of BP units

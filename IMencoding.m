@@ -118,7 +118,6 @@ if E.presentation == 1
                 end
 
                 % bind content(s) and context together through mediated binding
-
                 if C.seqVariant == 2 && inpos == setsize, rTime = max(cTime(inpos), E.prestime + E.RI - cumTime); else, rTime = cTime(inpos); end
                 [W, GateClosed, gWeight, cIdx, bStrength] = IMencodeStim(W, context, content, GateClosed, gWeight, cRate(inpos), cTime(inpos), rTime); % ... now actually compute the result of consolidation in the preceding period
                 committed(inpos, cIdx) = 1;
@@ -128,11 +127,11 @@ if E.presentation == 1
 
                 % remove target feature, so that anther one is the highest peak next (a form of inhibition of return)
                 for ff = 1:E.nfeat
-                    Map(ff).FX = max(0, Map(ff).FX - AfocusLoc'*Afocus(ff,:));
+                    Map(ff).FX = max(0, Map(ff).FX - P.IOR * AfocusLoc'*Afocus(ff,:));
                 end
                 if E.context == 2
                     cueFromFX = (AfocusLoc./sum(AfocusLoc)) * Map(2).FX;
-                    Map(2).FX = max(0, Map(2).FX - AfocusLoc'*cueFromFX);
+                    Map(2).FX = max(0, Map(2).FX - P.IOR * AfocusLoc'*cueFromFX);
                 end
 
                 timePassing = cTime(inpos);
@@ -251,11 +250,11 @@ if E.presentation == 2
 
         % remove target feature (a form of inhibition of return)
         for ff = 1:E.nfeat
-            Map(ff).FX = max(0, Map(ff).FX - AfocusLoc'*Afocus(ff,:));
+            Map(ff).FX = max(0, Map(ff).FX - P.IOR * AfocusLoc'*Afocus(ff,:));
         end
         if E.context == 2
             cueFromFX = (AfocusLoc./sum(AfocusLoc)) * Map(2).FX;
-            Map(2).FX = max(0, Map(2).FX - AfocusLoc'*cueFromFX);
+            Map(2).FX = max(0, Map(2).FX - P.IOR * AfocusLoc'*cueFromFX);
         end
 
         decaytime = max(cTime(inpos), E.prestime+E.ISI-attentionWindows(inpos));

@@ -59,11 +59,11 @@ for id = 1:E.nsubj
     StimMask = zeros(nfactor*E.ntrials, C.nc);
     for trial = 1:(nfactor*E.ntrials)
         %output = IMSim(P, setsize, 1);  % cueing = 1 (no cue)
-        [~, L, ~, ~, ~, ~, ~, eegW, eegfx] = IMtrackSignals(setsize, eW, eW2, eNoise);
+        [~, L, F, ~, ~, ~, ~, ~, ~, eegW, eegfx] = IMtrackSignals(setsize, eW, eW2, eNoise);
         EEG_WX(trial,:,:) = eegW;  % feed last-used context into weight matrix -> reactivate content -> project onto electrodes
         EEG_FX(trial,:,:) = eegfx; % read out locations (averaging over features) from feature map
         LocationMask(trial, round(C.Location(L(1:setsize)))) = 1; % stimulus mask: codes the stimulus location (set to 1 at presented location(s), and 0 everywhere else)
-        StimMask(trial, round(C.stim(F(1:setsize)))) = 1; 
+        StimMask(trial, F(1:setsize)) = 1; 
     end
     for t = 1:E.RI/C.tstep
         IEM(t).Wb = TrainIEM(StimMask, basisSet, squeeze(EEG_WX(:,t,:)));    % train IEM at each time point
@@ -75,13 +75,13 @@ for id = 1:E.nsubj
         cda_w = zeros(E.ntrials, length(Timepoints));
         alpha = zeros(E.ntrials, length(Timepoints));
         ctime = zeros(E.ntrials, 1);
-        Pangle = zeros(E.ntrials, setsize);  % presented (angular) location in the channel space of CTF
-        Cangle = zeros(E.ntrials, setsize);  % presented (angular) feature in the channel space
+        Pangle = zeros(E.ntrials, setsize);  % presented (angular) location in the channel space of CTF_FX
+        Cangle = zeros(E.ntrials, setsize);  % presented (angular) feature in the channel space of CTF_W
         ItemIdx = ones(E.ntrials, 1);  % only the target is to be tracked with IEM
         EEG_WX = zeros(E.ntrials, E.RI/C.tstep+1, nElectrodes);
         EEG_FX = zeros(E.ntrials, E.RI/C.tstep+1, nElectrodes);
         for trial = 1:E.ntrials
-            [Map, L, cda_g(trial,:), cda_w(trial,:), alpha(trial,:), ctime(trial), Pangle(trial,:), Cangle(trial,:), eegW, eegfx] = IMtrackSignals(setsize, eW, eW2, eNoise);
+            [Map, L, F, cda_g(trial,:), cda_w(trial,:), alpha(trial,:), ctime(trial), Pangle(trial,:), Cangle(trial,:), eegW, eegfx] = IMtrackSignals(setsize, eW, eW2, eNoise);
              EEG_WX(trial,:,:) = eegW;
              EEG_FX(trial,:,:) = eegfx;
         end
@@ -96,7 +96,7 @@ for id = 1:E.nsubj
         end
         
         disp('    ID        Setsize   CDA(Gate) CDA(W)    Alpha      ');
-        disp([id, setsize, mean(CDAg(id, :, setsize))/1000, mean(CDAw(id, :, setsize))/1000, mean(Alpha(id, :, setsize))]);
+        disp([id, setsize, mean(CDAg(id, :, setsize))/1000, mean(CDAw(id, :, setsize))/1000, mean(Alpha(id, 6:20, setsize))]); % time window 300-1000 ms for alpha = Fukuda et al. (2015)
 
     end %for setsize
     
@@ -164,7 +164,6 @@ for setsize = 1:E.maxsetsize
    end
    
 end
-
 
 % Plot mean CDA, and CDA after 1 s, as a function of set size
 

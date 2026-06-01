@@ -6,7 +6,7 @@ global C
 global P
 
 Afocus = Afocus(1,:); % reduce to 1 vector in case E.nfeat > 1: Only the first feature is tested
-maxFX = Afocus(F(1)); % default, will be overwritten below unless E.CTI(cueing) > 0
+retrievedFX = Afocus; % default, will be overwritten below unless E.CTI(cueing) > 0
 
 if E.test == 1 || E.test == 2
 

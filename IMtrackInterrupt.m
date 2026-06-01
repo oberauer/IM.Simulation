@@ -88,7 +88,7 @@ while t < E.RI  % continue until end of RI, or end of consolidation of the WM st
             % context = C.locationnoise + AfocusLoc * C.MappingC;
             %content = C.stimnoise + Afocus * C.Mapping;
             %SpatAttn = SpatAttn + P.TopDownSpatAttn.*AfocusLoc'; 
-            Map(1).FX = max(0, Map(1).FX - AfocusLoc'*Afocus);  % inhibition of return: Remove the target from FX when its consolidation is finished
+            Map(1).FX = max(0, Map(1).FX - P.IOR * AfocusLoc'*Afocus);  % inhibition of return: Remove the target from FX when its consolidation is finished
             Map(1).FX = Map(1).FX + (1-P.filter(E.test)) .* C.location(L(2),:)' * C.stim(F(2),:);  % through top-down attention, now attend fully to the relevant location in the search display --> encode it unfiltered into FX
             shiftAttn = 1;
         end
