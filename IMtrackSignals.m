@@ -66,7 +66,6 @@ while t < E.RI  % continue until end of RI
                 Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * strengthFX(item) * C.location(L(item),:)' * (C.stim(F(ff,item),:));
             end
             if masking(1) == 1  % masking is all-or-none for simultaneous array
-                %Map = UpdateFX(Map); % partial erasue of just-encoded stimuli
                 for item = 1:setsize
                     Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * C.location(L(item),:)' * C.maskStim;
                 end
@@ -89,10 +88,11 @@ while t < E.RI  % continue until end of RI
                 Map(2).FX = max(0, Map(2).FX - AfocusLoc'*cueFromFX);
             end
         end
+        SpatAttn = mean(Map(1).FX,2);
         spatPeak = find(SpatAttn==max(SpatAttn), 1);    % find the peak of spatial attention ...
         AfocusLoc = C.ContextFun(C.x, deg2rad(spatPeak), P.kappaf_ctx);  % ... and move the FoA to that location
-        % sim2originalLoc = cosines(AfocusLoc', C.location(L(1:setsize), :)');
-        % Focus = find(sim2originalLoc == max(sim2originalLoc), 1);
+        sim2originalLoc = cosines(AfocusLoc', C.location(L(1:setsize), :)');
+        Focus = find(sim2originalLoc == max(sim2originalLoc), 1);
         inpos = inpos + 1;  % ... move to inpos+1
     end
 
@@ -109,7 +109,8 @@ while t < E.RI  % continue until end of RI
             consolStarted(inpos) = 1;
         else
             % continuing consolidation
-            pLoss = 1 - 1/exp(cRate(inpos)./(cTime(inpos).*C.tstep)); % see StepByStepEncoding.m
+            % pLoss = 1 - 1/exp(cRate(inpos)./(cTime(inpos).*C.tstep)); % see StepByStepEncoding.m
+            pLoss = 1 - 1/exp(P.rRate*C.tstep);  % see StepByStepEncoding.m
             nLoss = binornd(length(committedNewNotBase), pLoss);
             decommitted = randsample(committedNewNotBase, nLoss);
             committedNewNotBase = setdiff(committedNewNotBase, decommitted);

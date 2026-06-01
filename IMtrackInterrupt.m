@@ -67,7 +67,7 @@ while t < E.RI  % continue until end of RI, or end of consolidation of the WM st
     end
     if focusOnTarget == 1   % when attention is on the target
         % continuing consolidation
-        pLoss = 1 - 1/exp(cRate./(cTime.*C.tstep)); % see StepByStepEncoding.m
+        pLoss = 1 - 1/exp(P.rRate*C.tStep);  % see StepByStepEncoding.m
         nLoss = binornd(length(committedNewNotBase), pLoss);
         decommitted = randsample(committedNewNotBase, nLoss);
         committedNewNotBase = setdiff(committedNewNotBase, decommitted);
