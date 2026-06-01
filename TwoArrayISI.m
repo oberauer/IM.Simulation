@@ -24,6 +24,9 @@ ParX = CreateIndDiff;
 
 Mdevobs = NaN(E.nsubj, 3, 3, 2, length(InterArrayInterval));  % id, SS1, SS2, testedArray, III
 Mbstrength = NaN(E.nsubj, 3, 3, 2, length(InterArrayInterval));  % id, SS1, SS2, Array, III
+Mstrength = NaN(E.nsubj, 3, 3, 2, length(InterArrayInterval));  % id, SS1, SS2, Array, III
+MmaxFX = NaN(E.nsubj, 3, 3, 2, length(InterArrayInterval));  % id, SS1, SS2, tesedArray, III
+MmaxW = NaN(E.nsubj, 3, 3, 2, length(InterArrayInterval));  % id, SS1, SS2, tesedArray, III
 
 %[aa, bb, Colorgrid] = ndgrid(ones(1,E.ntrials), ones(1, setsize), 1:360);  %Colors = E.ntrials x setsize x [1:360]
 
@@ -44,7 +47,9 @@ for id = 1:E.nsubj
                 for iii = 1:length(InterArrayInterval)
 
                     fdistance = zeros(E.ntrials, 1);  % distance (target, response)
-                    Bstrength = zeros(E.ntrials, 2); 
+                    Bstrength = zeros(E.ntrials, 2);  % strength of binding (summed absolute activation of binding units)
+                    Strength = zeros(E.ntrials, 2);   % strength of consolidation
+                    MaxAct = zeros(E.ntrials, 2);     % max activation of feature from FX / from W
 
                     for trial = 1:E.ntrials
 
@@ -62,26 +67,32 @@ for id = 1:E.nsubj
 
                         % first array
                         E.RI = InterArrayInterval(iii) - E.prestime;
-                        [Map, W, G, GW, Focus, Afocus, content, context, Inpos, Strength, bstrength, CTime, SpatAttn] = IMencoding(Map, W, G, GW, L(1,:), F(1,:), SS1, 1);
+                        [Map, W, G, GW, Focus, Afocus, content, context, Inpos, strength, bstrength, CTime, SpatAttn] = IMencoding(Map, W, G, GW, L(1,:), F(1,:), SS1, 1);
                         usedTime = SS1*CTime; %CTime is the mean consolidation time taken
                         overTime = max(0, usedTime - InterArrayInterval(iii)); 
                         Bstrength(trial,1) = mean(bstrength);
+                        Strength(trial,1) = mean(strength);
                         
                         % second array
                         E.RI = 0.5; % check with Jacob!
-                        [Map, W, G, GW, Focus, Afocus, content, context, Inpos, Strength, bstrength, CTime, SpatAttn] = IMencoding(Map, W, G, GW, L(2,:), F(2,:), SS2, 1, overTime);
+                        [Map, W, G, GW, Focus, Afocus, content, context, Inpos, strength, bstrength, CTime, SpatAttn] = IMencoding(Map, W, G, GW, L(2,:), F(2,:), SS2, 1, overTime);
                         Bstrength(trial,2) = mean(bstrength);
+                        Strength(trial,2) = mean(strength);
 
                         % test
                         probed = 1;  % for now
                         probestim = []; probeIdx = []; 
-                        [response, rt, Map, W, G, Focus, CWcolor] = IMretrieve(Map, W, G, Focus, Afocus, probed, 1, L(testedArray,:), F(testedArray,:), probestim, probeIdx);
+                        [response, rt, Map, W, G, Focus, CWcolor, maxFX, maxW] = IMretrieve(Map, W, G, Focus, Afocus, probed, 1, L(testedArray,:), F(testedArray,:), probestim, probeIdx);
                         fdistance(trial) = wrap(response-F(testedArray,1), 180);   %calculate distance between response and true feature in feature space (degrees!)
+                        Max(trial,:) = [maxFX, maxW];
 
                     end
 
                     Mdevobs(id, SS1, SS2, testedArray, iii) = mean(abs(fdistance));  %mean deviation (average over trials)
                     Mbstrength(id, SS1, SS2, :, iii) = mean(Bstrength,1)';
+                    Mstrength(id, SS1, SS2, :, iii) = mean(Strength,1)';
+                    MmaxFX(id, SS1, SS2, testedArray, iii) = mean(Max(:,1));
+                    MmaxW(id, SS1, SS2, testedArray, iii) = mean(Max(:,2)); 
 
                     disp('    ID      Array tested   SS1      SS2     III     error');
                     disp([id, testedArray, SS1, SS2, iii, mean(Mdevobs(id, SS1, SS2, testedArray, iii))]);
@@ -115,7 +126,47 @@ for SS1 = 1:3
         subplot(3,3,plotIdx);
         plotvector = squeeze(mean(Mbstrength(:,SS1,SS2,:,:),1));
         plot(InterArrayInterval, plotvector);
-        PostFigure([-0.1, max(InterArrayInterval)+0.1, 0, 0.2], 'Inter-Item Interval', 'B-Strength', ['SS1=', mat2str(SS1), '; SS2=', mat2str(SS2)], {'First Array', 'Second Array'});
+        if SS1==1 && SS2==1, ymax = 1.2*max(plotvector); end
+        PostFigure([-0.1, max(InterArrayInterval)+0.1, 0, ymax], 'Inter-Item Interval', 'B-Strength', ['SS1=', mat2str(SS1), '; SS2=', mat2str(SS2)], {'First Array', 'Second Array'});
+        plotIdx = plotIdx+1;
+    end
+end
+
+% Plot Mean(Consolidation strength) as function of III and tested array for each combination of SS1 and SS2
+PreFigure;
+plotIdx = 1;
+for SS1 = 1:3
+    for SS2 = 1:3
+        subplot(3,3,plotIdx);
+        plotvector = squeeze(mean(Mstrength(:,SS1,SS2,:,:),1));
+        plot(InterArrayInterval, plotvector);
+        PostFigure([-0.1, max(InterArrayInterval)+0.1, 0, ymax], 'Inter-Item Interval', 'C-Strength', ['SS1=', mat2str(SS1), '; SS2=', mat2str(SS2)], {'First Array', 'Second Array'});
+        plotIdx = plotIdx+1;
+    end
+end
+
+% Plot Mean(max activation from FX) as function of III and tested array for each combination of SS1 and SS2
+PreFigure;
+plotIdx = 1;
+for SS1 = 1:3
+    for SS2 = 1:3
+        subplot(3,3,plotIdx);
+        plotvector = squeeze(mean(MmaxFX(:,SS1,SS2,:,:),1));
+        plot(InterArrayInterval, plotvector);
+        PostFigure([-0.1, max(InterArrayInterval)+0.1, 0, ymax], 'Inter-Item Interval', 'max Act from FX', ['SS1=', mat2str(SS1), '; SS2=', mat2str(SS2)], {'First Array', 'Second Array'});
+        plotIdx = plotIdx+1;
+    end
+end
+
+% Plot Mean(max activation from W) as function of III and tested array for each combination of SS1 and SS2
+PreFigure;
+plotIdx = 1;
+for SS1 = 1:3
+    for SS2 = 1:3
+        subplot(3,3,plotIdx);
+        plotvector = squeeze(mean(MmaxW(:,SS1,SS2,:,:),1));
+        plot(InterArrayInterval, plotvector);
+        PostFigure([-0.1, max(InterArrayInterval)+0.1, 0, ymax], 'Inter-Item Interval', 'max Act from W', ['SS1=', mat2str(SS1), '; SS2=', mat2str(SS2)], {'First Array', 'Second Array'});
         plotIdx = plotIdx+1;
     end
 end

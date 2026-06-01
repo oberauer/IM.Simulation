@@ -1,4 +1,4 @@
-function [response, rt, Map, W, GateClosed, Focus, CWcolor] = IMretrieve(Map, W, GateClosed, Focus, Afocus, probed, cueing, L, F, probestim, probeIdx)
+function [response, rt, Map, W, GateClosed, Focus, CWcolor, maxFX, maxW] = IMretrieve(Map, W, GateClosed, Focus, Afocus, probed, cueing, L, F, probestim, probeIdx)
 % Retrieves one item
 
 global E
@@ -6,6 +6,7 @@ global C
 global P
 
 Afocus = Afocus(1,:); % reduce to 1 vector in case E.nfeat > 1: Only the first feature is tested
+maxFX = Afocus(F(1)); % default, will be overwritten below unless E.CTI(cueing) > 0
 
 if E.test == 1 || E.test == 2
 
@@ -48,8 +49,11 @@ if E.test == 1 || E.test == 2
     end
     retrievedBinding = cue * W;
     retrievedVec = retrievedBinding * W';
-    retrievedFeature = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat));
-    Adrift = Afocus + retrievedFeature * C.Mapping'; % vector of drift rates (one for each of the 360 colors) is computed as the strength with which each color is bound to the location cue
+    retrievedW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat)) * C.Mapping'; % the strength with which each color is bound to the location cue through W
+    maxFX = retrievedFX(F(1));
+    maxW = retrievedW(F(1));
+    
+    Adrift = Afocus + retrievedW; % vector of drift rates (one for each of the 360 colors) 
     nsteps = round(5./C.tstep);   % that should be more than enough (5 sec)
     drate = ones(nsteps, 1);
     A = A + cumsum(drate * Adrift + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
@@ -100,8 +104,8 @@ if E.test == 3
         Afocus = Afocus + retrievedFX;
         retrievedBinding = cue * W;
         retrievedVec = retrievedBinding * W';
-        retrievedFeature = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat));
-        Adrift = Afocus + retrievedFeature * C.Mapping';
+        retrievedW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat));
+        Adrift = Afocus + retrievedW * C.Mapping';
         A = cumsum(drate * Adrift + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
         maxA = max(A, [], 2); % maximum value in each row of A = maximum after each time step
         t = find(maxA > P.boundary(1), 1);

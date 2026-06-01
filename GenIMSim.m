@@ -3,7 +3,7 @@
 % Version using the KO/Manohar mediated-binding mechanism
 
 clear all
-%close all
+close all
 
 global E
 global C
@@ -58,7 +58,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 15;
+Exp = 9;
 
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 0;   % fit mixture model?

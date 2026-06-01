@@ -53,6 +53,8 @@ t = 0;
 tcount = 1;
 consolStarted = zeros(1, setsize);
 
+strengthFX = randn(1, setsize) * P.SDstrengthFX + 1;
+
 while t < E.RI  % continue until end of RI
     % presentation of stimuli: encode into feature map
     if t < E.prestime
@@ -61,7 +63,7 @@ while t < E.RI  % continue until end of RI
         for ff = 1:C.nfeatures
             maxFX = max(Map(ff).FX(:));
             for item = 1:setsize
-                Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * C.location(L(item),:)' * (C.stim(F(ff,item),:));
+                Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * strengthFX(item) * C.location(L(item),:)' * (C.stim(F(ff,item),:));
             end
             if masking(1) == 1  % masking is all-or-none for simultaneous array
                 %Map = UpdateFX(Map); % partial erasue of just-encoded stimuli
