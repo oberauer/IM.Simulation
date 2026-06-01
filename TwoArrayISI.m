@@ -94,8 +94,8 @@ for id = 1:E.nsubj
                     MmaxFX(id, SS1, SS2, testedArray, iii) = mean(Max(:,1));
                     MmaxW(id, SS1, SS2, testedArray, iii) = mean(Max(:,2)); 
 
-                    disp('    ID      Array tested   SS1      SS2     III     error');
-                    disp([id, testedArray, SS1, SS2, iii, mean(Mdevobs(id, SS1, SS2, testedArray, iii))]);
+                    disp('    ID      Array tested   SS1      SS2     III      error     Bstrength  Strength  maxFX     maxW');
+                    disp([id, testedArray, SS1, SS2, iii, mean(Mdevobs(id, SS1, SS2, testedArray, iii)), mean(Bstrength(:,testedArray)), mean(Strength(:,testedArray)), mean(Max,1)]);
 
 
                 end % III
