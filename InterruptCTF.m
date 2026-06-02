@@ -121,7 +121,7 @@ for interrupt = 1:2
         end
         subplot(2,2,idx);
         imagesc(mCTFfx);
-        title(['Decoding from FX; Setsize = ', CondText{idx}]);
+        title(['Decoding from FX; ', CondText{idx}]);
         idx = idx + 1;
     end
 end

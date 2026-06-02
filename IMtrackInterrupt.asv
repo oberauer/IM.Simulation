@@ -20,6 +20,8 @@ F = zeros(C.nfeatures, C.nstim);
 for ff = 1:C.nfeatures
     F(ff,:) = randperm(C.nstim);      %shuffle object features
 end
+E.prestime = 0.2;        % The target is on for 200 ms
+P.asyFX = 5; 
 TimeOfDistractor = 1.2;  % Distractor is shown 1000 ms after target offset, and the target is on for 200 ms
 
 cRateSD = P.cRateSD*P.cRate;
@@ -34,16 +36,6 @@ nElectrodes = size(eW, 2);
 %EEG_W = zeros(Timepoints, nElectrodes);
 EEG_FX = zeros(Timepoints, nElectrodes);
 
-% presentation of target location
-Map(1).FX = C.location(L(1),:)' * C.stim(F(1),:); 
-% presentation of visual-search placeholders (L(2) = cued location)
-for dist = 2:9
-    Map(1).FX = Map(1).FX + P.filter(E.test) * C.location(L(dist),:)' * C.stim(F(dist),:);
-    if dist==1
-        P.asyFX = max(Map(ff).FX(:));
-    end
-end
-
 focusOnTarget = 0;
 distrEncoded = 0;
 shiftAttn = 0;
@@ -52,6 +44,17 @@ tcount = 1;
 ballistic = rand < P.cBallistic;  %  determine whether consolidation is ballistic or not
 
 while t < E.RI  % continue until end of RI, or end of consolidation of the WM stimulus
+
+    if t < E.prestime
+        % presentation of target location
+        maxFX = max(Map(ff).FX(:));
+        Map(1).FX = Map(1).FX + (P.asyFX - maxFX) * P.stimDrive * C.location(L(1),:)' * C.stim(F(1),:);
+        % presentation of visual-search placeholders (L(2) = cued location)
+        for dist = 2:9
+            Map(1).FX = Map(1).FX + (P.asyFX - maxFX) * P.stimDrive * P.filter(E.test) * C.location(L(dist),:)' * C.stim(F(dist),:);
+        end
+    end
+
     if focusOnTarget == 0   % if focus of attention is not yet on the memory target
         % direct focus of attention to memory location
         AfocusLoc = C.location(L(1),:);     % location attended to in the feature map
@@ -64,7 +67,7 @@ while t < E.RI  % continue until end of RI, or end of consolidation of the WM st
     end
     if focusOnTarget == 1   % when attention is on the target
         % continuing consolidation
-        pLoss = 1 - 1/exp(cRate./(cTime.*C.tstep)); % see StepByStepEncoding.m
+        pLoss = 1 - 1/exp(P.rRate*C.tstep);  % see StepByStepEncoding.m
         nLoss = binornd(length(committedNewNotBase), pLoss);
         decommitted = randsample(committedNewNotBase, nLoss);
         committedNewNotBase = setdiff(committedNewNotBase, decommitted);
@@ -75,16 +78,20 @@ while t < E.RI  % continue until end of RI, or end of consolidation of the WM st
         if t > TimeOfDistractor && distrEncoded == 0  % ... when the distractors have been shown, and not yet encoded
             Map = UpdateFX(Map);
             for dist = 2:9
-                Map(1).FX = Map(1).FX + C.location(L(dist),:)' * C.stim(F(dist),:);  % onset of the actual search stimuli
+                Map(1).FX = Map(1).FX + P.filter(E.test) * C.location(L(dist),:)' * C.stim(F(dist),:);  % onset of the actual search stimuli - still unattended, and therefore filtered
             end
             distrEncoded = 1;
         end
-        if (ballistic == 0 || t > cTime(1)) && shiftAttn == 0   % if consolidation is done, shift attention to distractor location (whether distractor has been presented already or not
+        if t > cTime(1) && shiftAttn == 0, shiftAttn = 1; end
+        if t > TimeOfDistractor && ballistic == 0 && shiftAttn == 0, shiftAttn = 1; end
+        if shiftAttn == 1
+            % if consolidation is done, shift attention to distractor location (whether distractor has been presented already or not
             % AfocusLoc = C.location(L(2),:);
             % Afocus = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter to pull out the target feature from its feature map
             % context = C.locationnoise + AfocusLoc * C.MappingC;
             %content = C.stimnoise + Afocus * C.Mapping;
             %SpatAttn = SpatAttn + P.TopDownSpatAttn.*AfocusLoc'; 
+            Map(1).FX = max(0, Map(1).FX - P.IOR * AfocusLoc'*Afocus);  % inhibition of return: Remove the target from FX when its consolidation is finished
             Map(1).FX = Map(1).FX + (1-P.filter(E.test)) .* C.location(L(2),:)' * C.stim(F(2),:);  % through top-down attention, now attend fully to the relevant location in the search display --> encode it unfiltered into FX
             shiftAttn = 1;
         end

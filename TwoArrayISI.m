@@ -84,18 +84,18 @@ for id = 1:E.nsubj
                         probestim = []; probeIdx = []; 
                         [response, rt, Map, W, G, Focus, CWcolor, maxFX, maxW] = IMretrieve(Map, W, G, Focus, Afocus, probed, 1, L(testedArray,:), F(testedArray,:), probestim, probeIdx);
                         fdistance(trial) = wrap(response-F(testedArray,1), 180);   %calculate distance between response and true feature in feature space (degrees!)
-                        Max(trial,:) = [maxFX, maxW];
+                        MaxAct(trial,:) = [maxFX, maxW];
 
                     end
 
                     Mdevobs(id, SS1, SS2, testedArray, iii) = mean(abs(fdistance));  %mean deviation (average over trials)
                     Mbstrength(id, SS1, SS2, :, iii) = mean(Bstrength,1)';
                     Mstrength(id, SS1, SS2, :, iii) = mean(Strength,1)';
-                    MmaxFX(id, SS1, SS2, testedArray, iii) = mean(Max(:,1));
-                    MmaxW(id, SS1, SS2, testedArray, iii) = mean(Max(:,2)); 
+                    MmaxFX(id, SS1, SS2, testedArray, iii) = mean(MaxAct(:,1));
+                    MmaxW(id, SS1, SS2, testedArray, iii) = mean(MaxAct(:,2)); 
 
                     disp('    ID      Array tested   SS1      SS2     III      error     Bstrength  Strength  maxFX     maxW');
-                    disp([id, testedArray, SS1, SS2, iii, mean(Mdevobs(id, SS1, SS2, testedArray, iii)), mean(Bstrength(:,testedArray)), mean(Strength(:,testedArray)), mean(Max,1)]);
+                    disp([id, testedArray, SS1, SS2, iii, mean(Mdevobs(id, SS1, SS2, testedArray, iii)), mean(Bstrength(:,testedArray)), mean(Strength(:,testedArray)), mean(MaxAct,1)]);
 
 
                 end % III

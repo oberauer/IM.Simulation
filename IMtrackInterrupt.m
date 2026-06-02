@@ -67,7 +67,7 @@ while t < E.RI  % continue until end of RI, or end of consolidation of the WM st
     end
     if focusOnTarget == 1   % when attention is on the target
         % continuing consolidation
-        pLoss = 1 - 1/exp(P.rRate*C.tStep);  % see StepByStepEncoding.m
+        pLoss = 1 - 1/exp(P.rRate*C.tstep);  % see StepByStepEncoding.m
         nLoss = binornd(length(committedNewNotBase), pLoss);
         decommitted = randsample(committedNewNotBase, nLoss);
         committedNewNotBase = setdiff(committedNewNotBase, decommitted);
@@ -82,7 +82,9 @@ while t < E.RI  % continue until end of RI, or end of consolidation of the WM st
             end
             distrEncoded = 1;
         end
-        if ((t > TimeOfDistractor && ballistic == 0) || t > cTime(1)) && shiftAttn == 0   % if consolidation is done, shift attention to distractor location (whether distractor has been presented already or not
+        if t > cTime(1) && shiftAttn == 0, shiftAttn = 1; end  % if consolidation is done, shift attention to distractor location (whether distractor has been presented already or not
+        if t > TimeOfDistractor && ballistic == 0 && shiftAttn == 0, shiftAttn = 1; end % if onset of distractors interrupts consolidation, shift attention to relevant distractor location
+        if shiftAttn == 1
             % AfocusLoc = C.location(L(2),:);
             % Afocus = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter to pull out the target feature from its feature map
             % context = C.locationnoise + AfocusLoc * C.MappingC;
