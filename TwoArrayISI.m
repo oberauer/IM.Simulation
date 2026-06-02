@@ -84,18 +84,18 @@ for id = 1:E.nsubj
                         probestim = []; probeIdx = []; 
                         [response, rt, Map, W, G, Focus, CWcolor, maxFX, maxW] = IMretrieve(Map, W, G, Focus, Afocus, probed, 1, L(testedArray,:), F(testedArray,:), probestim, probeIdx);
                         fdistance(trial) = wrap(response-F(testedArray,1), 180);   %calculate distance between response and true feature in feature space (degrees!)
-                        MaxAct(trial,:) = [maxFX, maxW];
+                        Max(trial,:) = [maxFX, maxW];
 
                     end
 
                     Mdevobs(id, SS1, SS2, testedArray, iii) = mean(abs(fdistance));  %mean deviation (average over trials)
                     Mbstrength(id, SS1, SS2, :, iii) = mean(Bstrength,1)';
                     Mstrength(id, SS1, SS2, :, iii) = mean(Strength,1)';
-                    MmaxFX(id, SS1, SS2, testedArray, iii) = mean(MaxAct(:,1));
-                    MmaxW(id, SS1, SS2, testedArray, iii) = mean(MaxAct(:,2)); 
+                    MmaxFX(id, SS1, SS2, testedArray, iii) = mean(Max(:,1));
+                    MmaxW(id, SS1, SS2, testedArray, iii) = mean(Max(:,2)); 
 
-                    disp('    ID      Array tested   SS1      SS2     III      error     Bstrength  Strength  maxFX     maxW');
-                    disp([id, testedArray, SS1, SS2, iii, mean(Mdevobs(id, SS1, SS2, testedArray, iii)), mean(Bstrength(:,testedArray)), mean(Strength(:,testedArray)), mean(MaxAct,1)]);
+                    disp('    ID      Array tested   SS1      SS2     III     error');
+                    disp([id, testedArray, SS1, SS2, iii, mean(Mdevobs(id, SS1, SS2, testedArray, iii))]);
 
 
                 end % III
@@ -126,7 +126,7 @@ for SS1 = 1:3
         subplot(3,3,plotIdx);
         plotvector = squeeze(mean(Mbstrength(:,SS1,SS2,:,:),1));
         plot(InterArrayInterval, plotvector);
-        if SS1==1 && SS2==1, ymax = 1.2*max(plotvector); end
+        if SS1==1 && SS2==1, ymax = 1.2*max(plotvector(:)); end
         PostFigure([-0.1, max(InterArrayInterval)+0.1, 0, ymax], 'Inter-Item Interval', 'B-Strength', ['SS1=', mat2str(SS1), '; SS2=', mat2str(SS2)], {'First Array', 'Second Array'});
         plotIdx = plotIdx+1;
     end
@@ -140,6 +140,7 @@ for SS1 = 1:3
         subplot(3,3,plotIdx);
         plotvector = squeeze(mean(Mstrength(:,SS1,SS2,:,:),1));
         plot(InterArrayInterval, plotvector);
+        if SS1==1 && SS2==1, ymax = 1.2*max(plotvector(:)); end
         PostFigure([-0.1, max(InterArrayInterval)+0.1, 0, ymax], 'Inter-Item Interval', 'C-Strength', ['SS1=', mat2str(SS1), '; SS2=', mat2str(SS2)], {'First Array', 'Second Array'});
         plotIdx = plotIdx+1;
     end
@@ -166,6 +167,7 @@ for SS1 = 1:3
         subplot(3,3,plotIdx);
         plotvector = squeeze(mean(MmaxW(:,SS1,SS2,:,:),1));
         plot(InterArrayInterval, plotvector);
+       if SS1==1 && SS2==1, ymax = 1.2*max(plotvector(:)); end
         PostFigure([-0.1, max(InterArrayInterval)+0.1, 0, ymax], 'Inter-Item Interval', 'max Act from W', ['SS1=', mat2str(SS1), '; SS2=', mat2str(SS2)], {'First Array', 'Second Array'});
         plotIdx = plotIdx+1;
     end
