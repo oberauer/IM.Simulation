@@ -78,6 +78,9 @@ while t < E.RI  % continue until end of RI, or end of consolidation of the WM st
             for dist = 2:9
                 Map(1).FX = Map(1).FX + P.filter(E.test) * C.location(L(dist),:)' * C.stim(F(dist),:);  % onset of the actual search stimuli - still unattended, and therefore filtered
             end
+            if shiftAttn == 2  % if attention is already at the relevant location of the distractor display ...
+                Map(1).FX = Map(1).FX + (1-P.filter(E.test)) .* C.location(L(2),:)' * C.stim(F(2),:); % ... then encode the stimulus displayed there with full attention
+            end
             distrEncoded = 1;
         end
         if t > cTime(1) && shiftAttn == 0, shiftAttn = 1; end  % if consolidation is done, shift attention to distractor location (whether distractor has been presented already or not
