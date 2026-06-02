@@ -112,11 +112,11 @@ CondText = {'Target, No Inter', 'Distr., No Inter.', 'Target, Inter.', 'Distr., 
 PreFigure;
 idx = 1;
 for interrupt = 1:2
-    for targetDistractor = 1:2
+    for targDist = 1:2
         mCTFfx = zeros(nChannels, E.RI/C.tstep);
         for id = 1:E.nsubj
             for t = 1:E.RI/C.tstep
-                mCTFfx(:,t) = mCTFfx(:,t) + CTF(id, interrupt, t).meanCTF_FX(targetDistractor,:)';
+                mCTFfx(:,t) = mCTFfx(:,t) + CTF(id, interrupt, t).meanCTF_FX(targDist,:)';
             end
         end
         subplot(2,2,idx);
@@ -126,14 +126,14 @@ for interrupt = 1:2
     end
 end
 
-% plot CTF as a function of time and interruption condition
+% plot CTF and CTF-Slope as a function of time and interruption condition; this time with a fixed scale for all conditions
 if mod(nChannels, 2) == 1, x = 0:(nChannels/2); end
 if mod(nChannels, 2) == 0, x = 1:(nChannels/2); end
 Itext = {'No Interruption', 'Interruption'};
 TDtext = {', Target', ', Distractor'};
 h1 = PreFigure;
 h2 = PreFigure;
-for interrupt = 1:2
+for interrupt = 2:-1:1  % start with interrupt==2 so that scales can be set by it for all pots
     for targDist = 1:2
         mCTFfx = zeros(nChannels, E.RI/C.tstep);
         slope = zeros(E.nsubj,E.RI/C.tstep);
@@ -146,7 +146,8 @@ for interrupt = 1:2
                 slope(id,t) = coefficients(1);
             end
         end
-        if (interrupt==1 && targDist==1), imageY = 1.2*max(max(mCTFfx./E.nsubj)); slopeY = max(0.01, 1.2*max(mean(slope))); end
+        if (interrupt==2 && targDist==1), imageY = 1.2*max(max(mCTFfx./E.nsubj)); slopeY = [min(0, 1.2*min(mean(slope))), max(0.01, 1.2*max(mean(slope)))]; end
+        % it looks like interrupt==2 and targDist==1 is the condition with the largest mCTF and slopes, so I use it to set the common scale
         figure(h1);
         subplot(2,2,2*(interrupt-1)+targDist);
         imagesc(mCTFfx./E.nsubj, [0, imageY]);
@@ -154,7 +155,7 @@ for interrupt = 1:2
         figure(h2);
         subplot(2,2,2*(interrupt-1)+targDist);
         plot(C.tstep:C.tstep:E.RI, mean(slope));
-        PostFigure([0, E.RI, -0.1, 0.1], 'Time (0.05 s)', 'CTF Slope', [Itext{interrupt}, TDtext{targDist}]);
+        PostFigure([0, E.RI, slopeY(1), slopeY(2)], 'Time (0.05 s)', 'CTF Slope', [Itext{interrupt}, TDtext{targDist}]);
     end
 end
 

@@ -138,6 +138,10 @@ h2 = PreFigure;
 for setsize = 1:E.maxsetsize
    mCTFw = zeros(nChannels, E.RI/C.tstep);
    mCTFfx = zeros(nChannels, E.RI/C.tstep);
+   if setsize == 1
+       imageYfx = 1.2*max(max(mCTFfx));
+       imageYw = 1.2*max(max(mCTFw));
+   end
    for id = 1:E.nsubj
        for t = 1:E.RI/C.tstep
             mCTFw(:,t) = mCTFw(:,t) + CTF(id, setsize, t).meanCTF_W';
@@ -146,11 +150,11 @@ for setsize = 1:E.maxsetsize
    end
    figure(h1);
    subplot(3,2,setsize);
-   imagesc(mCTFw);
+   imagesc(mCTFw, [0, imageYw]);
    title(['Decoding from W; Setsize = ', num2str(setsize)]); 
    figure(h2);
    subplot(3,2,setsize);
-   imagesc(mCTFfx);
+   imagesc(mCTFfx, [0, imageYfx]);
    title(['Decoding from FX; Setsize = ', num2str(setsize)]); 
    
    if E.saveResults == 1
