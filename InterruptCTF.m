@@ -20,9 +20,10 @@ end
 % generate parameters with individual differences
 ParX = CreateIndDiff;
 
-meanCDAw = NaN(E.nsubj, length(Timepoints), E.maxsetsize);  % id, timepoint, setsize
-meanCDAg = NaN(E.nsubj, length(Timepoints), E.maxsetsize);  % id, timepoint, setsize
-Alpha = NaN(E.nsubj, length(Timepoints), E.maxsetsize);  % id, timepoint, setsize
+meanCDAw = NaN(E.nsubj, length(Timepoints), 2);  % id, timepoint, interruption condition
+meanCDAg = NaN(E.nsubj, length(Timepoints), 2);  % id, timepoint, interruption condition
+Alpha = NaN(E.nsubj, length(Timepoints), 2);  % id, timepoint, interruption condition
+maxAttn = NaN(E.nsubj, length(Timepoints), 2);  % id, timepoint, interruption condition
 
 % set up the IEM
 CreateStimuli;
@@ -82,18 +83,21 @@ for id = 1:E.nsubj
         ItemIdx = repmat(1:2, E.ntrials, 1);  % target, then distractor location
         EEG_FX = zeros(E.ntrials, E.RI/C.tstep+1, nElectrodes);
         for trial = 1:E.ntrials
-            [Map, w, CDAw(trial,:), CDAg(trial,:), alpha(trial,:), Pangle(trial,:), eegfx] = IMtrackInterrupt(interrupt-1, eW, eNoise);
-            EEG_FX(trial,:,:) = eegfx;
+            [CDAw(trial,:), CDAg(trial,:), alpha(trial,:), Pangle(trial,:), SpatAttn] = IMtrackInterrupt(interrupt-1);
+            for t = 1:E.RI/C.tstep+1
+                EEG_FX(trial,t,:) = SpatAttn(t,:) * eW + randn(1,nElectrodes)*eNoise; 
+            end
         end
         meanCDAw(id,:,interrupt) = mean(CDAw);
         meanCDAg(id,:,interrupt) = mean(CDAg);
         Alpha(id,:,interrupt) = mean(alpha);
+        maxAttn(id,:,interrupt) = max(SpatAttn,[],2);  % peak of spatial attention at each time point
         %Alpha(id,:,interrupt) = squeeze(mean(mean(abs(EEG_FX),3),1));  % average over electrodes (3) and trials (1)
         for t = 1:E.RI/C.tstep
             CTF(id,interrupt,t).meanCTF_FX = ApplyIEM(IEM(t).Wfx, squeeze(EEG_FX(:,t,:)), 360*Pangle/C.nloc, channelCenters, ItemIdx);
         end
     
-        disp('    ID        interruption      ');
+        disp('    ID   interruption      ');
         disp([id, interrupt]);
 
     end %for interrupt
@@ -104,8 +108,12 @@ end  % for ID
 % plot Alpha as a function of time and interruption condition
 mAlpha = squeeze(mean(Alpha)); % average over subjects
 PreFigure([], [], 2);
+subplot(1,2,1);
 plot(Timepoints, mAlpha');
 PostFigure([0, E.RI, 0, 1.1*max(max(mAlpha))], 'Time (s)', 'Alpha Power Suppression', [], {'No interruption', 'Interruption'});
+subplot(1,2,2);
+plot(Timepoints, squeeze(mean(maxAttn)));
+PostFigure([0, E.RI, 0, 1.1*max(maxAttn(:))], 'Time (s)', 'max(Spatial Attnention)', [], {'No interruption', 'Interruption'});
 
 % plot CTF as function of time and interruption condition
 CondText = {'Target, No Inter', 'Distr., No Inter.', 'Target, Inter.', 'Distr., Inter'};
@@ -133,7 +141,10 @@ Itext = {'No Interruption', 'Interruption'};
 TDtext = {', Target', ', Distractor'};
 h1 = PreFigure;
 h2 = PreFigure;
-for interrupt = 2:-1:1  % start with interrupt==2 so that scales can be set by it for all pots
+
+imageY = 0;
+slopeY = [0, 0];
+for interrupt = 1:2
     for targDist = 1:2
         mCTFfx = zeros(nChannels, E.RI/C.tstep);
         slope = zeros(E.nsubj,E.RI/C.tstep);
@@ -146,15 +157,23 @@ for interrupt = 2:-1:1  % start with interrupt==2 so that scales can be set by i
                 slope(id,t) = coefficients(1);
             end
         end
-        if (interrupt==2 && targDist==1), imageY = 1.2*max(max(mCTFfx./E.nsubj)); slopeY = [min(0, 1.2*min(mean(slope))), max(0.01, 1.2*max(mean(slope)))]; end
-        % it looks like interrupt==2 and targDist==1 is the condition with the largest mCTF and slopes, so I use it to set the common scale
+        PlotSum(interrupt, targDist).mCTFfx = mCTFfx;
+        PlotSum(interrupt, targDist).Slope = mean(slope);
+        if 1.2*max(max(mCTFfx./E.nsubj)) > imageY, imageY = 1.2*max(max(mCTFfx./E.nsubj)); end
+        if 1.2*min(mean(slope)) < slopeY(1), slopeY(1) = 1.2*min(mean(slope)); end 
+        if 1.2*max(mean(slope)) > slopeY(2), slopeY(2) = 1.2*max(mean(slope)); end 
+    end
+end
+
+for interrupt = 1:2
+    for targDist = 1:2
         figure(h1);
         subplot(2,2,2*(interrupt-1)+targDist);
-        imagesc(mCTFfx./E.nsubj, [0, imageY]);
+        imagesc(PlotSum(interrupt, targDist).mCTFfx./E.nsubj, [0, imageY]);
         PostFigure([1, E.RI/C.tstep, 1, nChannels], 'Time (0.05 s)', 'Channel Location', [Itext{interrupt}, TDtext{targDist}]);
         figure(h2);
         subplot(2,2,2*(interrupt-1)+targDist);
-        plot(C.tstep:C.tstep:E.RI, mean(slope));
+        plot(C.tstep:C.tstep:E.RI, PlotSum(interrupt, targDist).Slope);
         PostFigure([0, E.RI, slopeY(1), slopeY(2)], 'Time (0.05 s)', 'CTF Slope', [Itext{interrupt}, TDtext{targDist}]);
     end
 end

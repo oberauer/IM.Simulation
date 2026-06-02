@@ -138,15 +138,15 @@ h2 = PreFigure;
 for setsize = 1:E.maxsetsize
    mCTFw = zeros(nChannels, E.RI/C.tstep);
    mCTFfx = zeros(nChannels, E.RI/C.tstep);
-   if setsize == 1
-       imageYfx = 1.2*max(max(mCTFfx));
-       imageYw = 1.2*max(max(mCTFw));
-   end
    for id = 1:E.nsubj
        for t = 1:E.RI/C.tstep
             mCTFw(:,t) = mCTFw(:,t) + CTF(id, setsize, t).meanCTF_W';
             mCTFfx(:,t) = mCTFfx(:,t) + CTF(id, setsize, t).meanCTF_FX';
        end
+   end
+   if setsize == 1
+       imageYfx = 1.2*max(max(mCTFfx));
+       imageYw = 1.2*max(max(mCTFw));
    end
    figure(h1);
    subplot(3,2,setsize);
@@ -187,7 +187,7 @@ ymax = 1.2*max(max(Alpha300));
 plot(1:E.maxsetsize, Alpha300);
 PostFigure([0.8, E.maxsetsize+0.2, 0, ymax], 'Set Size', 'Alpha Power 300-1100 ms');
 
-subplot(1,3,2);
+subplot(1,3,3);
 Alpha500 = squeeze(mean(mean(Alpha(id, 10:16, :),2),1)); % starting at 500 ms, ending at 800 ms, as in Fukuda et al. (2016)
 ymax = 1.2*max(max(Alpha500));
 plot(1:E.maxsetsize, Alpha500);
