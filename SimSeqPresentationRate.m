@@ -110,15 +110,12 @@ for id = 1:E.nsubj
 
             end
 
-
             MdevobsIn(id, simseq, iii, :) = mean(abs(fdistanceIn));  %mean deviation (average over output positions and trials)
             MdevobsOut(id, simseq, iii, :) = mean(abs(fdistanceOut));  %mean deviation (average over input position and trials)
             Mdevobs1(id, simseq, iii, :) = nanmean(abs(fdistance1));  %mean deviation in output position 1 (average over trials)
-
             Mrt(id, simseq, iii, :) = mean(RT);
             meanCtime(id, simseq, iii, :) = mean(CTime);
             %MBstrength(id, simseq, iii, :) = mean(Bstrength);
-
             Mwact(id, setsize) = mean(wact);
 
             ssData = Dataprocessing(Probedpos, Pangle, Cangle, Targ, Resp, Setsize, Colorgrid);   %prepare data for model fitting
@@ -219,16 +216,32 @@ hold on
 plot(InterItemInterval, meanvector, '-r'); 
 PostFigure([-0.1, max(InterItemInterval)+0.1, 0, 90], 'Inter-Item Interval', 'Deviation (Deg)', 'Seq. by Input Pos. (Out=1)', vec2legend(1:setsize));
 
+% Plot Mean(RT) as function of III and input position
+PreFigure;
+subplot(1,2,1);
+plotvector = squeeze(nanmean(Mrt(:,1,:,:),1));
+meanvector = mean(plotvector, 2)'; 
+plot(InterItemInterval, plotvector);
+hold on
+plot(InterItemInterval, meanvector, '-r'); 
+PostFigure([-0.1, max(InterItemInterval)+0.1, 0, 3], 'Inter-Item Interval', 'RT(s)', 'Sim. by Input Pos.', vec2legend(1:setsize));
+subplot(1,2,2);
+plotvector = squeeze(nanmean(Mrt(:,2,:,:),1));
+meanvector = mean(plotvector, 2)'; 
+plot(InterItemInterval, plotvector);
+hold on
+plot(InterItemInterval, meanvector, '-r'); 
+PostFigure([-0.1, max(InterItemInterval)+0.1, 0, 3], 'Inter-Item Interval', 'RT(s)', 'Seq. by Input Pos.', vec2legend(1:setsize));
 
 PreFigure;
 subplot(1,2,1);
 plotvector = squeeze(mean(meanCtime(:,1,:),1));
 plot(InterItemInterval, plotvector);
-PostFigure([-0.1, max(InterItemInterval)+0.1, 0, 1], 'Inter-Item Interval', 'Consol. Time/Item', 'Simultaneous');
+PostFigure([-0.1, max(InterItemInterval)+0.1, 0, 0.5], 'Inter-Item Interval', 'Consol. Time/Item', 'Simultaneous');
 subplot(1,2,2);
 plotvector = squeeze(mean(meanCtime(:,2,:),1));
 plot(InterItemInterval, plotvector);
-PostFigure([-0.1, max(InterItemInterval)+0.1, 0, 1], 'Inter-Item Interval', 'Consol. Time/Item', 'Sequential');
+PostFigure([-0.1, max(InterItemInterval)+0.1, 0, 0.5], 'Inter-Item Interval', 'Consol. Time/Item', 'Sequential');
 
 
 % Plot Mixture Model Parameters over Setsize
