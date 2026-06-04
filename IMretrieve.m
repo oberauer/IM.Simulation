@@ -15,7 +15,7 @@ if ismember(E.test, 1:3)
     if E.CTI(cueing) > 0
         % drift before probe
         Adrift = Afocus; % cueing already includes retrieval into Afocus
-        nsteps = (E.CTI(cueing)-overTime)./C.tstep;
+        nsteps = round((E.CTI(cueing)-overTime)./C.tstep);
         drate = ones(nsteps, 1);
         A = sum(drate * Adrift + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
         [Map, W] = IMdecayFX(Map, W, E.CTI(cueing));
