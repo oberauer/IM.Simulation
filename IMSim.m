@@ -68,8 +68,8 @@ fx = Map(1).FX;
 
 %%%%%%%%%%%% Test: recall or recognition ##########################
 
-if E.test == 1 || E.test == 2, response = zeros(1, E.outsize); end
-if E.test == 2, response = zeros(2, E.outsize); end
+if E.test == 1 || E.test == 4, response = zeros(1, E.outsize); end
+if E.test == 2 || E.test == 3, response = zeros(2, E.outsize); end
 rt = zeros(1,E.outsize);
 for probed = 1:E.outsize
     [response(:,probed), rt(probed), Map, W, G, Focus, CWcolor] = IMretrieve(Map, W, G, Focus, Afocus, probed, cueing, L, F, probestim, probeIdx, overTime);

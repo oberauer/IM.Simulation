@@ -10,6 +10,8 @@ E.mask = 1;
 E.prestime = 0.15;
 E.MaskSOA = 0.15;  %
 E.presentation = 1; % each array is presented simultaneously
+E.test = 3;  % n-AFC
+E.respAlt = [1, 2]; % correct and extraset lure
 E.outsize = 1;
 InterArrayInterval = [0.2, 0.3, 0.4, 0.6, 1];
 
@@ -22,7 +24,7 @@ end
 % generate parameters with individual differences
 ParX = CreateIndDiff;
 
-Mdevobs = NaN(E.nsubj, 3, 3, 2, length(InterArrayInterval));  % id, SS1, SS2, testedArray, III
+Maccuracy = NaN(E.nsubj, 3, 3, 2, length(InterArrayInterval));  % id, SS1, SS2, testedArray, III
 MRT= NaN(E.nsubj, 3, 3, 2, length(InterArrayInterval));  % id, SS1, SS2, testedArray, III
 Mbstrength = NaN(E.nsubj, 3, 3, 2, length(InterArrayInterval));  % id, SS1, SS2, Array, III
 Mstrength = NaN(E.nsubj, 3, 3, 2, length(InterArrayInterval));  % id, SS1, SS2, Array, III
@@ -47,7 +49,7 @@ for id = 1:E.nsubj
             for testedArray = 1:2
                 for iii = 1:length(InterArrayInterval)
 
-                    fdistance = zeros(E.ntrials, 1);  % distance (target, response)
+                    accuracy = zeros(E.ntrials, 1);  % correctness
                     rt = zeros(E.ntrials, 1); 
                     Bstrength = zeros(E.ntrials, 2);  % strength of binding (summed absolute activation of binding units)
                     Strength = zeros(E.ntrials, 2);   % strength of consolidation
@@ -65,7 +67,7 @@ for id = 1:E.nsubj
                         L(1,:) = randperm(floor(C.nloc/2));   % all on the first semi-circle
                         L(2,:) = randperm(floor(C.nloc/2)) + ceil(C.nloc/2);   % all on the second semi-circle % all in the second semi-circle
                         features = randperm(C.nstim);      %shuffle object features
-                        F = [features(1:3); features(4:6)];
+                        F = [features(1:6); features(7:12)];  % include some extra-set lures for the n-AFC
 
                         % first array
                         E.RI = InterArrayInterval(iii) - E.prestime;
@@ -85,23 +87,24 @@ for id = 1:E.nsubj
 
                         % test
                         probed = 1;  % for now
-                        probestim = []; probeIdx = []; 
+                        if testedArray==1, setsize=SS1; else, setsize=SS2; end
+                        [probestim, probeIdx] = IMprepareProbe(F(testedArray,:), setsize);
                         [response, rt(trial), Map, W, G, Focus, CWcolor, maxFX, maxW] = IMretrieve(Map, W, G, Focus, Afocus, probed, 1, L(testedArray,:), F(testedArray,:), probestim, probeIdx, overTime);
 
-                        fdistance(trial) = wrap(response-F(testedArray,1), 180);   %calculate distance between response and true feature in feature space (degrees!)
+                        accuracy(trial) = response(1)==1;   
                         MaxAct(trial,:) = [maxFX, maxW];
 
                     end
 
-                    Mdevobs(id, SS1, SS2, testedArray, iii) = mean(abs(fdistance));  %mean deviation (average over trials)
+                    Maccuracy(id, SS1, SS2, testedArray, iii) = mean(accuracy);  % proportion correct (average over trials)
                     MRT(id, SS1, SS2, testedArray, iii) = mean(rt);
                     Mbstrength(id, SS1, SS2, :, iii) = mean(Bstrength,1)';
                     Mstrength(id, SS1, SS2, :, iii) = mean(Strength,1)';
                     MmaxFX(id, SS1, SS2, testedArray, iii) = mean(MaxAct(:,1));
                     MmaxW(id, SS1, SS2, testedArray, iii) = mean(MaxAct(:,2)); 
 
-                    disp('    ID      Array tested   SS1      SS2     III     error');
-                    disp([id, testedArray, SS1, SS2, iii, mean(Mdevobs(id, SS1, SS2, testedArray, iii))]);
+                    disp('    ID      Array tested   SS1      SS2     III     P(correct)');
+                    disp([id, testedArray, SS1, SS2, iii, mean(Maccuracy(id, SS1, SS2, testedArray, iii))]);
 
 
                 end % III
@@ -117,9 +120,9 @@ plotIdx = 1;
 for SS1 = 1:3
     for SS2 = 1:3
         subplot(3,3,plotIdx);
-        plotvector = squeeze(mean(Mdevobs(:,SS1,SS2,:,:),1));
+        plotvector = squeeze(mean(Maccuracy(:,SS1,SS2,:,:),1));
         plot(InterArrayInterval, plotvector);
-        PostFigure([-0.1, max(InterArrayInterval)+0.1, 0, 90], 'Inter-Item Interval', 'Deviation (Deg)', ['SS1=', mat2str(SS1), '; SS2=', mat2str(SS2)], {'First Array', 'Second Array'});
+        PostFigure([-0.1, max(InterArrayInterval)+0.1, 0.5, 1], 'Inter-Item Interval', 'P(correct)', ['SS1=', mat2str(SS1), '; SS2=', mat2str(SS2)], {'First Array', 'Second Array'});
         plotIdx = plotIdx+1;
     end
 end

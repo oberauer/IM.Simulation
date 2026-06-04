@@ -10,7 +10,7 @@ global P
 Afocus = Afocus(1,:); % reduce to 1 vector in case E.nfeat > 1: Only the first feature is tested
 retrievedFX = Afocus; % default, will be overwritten below unless E.CTI(cueing) > 0
 
-if E.test == 1 || E.test == 2
+if ismember(E.test, 1:3)
 
     if E.CTI(cueing) > 0
         % drift before probe
@@ -69,7 +69,7 @@ if E.test == 1 || E.test == 2
         rt = t.*C.tstep + (E.CTI(cueing)==0)*overTime;
     end
 
-    if E.test == 2  %recognition: after deciding on which feature is retrieved, now decide on which response to give
+    if E.test == 2  % old-new recognition: after deciding on which feature is retrieved, now decide on which response to give
         YesNo = randn(1,2)*P.sz;  % initialize the YesNo acccumulator for "same" vs. "change" decisions
         if E.CQI(cueing) > t, t = E.CQI(cueing); end % if retrieval boundary is reached before presentation of the question, continue retrieving until onset of question
         % after retrieval boundary has been reached: settle on one final retrieved feature value for comparison with the probe
@@ -80,17 +80,38 @@ if E.test == 1 || E.test == 2
         v1 = [SameRange(retrieved1), ChangeRange(retrieved1)]; % now a unique feature value has actually been retrieved -> compare probe to that: Similar enough -> positive drift = 1 (otherwise 0); Dissimilar enough -> negative drift = 1 (otherwise 0)
         drate = v1 + randn(nsteps, 2) * P.driftnoise;
         YesNo = YesNo + cumsum(drate);
-        maxYN = max(YesNo, [], 2);
-        t2 = find(maxYN > P.boundary(2), 1);
+        maxEvidence = max(YesNo, [], 2);
+        t2 = find(maxEvidence > P.boundary(2), 1);
         if isempty(t2), t2=nsteps; end
         response(1) = find(YesNo(t2,:)==max(YesNo(t2,:)), 1);
         rt = (t + t2).*C.tstep + (E.CTI(cueing)==0)*overTime;
         response(2) = retrieved1;
     end
 
+    if E.test == 3  % n-AFC: after retrieving a feature, find the alternative most similar to it
+        Evidence = randn(1, length(E.respAlt))*P.sz;  % initialize the accumulators for each alternative
+        if E.CQI(cueing) > t, t = E.CQI(cueing); end % if retrieval boundary is reached before presentation of the question, continue retrieving until onset of question
+        % after retrieval boundary or question has been reached: settle on one final retrieved feature value for comparison with the probe
+        retrieved1 = find(A(t,:)==max(A(t,:)), 1);
+        probes = zeros(1, length(E.respAlt));
+        for p = 1:length(E.respAlt)        
+            probes(p) = find(C.stim(probeIdx(p),:) == max(C.stim(probeIdx(p), :)), 1);
+        end
+        distance = abs(wrap(probes - retrieved1, 180)); 
+        v1 = C.ContentFun(deg2rad(distance), 0, P.kappacrit*P.kappa_feat);
+        drate = v1 + randn(nsteps, length(E.respAlt)) * P.driftnoise;
+        Evidence = Evidence + cumsum(drate);
+        maxEvidence = max(Evidence, [], 2);
+        t2 = find(maxEvidence > P.boundary(2), 1);
+        if isempty(t2), t2=nsteps; end
+        response(1) = find(Evidence(t2,:)==max(Evidence(t2,:)), 1);
+        rt = (t + t2).*C.tstep + (E.CTI(cueing)==0)*overTime;
+        response(2) = retrieved1;
+    end
+
 end
 
-if E.test == 3
+if E.test == 4
     nsteps = round(5./C.tstep);   % that should be more than enough (5 sec)
     drate = ones(nsteps, 1);
     Delta = zeros(1, E.rss);

@@ -1,18 +1,21 @@
-function [response, rt, Map, W, GateClosed, Focus, CWcolor, retrievedFX(F(1)), ] = IMretrieve(Map, W, GateClosed, Focus, Afocus, probed, cueing, L, F, probestim, probeIdx)
+function [response, rt, Map, W, GateClosed, Focus, CWcolor, maxFX, maxW] = IMretrieve(Map, W, GateClosed, Focus, Afocus, probed, cueing, L, F, probestim, probeIdx, overTime)
 % Retrieves one item
+
+if nargin < 12, overTime = 0; end
 
 global E
 global C
 global P
 
 Afocus = Afocus(1,:); % reduce to 1 vector in case E.nfeat > 1: Only the first feature is tested
+retrievedFX = Afocus; % default, will be overwritten below unless E.CTI(cueing) > 0
 
-if E.test == 1 || E.test == 2
+if ismember(E.test, 1:3)
 
     if E.CTI(cueing) > 0
         % drift before probe
         Adrift = Afocus; % cueing already includes retrieval into Afocus
-        nsteps = E.CTI(cueing)./C.tstep;
+        nsteps = (E.CTI(cueing)-overTime)./C.tstep;
         drate = ones(nsteps, 1);
         A = sum(drate * Adrift + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
         [Map, W] = IMdecayFX(Map, W, E.CTI(cueing));
@@ -48,9 +51,11 @@ if E.test == 1 || E.test == 2
     end
     retrievedBinding = cue * W;
     retrievedVec = retrievedBinding * W';
-    retrievedFeature = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat));
-    retrie
-    Adrift = Afocus + retrievedFeature * C.Mapping'; % vector of drift rates (one for each of the 360 colors) is computed as the strength with which each color is bound to the location cue
+    retrievedW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat)) * C.Mapping'; % the strength with which each color is bound to the location cue through W
+    maxFX = retrievedFX(F(1));
+    maxW = retrievedW(F(1));
+    
+    Adrift = Afocus + retrievedW; % vector of drift rates (one for each of the 360 colors) 
     nsteps = round(5./C.tstep);   % that should be more than enough (5 sec)
     drate = ones(nsteps, 1);
     A = A + cumsum(drate * Adrift + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
@@ -61,10 +66,10 @@ if E.test == 1 || E.test == 2
     %%% If recall test: give the retrieved response %%%
     if E.test == 1   % recall test
         response = find(A(t,:)==max(A(t,:)), 1);  % responses are ordered by output position ("probed" is incremented from 1 to E.outsize)
-        rt = t.*C.tstep;
+        rt = t.*C.tstep + (E.CTI(cueing)==0)*overTime;
     end
 
-    if E.test == 2  %recognition: after deciding on which feature is retrieved, now decide on which response to give
+    if E.test == 2  % old-new recognition: after deciding on which feature is retrieved, now decide on which response to give
         YesNo = randn(1,2)*P.sz;  % initialize the YesNo acccumulator for "same" vs. "change" decisions
         if E.CQI(cueing) > t, t = E.CQI(cueing); end % if retrieval boundary is reached before presentation of the question, continue retrieving until onset of question
         % after retrieval boundary has been reached: settle on one final retrieved feature value for comparison with the probe
@@ -79,13 +84,33 @@ if E.test == 1 || E.test == 2
         t2 = find(maxYN > P.boundary(2), 1);
         if isempty(t2), t2=nsteps; end
         response(1) = find(YesNo(t2,:)==max(YesNo(t2,:)), 1);
-        rt = (t + t2).*C.tstep;
+        rt = (t + t2).*C.tstep + (E.CTI(cueing)==0)*overTime;
+        response(2) = retrieved1;
+    end
+
+    if E.test == 3  % n-AFC: after retrieving a feature, find the alternative most similar to it
+        Evidence = randn(1, E.nAlt)*P.sz;  % initialize the accumulators for each alternative
+        if E.CQI(cueing) > t, t = E.CQI(cueing); end % if retrieval boundary is reached before presentation of the question, continue retrieving until onset of question
+        % after retrieval boundary or question has been reached: settle on one final retrieved feature value for comparison with the probe
+        retrieved1 = find(A(t,:)==max(A(t,:)), 1);
+        probes = zeros(1, E.nAlt);
+        for p = 1:E.nAlt        
+            probes(p) = find(C.stim(probeIdx(p),:) == max(C.stim(probeIdx(p), :)), 1);
+        end
+        v1 = [SameRange(retrieved1), ChangeRange(retrieved1)]; % now a unique feature value has actually been retrieved -> compare probe to that: Similar enough -> positive drift = 1 (otherwise 0); Dissimilar enough -> negative drift = 1 (otherwise 0)
+        drate = v1 + randn(nsteps, 2) * P.driftnoise;
+        YesNo = YesNo + cumsum(drate);
+        maxYN = max(YesNo, [], 2);
+        t2 = find(maxYN > P.boundary(2), 1);
+        if isempty(t2), t2=nsteps; end
+        response(1) = find(YesNo(t2,:)==max(YesNo(t2,:)), 1);
+        rt = (t + t2).*C.tstep + (E.CTI(cueing)==0)*overTime;
         response(2) = retrieved1;
     end
 
 end
 
-if E.test == 3
+if E.test == 4
     nsteps = round(5./C.tstep);   % that should be more than enough (5 sec)
     drate = ones(nsteps, 1);
     Delta = zeros(1, E.rss);
@@ -101,8 +126,8 @@ if E.test == 3
         Afocus = Afocus + retrievedFX;
         retrievedBinding = cue * W;
         retrievedVec = retrievedBinding * W';
-        retrievedFeature = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat));
-        Adrift = Afocus + retrievedFeature * C.Mapping';
+        retrievedW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat));
+        Adrift = Afocus + retrievedW * C.Mapping';
         A = cumsum(drate * Adrift + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
         maxA = max(A, [], 2); % maximum value in each row of A = maximum after each time step
         t = find(maxA > P.boundary(1), 1);
@@ -113,6 +138,7 @@ if E.test == 3
         rt = rt + t*C.tstep; 
     end
     response = find(Delta==max(Delta),1);  % the location with the largest deviation between retrieved feature and probe is the change location
+    rt = rt + (E.CTI(cueing)==0)*overTime;
 end
 
 if E.outsize > 1   % only if further tests follow
