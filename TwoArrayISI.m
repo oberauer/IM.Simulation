@@ -76,13 +76,16 @@ for id = 1:E.nsubj
                         % second array
                         E.RI = 0.5; % check with Jacob!
                         [Map, W, G, GW, Focus, Afocus, content, context, Inpos, strength, bstrength, CTime, SpatAttn] = IMencoding(Map, W, G, GW, L(2,:), F(2,:), SS2, 1, overTime);
+                        usedTime = SS1*CTime; %CTime is the mean consolidation time taken
+                        overTime = max(0, usedTime - InterArrayInterval(iii)); 
                         Bstrength(trial,2) = mean(bstrength);
                         Strength(trial,2) = mean(strength);
 
                         % test
                         probed = 1;  % for now
                         probestim = []; probeIdx = []; 
-                        [response, rt, Map, W, G, Focus, CWcolor, maxFX, maxW] = IMretrieve(Map, W, G, Focus, Afocus, probed, 1, L(testedArray,:), F(testedArray,:), probestim, probeIdx);
+                        [response, rt, Map, W, G, Focus, CWcolor, maxFX, maxW] = IMretrieve(Map, W, G, Focus, Afocus, probed, 1, L(testedArray,:), F(testedArray,:), probestim, probeIdx, overTime);
+
                         fdistance(trial) = wrap(response-F(testedArray,1), 180);   %calculate distance between response and true feature in feature space (degrees!)
                         Max(trial,:) = [maxFX, maxW];
 

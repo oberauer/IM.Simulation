@@ -1,5 +1,7 @@
-function [response, rt, Map, W, GateClosed, Focus, CWcolor, maxFX, maxW] = IMretrieve(Map, W, GateClosed, Focus, Afocus, probed, cueing, L, F, probestim, probeIdx)
+function [response, rt, Map, W, GateClosed, Focus, CWcolor, maxFX, maxW] = IMretrieve(Map, W, GateClosed, Focus, Afocus, probed, cueing, L, F, probestim, probeIdx, overTime)
 % Retrieves one item
+
+if nargin < 12, overTime = 0; end
 
 global E
 global C
@@ -13,7 +15,7 @@ if E.test == 1 || E.test == 2
     if E.CTI(cueing) > 0
         % drift before probe
         Adrift = Afocus; % cueing already includes retrieval into Afocus
-        nsteps = E.CTI(cueing)./C.tstep;
+        nsteps = (E.CTI(cueing)-overTime)./C.tstep;
         drate = ones(nsteps, 1);
         A = sum(drate * Adrift + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
         [Map, W] = IMdecayFX(Map, W, E.CTI(cueing));
@@ -64,7 +66,7 @@ if E.test == 1 || E.test == 2
     %%% If recall test: give the retrieved response %%%
     if E.test == 1   % recall test
         response = find(A(t,:)==max(A(t,:)), 1);  % responses are ordered by output position ("probed" is incremented from 1 to E.outsize)
-        rt = t.*C.tstep;
+        rt = t.*C.tstep + (E.CTI(cueing)==0)*overTime;
     end
 
     if E.test == 2  %recognition: after deciding on which feature is retrieved, now decide on which response to give
@@ -82,7 +84,7 @@ if E.test == 1 || E.test == 2
         t2 = find(maxYN > P.boundary(2), 1);
         if isempty(t2), t2=nsteps; end
         response(1) = find(YesNo(t2,:)==max(YesNo(t2,:)), 1);
-        rt = (t + t2).*C.tstep;
+        rt = (t + t2).*C.tstep + (E.CTI(cueing)==0)*overTime;
         response(2) = retrieved1;
     end
 
@@ -116,6 +118,7 @@ if E.test == 3
         rt = rt + t*C.tstep; 
     end
     response = find(Delta==max(Delta),1);  % the location with the largest deviation between retrieved feature and probe is the change location
+    rt = rt + (E.CTI(cueing)==0)*overTime;
 end
 
 if E.outsize > 1   % only if further tests follow

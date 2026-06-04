@@ -40,6 +40,8 @@ end
 %%%%%%%%%%% Encoding and Consolidation %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 [Map, W, G, GW, Focus, Afocus, content, context, Inpos, Strength, Bstrength, CTime, SpatAttn] = IMencoding(Map, W, G, GW, L, F, setsize, cueing);
+usedTime = setsize*CTime; %CTime is the mean consolidation time taken
+overTime = max(0, usedTime - E.RI);
 
 g1 = GW;  % keep record of "gate closed" BP units (GW: with their G weight)
 fx1 = Map(1).FX;
@@ -70,7 +72,7 @@ if E.test == 1 || E.test == 2, response = zeros(1, E.outsize); end
 if E.test == 2, response = zeros(2, E.outsize); end
 rt = zeros(1,E.outsize);
 for probed = 1:E.outsize
-    [response(:,probed), rt(probed), Map, W, G, Focus, CWcolor] = IMretrieve(Map, W, G, Focus, Afocus, probed, cueing, L, F, probestim, probeIdx);
+    [response(:,probed), rt(probed), Map, W, G, Focus, CWcolor] = IMretrieve(Map, W, G, Focus, Afocus, probed, cueing, L, F, probestim, probeIdx, overTime);
 end  % outpos
 
 %%%%%%%%%%%%%%% Wrap up %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
