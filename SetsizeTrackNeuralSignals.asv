@@ -62,6 +62,7 @@ for id = 1:E.nsubj
     StimMask = zeros(nfactor*E.ntrials, C.nc);
     for trial = 1:(nfactor*E.ntrials)
         %output = IMSim(P, setsize, 1);  % cueing = 1 (no cue)
+        Map(1).FX = preTrialActivity; 
         [~, L, F, ~, ~, ~, ~, ~, ~, eegW, eegfx] = IMtrackSignals(setsize, Map, eW, eNoise);
         EEG_WX(trial,:,:) = eegW;  % feed last-used context into weight matrix -> reactivate content -> project onto electrodes
         EEG_FX(trial,:,:) = eegfx; % read out locations (averaging over features) from feature map
@@ -85,12 +86,12 @@ for id = 1:E.nsubj
         EEG_FX = zeros(E.ntrials, E.RI/C.tstep+1, nElectrodes);
         baseAlpha = zeros(1,E.ntrials);
         for trial = 1:E.ntrials
-            [Map, L, F, cda_g(trial,:), cda_w(trial,:), alpha(trial,:), ctime(trial), Pangle(trial,:), Cangle(trial,:), eegW, eegfx] = IMtrackSignals(setsize, Map, eW, eNoise);
+             Map(1).FX = preTrialActivity;   % some random pre-trial activity
+             baseAlpha(trial) = sum(abs(mean(Map(1).FX,2)' * eW + randn(1,nElectrodes)*eNoise));
+             [Map, L, F, cda_g(trial,:), cda_w(trial,:), alpha(trial,:), ctime(trial), Pangle(trial,:), Cangle(trial,:), eegW, eegfx] = IMtrackSignals(setsize, Map, eW, eNoise);
              EEG_WX(trial,:,:) = eegW;
              EEG_FX(trial,:,:) = eegfx;
              % IMdecayFX(Map, W, 0.5);  % decay for some time after the previous response, before measuring baseline alpha power
-             Map(1).FX = rand(360)*0.05;  % some random pre-trial activity
-             baseAlpha(trial) = sum(abs(mean(Map(1).FX,2)' * eW + randn(1,nElectrodes)*eNoise));
         end
         CDAg(id,:,setsize) = mean(cda_g);
         CDAw(id,:,setsize) = mean(cda_w);

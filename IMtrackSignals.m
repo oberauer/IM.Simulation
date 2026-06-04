@@ -51,13 +51,16 @@ t = 0;
 tcount = 1;
 consolStarted = zeros(1, setsize);
 
-% pre-trial phase: residual activation of previous trial 
-
 strengthFX = randn(1, setsize) * P.SDstrengthFX + 1;
+FXupdated = 0; 
 
 while t < E.RI  % continue until end of RI
     % presentation of stimuli: encode into feature map
     if t > 0 && t < E.prestime  % in first iteration, t=0, so all measures pick up the pre-trial baseline
+        if FXupdated == 0
+            Map = UpdateFX(Map);  %upon onset of the array, update FX (once!)
+            FXupdated = 1;
+        end
         % simultaneous presentation: parallel encoding into spatially organized feature maps;
         % addition of mask if the mask falls within the replacement window
         for ff = 1:C.nfeatures
@@ -96,7 +99,7 @@ while t < E.RI  % continue until end of RI
         inpos = inpos + 1;  % ... move to inpos+1
     end
 
-    if inpos <= setsize
+    if inpos <= setsize && t > 0
         if consolStarted(inpos) == 0
             % initial consolidation (for 1 time step)
             %AfocusLoc = C.location(L(Focus),:);     % update location attended to in the feature maps
@@ -104,7 +107,7 @@ while t < E.RI  % continue until end of RI
             content = C.stimnoise + Afocus * C.Mapping;
             if E.context == 1, context = C.locationnoise + AfocusLoc * C.MappingC; end
             if E.context == 2, context = C.stimnoise + (AfocusLoc./sum(AfocusLoc) * Map(2).FX) * C.Mapping; end
-            [W, G, GW, committedNew, ~] = IMencodeStim(W, context, content, G, GW, cRate(inpos), C.tstep, C.tstep);
+            [W, G, GW, committedNew, ~] = IMencodeStim(W, context, content, G, GW, cRate(inpos), cTime(inpos), C.tstep);
             committedNewNotBase = randsample(committedNew, round(length(committedNew)*(1-P.pBase))); % sample a subset of newly committed binding units as the to-be-released ones
             consolStarted(inpos) = 1;
         else
