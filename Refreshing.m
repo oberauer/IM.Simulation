@@ -109,7 +109,7 @@ for id = 1:E.nsubj
             end
         end
         
-        disp('    ID         RefCond  Trial     Error ');
+        disp('    ID       RefCond  Trial      Error ');
         disp([id, refreshings, trial, Mdevobs(id, refreshings)]);
         
         condData = Dataprocessing(Probedpos, Pangle, Cangle, Targ, Resp, Setsize, Colorgrid);   %prepare data for mixture-model fitting: separate data structures for each condition
@@ -147,7 +147,7 @@ for id = 1:E.nsubj
                 [MMparms, MMloglik] = fminsearchbnd(@(x) MM(x, condData, 2), startparms(1:npar), lb(1:npar), ub(1:npar), option);
                 itercount = itercount + 1;
             end
-            disp('    ID         RefCond  Iter     MM-log(Lik)/1000 ');
+            disp('    ID        RefCond   Iter      MM-log(Lik)/1000 ');
             disp([id, refreshings, itercount, MMloglik./1000]);
             MMSD(id, refreshings) = MMparms(1);
             MMguessing(id, refreshings) = MMparms(2);

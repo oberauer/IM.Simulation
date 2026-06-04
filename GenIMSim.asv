@@ -3,7 +3,7 @@
 % Version using the KO/Manohar mediated-binding mechanism
 
 clear all
-close all
+%close all
 
 global E
 global C
@@ -58,7 +58,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 15;
+Exp = 5;
 
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 0;   % fit mixture model?
@@ -67,7 +67,7 @@ fitIMSim = 0; % fit IM?
 %%% Experimental Constants/Defaults
 
 E.ntrials = 200;     % number of trials to run per subject and condition
-E.nsubj = 30;        % number of subjects
+E.nsubj = 20;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -130,12 +130,13 @@ P.nb = 100;          % number of units in the binding layer
 P.nbNorm = sqrt(P.nb); % normalization constant depends on mean P.nb, not on individual P.nb (and not on manipulation of P.nb in simulation 33)
 %P.spatinhib = 0.0;   % global inhibition of spatial attention distribution
 %P.TopDownSpatAttn = 0; % strength of top-down modulation of spatial attention from the FoA in WM (AfocusLoc)
-P.spatAttnRate = 0.3; % rate with which FX activates spatial attention
 P.maskWindow = 0.05;  % mean of time window within which a mask or a cue is integrated with the current feature Map
 P.maskWindowSD = 0.75; % SD (as porportion of mean) of time window of integration
+P.stimDrive = 0.05;    % stimulus drive into FX (only relevant for timestep-by-timestep simulations)
 P.SDstrengthFX = 0.1; % SD of encoding strength into FX
 P.selfactFX = 1;     % self-activation of FX
 P.inhibFX = 0.002;   % global inhibition in FX that causes decay
+P.IOR = 0.3;         % inhibition of return in FX
 P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
 P.rRate = 4;         % rate of release of BP units
@@ -212,7 +213,7 @@ if Exp == 32, E.test = 2; E.wheel = 0; MultiCueABA(Model); end  % 3-cues (last a
 if Exp == 33, E.test = 2; E.wheel = 0; SensoryMemoryCD(Model); end  % CD with varying SOA from array to probe
 if Exp == 34, E.test = 3; E.wheel = 0; ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
 
-if Exp == 40, RetroCueSeparateMechanisms(Model, [1,3,4,5,6], 1:2, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
+if Exp == 40, RetroCueSeparateMechanisms(Model, [4,7], 2, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
 if Exp == 41, RetroCueFullDesign(Model, C.indVar, C.maxIndVar, fitMM); end
 if Exp == 42, RetroCueStrength(Model, fitMM); end  % Retro-cue exploration
 if Exp == 43, SetsizeAlpha(@IMSimAlpha, 8); end

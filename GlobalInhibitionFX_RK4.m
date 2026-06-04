@@ -63,6 +63,7 @@ for setsize = 1:maxSetsize
         if shunting == 1.0, GI = @(x) selfAct.*x.*(asyFX-x) - x.*inhib*sum(x(:)); end  %shunting version
 
         for t = 1:nSteps
+
             maxAct(trial, t) = max(FX(:));
             alive = 0;
             sumPeakact = 0;
