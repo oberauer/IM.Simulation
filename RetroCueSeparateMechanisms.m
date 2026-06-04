@@ -9,7 +9,7 @@ global C
 E.PreRetro = 2;
 E.cuevalidity = 1;
 setsize = 6;
-Titletext = {'Strength. Only', 'Consolid. Only', 'Removal Only', 'Visual Interf. Only', 'FX Only ', 'Headstart Only', 'None'};
+Titletext = {'Strength. Only', 'Consolid. Only', 'Removal Only', 'Visual Interf. + Headstart', 'FX + Headstart', 'Headstart Only', 'None'};
 
 IMprepareRecog; % set up criterion for expected size of change 
 Ptype = [1 1 2 3];  % 2 x positive, 1 x new, 1 x intrusion
@@ -73,9 +73,9 @@ for task = Tasks
             if mechanism == 1, P.cueingStrength = 1; end  % leave only strengthening
             if mechanism == 2, C.retroCueConsolid = 1; end  % leave ony consolidation for retrieval
             if mechanism == 3, P.removalThreshold = removalThreshold; end  % leave only removal
-            if mechanism == 4, P.filter = filter; end  % leave only visual interference
-            if mechanism == 5, E.CTI(2) = 1; P.eraseFX = eraseFX; end  % leave only head start for read-out from FX
-            if mechanism == 6, E.CTI(2) = 1; end  % leave only headstart
+            if mechanism == 4, E.CTI(2) = 1; P.filter = filter; end  % leave only visual interference + headstart for escaping it
+            if mechanism == 5, E.CTI(2) = 1; P.eraseFX = eraseFX; end  % leave only read-out from FX + headstart for doing so
+            if mechanism == 6, E.CTI(2) = 1; end  % leave only headstart on its own
             
             % for each subject, create stimuli, and an individual set of feature categories, and the corresponding mappings
             CreateStimuli;
