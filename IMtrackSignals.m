@@ -39,6 +39,7 @@ Alpha = zeros(1,Timepoints);
 nElectrodes = size(eW, 2);
 EEG_W = zeros(Timepoints, nElectrodes);
 EEG_FX = zeros(Timepoints, nElectrodes);
+context = rand(1, C.nCat)*0.1; % just to have a value at t=0
 
 %sequential encoding - binding (read out from FX in sequential order)
 Inpos = zeros(1,setsize);  % initialize vector coding the input positions of the items (in the encoding order).
