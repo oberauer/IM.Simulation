@@ -34,7 +34,7 @@ ParX = CreateIndDiff;
 MdevobsIn = NaN(E.nsubj, 2, length(InterItemInterval), setsize);  % id, sim-seq, III, inpos
 MdevobsOut = NaN(E.nsubj, 2, length(InterItemInterval), setsize);  % id, sim-seq, III, outpos
 Mdevobs1 = NaN(E.nsubj, 2, length(InterItemInterval), setsize);  % id, sim-seq, III, inpos
-Mrt = NaN(E.nsubj, 2, length(InterItemInterval), setsize);  % id, sim-seq, III, inpos
+MRT = NaN(E.nsubj, 2, length(InterItemInterval), setsize);  % id, sim-seq, III, inpos
 MMSD = NaN(E.nsubj, 2, length(InterItemInterval));  % id, sim-seq, III
 MMguessing = NaN(E.nsubj, 2, length(InterItemInterval));  % id, sim-seq, III
 MMtranspos = NaN(E.nsubj, 2, length(InterItemInterval));  % id, sim-seq, III
@@ -113,7 +113,7 @@ for id = 1:E.nsubj
             MdevobsIn(id, simseq, iii, :) = mean(abs(fdistanceIn));  %mean deviation (average over output positions and trials)
             MdevobsOut(id, simseq, iii, :) = mean(abs(fdistanceOut));  %mean deviation (average over input position and trials)
             Mdevobs1(id, simseq, iii, :) = nanmean(abs(fdistance1));  %mean deviation in output position 1 (average over trials)
-            Mrt(id, simseq, iii, :) = mean(RT);
+            MRT(id, simseq, iii, :) = mean(RT);
             meanCtime(id, simseq, iii, :) = mean(CTime);
             %MBstrength(id, simseq, iii, :) = mean(Bstrength);
             Mwact(id, setsize) = mean(wact);
@@ -219,14 +219,14 @@ PostFigure([-0.1, max(InterItemInterval)+0.1, 0, 90], 'Inter-Item Interval', 'De
 % Plot Mean(RT) as function of III and input position
 PreFigure;
 subplot(1,2,1);
-plotvector = squeeze(nanmean(Mrt(:,1,:,:),1));
+plotvector = squeeze(nanmean(MRT(:,1,:,:),1));
 meanvector = mean(plotvector, 2)'; 
 plot(InterItemInterval, plotvector);
 hold on
 plot(InterItemInterval, meanvector, '-r'); 
 PostFigure([-0.1, max(InterItemInterval)+0.1, 0, 3], 'Inter-Item Interval', 'RT(s)', 'Sim. by Input Pos.', vec2legend(1:setsize));
 subplot(1,2,2);
-plotvector = squeeze(nanmean(Mrt(:,2,:,:),1));
+plotvector = squeeze(nanmean(MRT(:,2,:,:),1));
 meanvector = mean(plotvector, 2)'; 
 plot(InterItemInterval, plotvector);
 hold on
@@ -286,7 +286,7 @@ if E.saveResults == 1
         for simseq = 1:2
             for iii = 1:length(InterItemInterval)
                 for inpos = 1:setsize
-                    fprintf(fid, '%d %d %d  %d %d %d ', id, simseq, iii, inpos, MdevobsIn(id, simseq, iii, inpos), Mrt(id, simseq, iii, inpos));
+                    fprintf(fid, '%d %d %d  %d %d %d ', id, simseq, iii, inpos, MdevobsIn(id, simseq, iii, inpos), MRT(id, simseq, iii, inpos));
                     %if (fitMM == 1), fprintf(fid, '%d %d %d', MMtranspos(id, simseq, iii), MMguessing(id, simseq, iii), MMSD(id, simseq, iii)); end
                     fprintf(fid, '\n');
                 end
