@@ -1,4 +1,4 @@
-function [Map, L, F, CDAg, CDAw, Alpha, sumCtime, Pangle, Cangle, EEG_W, EEG_FX] = IMtrackSignals(setsize, eW, eW2, eNoise)
+function [Map, L, F, CDAg, CDAw, Alpha, sumCtime, Pangle, Cangle, EEG_W, EEG_FX] = IMtrackSignals(setsize, Map, eW, eNoise)
 % encodes a memory set simultaneously, simulates the proces time-step wise
 % to track CDA and alpha over time
 
@@ -6,8 +6,6 @@ global P
 global E
 global C
 
-map = struct('FX', zeros(C.nc));   % feature map
-Map = repmat(map, C.nfeatures, 1);
 W = CreateConnections(C.nfeatures);
 G = zeros(1, P.nb);
 GW = zeros(1, P.nb);
@@ -53,11 +51,13 @@ t = 0;
 tcount = 1;
 consolStarted = zeros(1, setsize);
 
+% pre-trial phase: residual activation of previous trial 
+
 strengthFX = randn(1, setsize) * P.SDstrengthFX + 1;
 
 while t < E.RI  % continue until end of RI
     % presentation of stimuli: encode into feature map
-    if t < E.prestime
+    if t > 0 && t < E.prestime  % in first iteration, t=0, so all measures pick up the pre-trial baseline
         % simultaneous presentation: parallel encoding into spatially organized feature maps;
         % addition of mask if the mask falls within the replacement window
         for ff = 1:C.nfeatures
@@ -129,6 +129,8 @@ while t < E.RI  % continue until end of RI
     tcount = tcount + 1;
     t = t + C.tstep;
 end
+
+Map = UpdateFX(Map);  % update Map during the test (which is not explicitly simulated here
 
 for inpos = 1:setsize
     Inpos(encorder(inpos)) = inpos;
