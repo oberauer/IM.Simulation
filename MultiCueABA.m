@@ -77,7 +77,6 @@ for test = 1:2
                 targetDeg = outputR.F(1)*featurestep; % translate the target feature F (1 to 12) into the angle in degrees
                 fdistance = wrap(outputR.response-targetDeg, 180);   %calculate distance between response and true feature in feature space (degrees!)
                 error(ConditionCount(condition), condition) = abs(fdistance);
-                E.test = 2;
             end
 
         end
@@ -95,11 +94,19 @@ for test = 1:2
                     PC(id, ptype, cueingcond) = 1-Pyes(id, ptype, cueingcond);
                 end
                 RT(id, ptype, cueingcond) = mean(rt(:,condition));
-                Error(id, ptype, cueingcond) = mean(error(:,condition));
             end
         end
+        if E.test == 1
+           Error(id, ptype, cueingcond) = mean(error(:,condition));
+        end
 
-        disp(['ID = ', mat2str(id)]);
+        %disp(['ID = ', mat2str(id)]);
+        disp('     ID        Test      Ptype    Cueing    Accuracy/Error');
+        if E.test == 1
+            disp([id, E.test, ptype, cueingcond, Error(id, ptype, cueingcond)]);
+        else
+            disp([id, E.test, ptype, cueingcond, PC(id, ptype, cueingcond)]);
+        end
 
     end  % for ID
 
