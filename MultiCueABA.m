@@ -51,6 +51,7 @@ for test = 1:2
         Conditionvector = repmat(1:12, 1, E.ntrials);  % vector of conditions (design cells) for the 12 x ntrials trials
         Conditionvector = Conditionvector(randperm(length(Conditionvector)));  % shuffle the order of design cells
         ConditionCount = zeros(1,12);                                           % running counter of trials in each condition
+        
         for trial = 1:(12*E.ntrials)
 
             condition = Conditionvector(trial);         % pick the condition of this trial
@@ -78,10 +79,10 @@ for test = 1:2
                 error(ConditionCount(condition), condition) = abs(fdistance);
                 E.test = 2;
             end
-            
+
         end
 
-        if E.test == 1
+        if E.test == 2
             % now loop over the 12 design cells to read out the summary
             % statistics of simulated data in each cell
             for condition = 1:12
