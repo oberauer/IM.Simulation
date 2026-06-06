@@ -186,8 +186,8 @@ if Exp == 4, SimSeqAlphaCDA(Model, Setsize); end % sequential or simultaneous pr
 if Exp == 5, SetsizeRI(Model, 1, fitMM, fitIMSim); end  % set size and retention-interval variation
 if Exp == 6, SimSeq(Model, fitMM); end % sequential/simultaneous encoding of 2 objects with 2 features
 if Exp == 7, SimSeqPresentationRate(Model, P.cRate, fitMM); end % simultaneous encoding vs. sequential encoding with varying presentation rates (2nd parameter: consolidation rate)
-if Exp == 8, P.cStrength = 0.6; SimSeqPresentationRate(Model, P.cRate, fitMM); end
-if Exp == 9, TwoArrayISI; end    % two successive arrays with varying set sizes, varying inter-array interval
+if Exp == 8, P.cStrength = 0.6; SimSeqPresentationRate(Model, P.cRate, fitMM); end  % with P.cStrength for Prolific participants
+if Exp == 9, P.cStrength = 0.6; TwoArrayISI; end    % two successive arrays with varying set sizes, varying inter-array interval, with P.cStrength for Prolific participants
 if Exp == 10, Consolidation(Model, fitMM); end % consolidation time with SOA variation
 if Exp == 11, SetsizeMaskSOA(Model, fitMM); end  % Bays et al. (2011)
 if Exp == 12, Masking(Model, fitMM); end  % Agaoglu et al., (2015)

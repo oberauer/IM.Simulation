@@ -25,7 +25,7 @@ ParX = CreateIndDiff;
 Pyes = zeros(E.nsubj, 3, 3);  % Probability of saying "Yes" (="Same") for each subject, probe type, and cueing condition
 PC = zeros(E.nsubj, 3, 3);    % Proportion correct
 RT = zeros(E.nsubj, 3, 3);    % Response time
-Error = zeros(E.nsubj, 3, 3); % Continuous-reproduction error
+Error = zeros(E.nsubj, 3); % Continuous-reproduction error
 
 for test = 1:2
     E.test = test;
@@ -97,13 +97,19 @@ for test = 1:2
             end
         end
         if E.test == 1
-           Error(id, ptype, cueingcond) = mean(error(:,condition));
+            for condition = 1:12
+                cueingcond = Design(condition,1);
+                Error(id, cueingcond) = Error(id, cueingcond) + mean(error(:,condition));
+            end
+            for cueingcond = 1:3
+                Error(id, cueingcond) = Error(id, cueingcond)./sum(Design(:,1)==cueingcond);
+            end
         end
 
         %disp(['ID = ', mat2str(id)]);
         disp('     ID        Test      Ptype    Cueing    Accuracy/Error');
         if E.test == 1
-            disp([id, E.test, ptype, cueingcond, Error(id, ptype, cueingcond)]);
+            disp([id, E.test, 0, cueingcond, Error(id, cueingcond)]);
         else
             disp([id, E.test, ptype, cueingcond, PC(id, ptype, cueingcond)]);
         end
@@ -130,7 +136,7 @@ for test = 1:2
     if E.test == 1
         PreFigure;
         plot(1:3, squeeze(mean(Error, 1))');
-        PostFigure([0.5, 3.5, 0, 90], 'Cueing Condition', 'Reproduction Error', [], Legend);
+        PostFigure([0.5, 3.5, 0, 90], 'Cueing Condition', 'Reproduction Error');
         xticks(1:3);
         xticklabels({'None','CBA','ABA'});
     end
