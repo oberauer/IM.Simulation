@@ -11,9 +11,8 @@ MaskSOA = [E.prestime, 2];  %
 setsize = 4;
 E.outsize = setsize;
 E.forwardrecall = 1; % participants were just asked to report all letters - presumably they did that mostly in forward order
-C.consolidAttempt = 4; % number of consolidation steps attempted in simultaneous condition
+C.consolidAttempt = setsize; % number of consolidation steps attempted in simultaneous condition
 SOA = [0.25, 0.5, 1, 1.5];
-
 
 % Calibrate amplification factor on population level, if desired
 if E.calibrateAmp == 1
@@ -140,7 +139,7 @@ end
 PreFigure
 plotvector = squeeze(mean(MRT));
 plot(SOA, plotvector);
-PostFigure([-0.1, max(SOA)+0.1, 0, 1.2*max(plotvector(:))], 'Inter-Item Interval', 'RT(s)', ['Masking = ', mat2str(masking-1)], {'Single', 'Dual'});
+PostFigure([-0.1, max(SOA)+0.1, 0, 1.2*max(plotvector(:))], 'Inter-Item Interval', 'RT(s)', ['Masking = ', mat2str(masking-1)], {'No Mask', 'Mask'});
 
 halt = 1;
 end

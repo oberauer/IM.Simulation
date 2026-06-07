@@ -49,6 +49,7 @@ for id = 1:E.nsubj
             for testedArray = 1:2
                 for iii = 1:length(InterArrayInterval)
 
+                    E.RI = InterArrayInterval(iii) - E.prestime;  % holds for both arrays
                     accuracy = zeros(E.ntrials, 1);  % correctness
                     rt = zeros(E.ntrials, 1); 
                     Bstrength = zeros(E.ntrials, 2);  % strength of binding (summed absolute activation of binding units)
@@ -70,7 +71,7 @@ for id = 1:E.nsubj
                         F = [features(1:6); features(7:12)];  % include some extra-set lures for the n-AFC
 
                         % first array
-                        E.RI = InterArrayInterval(iii) - E.prestime;
+
                         [Map, W, G, GW, Focus, Afocus, content, context, Inpos, strength, bstrength, CTime, SpatAttn] = IMencoding(Map, W, G, GW, L(1,:), F(1,:), SS1, 1);
                         usedTime = SS1*CTime; %CTime is the mean consolidation time taken
                         overTime = max(0, usedTime - InterArrayInterval(iii)); 
@@ -78,7 +79,6 @@ for id = 1:E.nsubj
                         Strength(trial,1) = mean(strength);
                         
                         % second array
-                        E.RI = 0.5; % check with Jacob!
                         [Map, W, G, GW, Focus, Afocus, content, context, Inpos, strength, bstrength, CTime, SpatAttn] = IMencoding(Map, W, G, GW, L(2,:), F(2,:), SS2, 1, overTime);
                         usedTime = SS2*CTime; %CTime is the mean consolidation time taken
                         overTime = max(0, usedTime - InterArrayInterval(iii)); 
