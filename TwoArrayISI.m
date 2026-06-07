@@ -183,6 +183,8 @@ for SS1 = 1:3
 end
 
 % Plot Mean(RT) as function of III and tested array for each combination of SS1 and SS2
+longestRTs = squeeze(mean(MRT(:,3,3,:,:),1));
+ymax = 1.2*max(longestRTs);
 PreFigure;
 plotIdx = 1;
 for SS1 = 1:3
@@ -190,7 +192,6 @@ for SS1 = 1:3
         subplot(3,3,plotIdx);
         plotvector = squeeze(mean(MRT(:,SS1,SS2,:,:),1));
         plot(InterArrayInterval, plotvector);
-       if SS1==1 && SS2==1, ymax = 1.2*max(plotvector(:)); end
         PostFigure([-0.1, max(InterArrayInterval)+0.1, 0, ymax], 'Inter-Item Interval', 'RT(s)', ['SS1=', mat2str(SS1), '; SS2=', mat2str(SS2)], {'First Array', 'Second Array'});
         plotIdx = plotIdx+1;
     end
