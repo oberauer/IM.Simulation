@@ -27,93 +27,121 @@ PC = zeros(E.nsubj, 3, 3);    % Proportion correct
 RT = zeros(E.nsubj, 3, 3);    % Response time
 Error = zeros(E.nsubj, 3); % Continuous-reproduction error
 
+for test = 1:2
+    E.test = test;
 
-for id = 1:E.nsubj
+    for id = 1:E.nsubj
 
-    % extract parameter values for each subject - for those parameters that vary between subjects
-    for ii = 1:length(C.indVar)
-        eval(['P.', C.indVar{ii}, ' = ParX(id, ii);']);
-    end
-
-    % for each subject, create stimuli, and an individual set of feature categories, and the corresponding mappings
-    CreateStimuli;
-    CreateMapping(E.calibrateAmp==2);
-
-    % Setting up the experimental design
-    Cueing = [ones(1,4), 2*ones(1,4), 3*ones(1,4)];  % 3 cueing conditions to be crossed with 4 probe-type conditions
-    Ptype = [1 1 2 3];  % 2 x positive, 1 x new, 1 x intrusion
-    Design = [Cueing', repmat(Ptype', 3, 1)];   % Combining the 2 IV to 2x4=8 design cells
-    response = zeros(E.ntrials, 12);             % responses in all trials for the 12 design cells
-    rt = zeros(E.ntrials, 12);                   % response times
-    error = zeros(E.ntrials, 12);                % continuous-reproduction errors
-    Conditionvector = repmat(1:12, 1, E.ntrials);  % vector of conditions (design cells) for the 12 x ntrials trials
-    Conditionvector = Conditionvector(randperm(length(Conditionvector)));  % shuffle the order of design cells
-    ConditionCount = zeros(1,12);                                           % running counter of trials in each condition
-
-    for trial = 1:(12*E.ntrials)
-
-        condition = Conditionvector(trial);         % pick the condition of this trial
-        ConditionCount(condition) = ConditionCount(condition) + 1;  % increment trial count for the current trial's condition
-        E.ptype = Design(condition, 2);             % determine the probetype from the design matrix
-        if (setsize == 1 && Design(condition, 2) == 3), E.ptype = 2; end % for set size 1, there are no intrusion probes
-        cueingcond = Design(condition, 1);              % determine the cueing condition from the design matrix
-        cueing = 1 + 3*(cueingcond>1); % cueingcond 1 = no cue, 2 & 3 = refreshing --> cueing = 4
-        if cueingcond == 2, C.RefSequence(1).seq = [1+randperm(setsize-1, 2), 1]; end   % CBA
-        if cueingcond == 3, C.RefSequence(1).seq = [1, 1+randperm(setsize-1, 1), 1]; end  % ABA
-        output = Model(P, setsize, cueing);   % run model on 1 trial, returns predictions (output is a structure with lots of variables in it)
-        response(ConditionCount(condition), condition) = output.response(1);  % the first entry of response is the actual response
-        rt(ConditionCount(condition), condition) = output.rt;    % response time
-        featurestep = floor(C.nc/C.nstim);
-        targetDeg = output.F(1)*featurestep; % translate the target feature F (1 to 12) into the angle in degrees
-        fdistance = wrap(output.response(2)-targetDeg, 180);   %calculate distance between response and true feature in feature space (degrees!)
-        error(ConditionCount(condition), condition) = abs(fdistance);
-
-    end
-
-    % now loop over the 12 design cells to read out the summary statistics of simulated data in each cell
-    for condition = 1:12
-        ptype = Design(condition,2);
-        cueingcond = Design(condition,1);
-        Pyes(id, ptype, cueingcond) = mean(2-response(:,condition));  % Yes/No: response = 1/2
-        if (ptype == 1)
-            PC(id, ptype, cueingcond) = PC(id, ptype, cueingcond) + 0.5*Pyes(id, ptype, cueingcond);  % there are 2 conditions per cell with positive probes
-        else
-            PC(id, ptype, cueingcond) = 1-Pyes(id, ptype, cueingcond);
+        % extract parameter values for each subject - for those parameters that vary between subjects
+        for ii = 1:length(C.indVar)
+            eval(['P.', C.indVar{ii}, ' = ParX(id, ii);']);
         end
-        RT(id, ptype, cueingcond) = mean(rt(:,condition));
-        Error(id, cueingcond) = Error(id, cueingcond) + mean(error(:,condition));
+
+        % for each subject, create stimuli, and an individual set of feature categories, and the corresponding mappings
+        CreateStimuli;
+        CreateMapping(E.calibrateAmp==2);
+
+        % Setting up the experimental design
+        Cueing = [ones(1,4), 2*ones(1,4), 3*ones(1,4)];  % 3 cueing conditions to be crossed with 4 probe-type conditions
+        Ptype = [1 1 2 3];  % 2 x positive, 1 x new, 1 x intrusion
+        Design = [Cueing', repmat(Ptype', 3, 1)];   % Combining the 2 IV to 2x4=8 design cells
+        response = zeros(E.ntrials, 12);             % responses in all trials for the 12 design cells
+        rt = zeros(E.ntrials, 12);                   % response times
+        error = zeros(E.ntrials, 12);                % continuous-reproduction errors
+        Conditionvector = repmat(1:12, 1, E.ntrials);  % vector of conditions (design cells) for the 12 x ntrials trials
+        Conditionvector = Conditionvector(randperm(length(Conditionvector)));  % shuffle the order of design cells
+        ConditionCount = zeros(1,12);                                           % running counter of trials in each condition
+        
+        for trial = 1:(12*E.ntrials)
+
+            condition = Conditionvector(trial);         % pick the condition of this trial
+            ConditionCount(condition) = ConditionCount(condition) + 1;  % increment trial count for the current trial's condition
+            E.ptype = Design(condition, 2);             % determine the probetype from the design matrix
+            if (setsize == 1 && Design(condition, 2) == 3), E.ptype = 2; end % for set size 1, there are no intrusion probes
+            cueingcond = Design(condition, 1);              % determine the cueing condition from the design matrix
+            cueing = 1 + 3*(cueingcond>1); % cueingcond 1 = no cue, 2 & 3 = refreshing --> cueing = 4
+            if cueingcond == 2, C.RefSequence(1).seq = [1+randperm(setsize-1, 2), 1]; end   % CBA
+            if cueingcond == 3, C.RefSequence(1).seq = [1, 1+randperm(setsize-1, 1), 1]; end  % ABA
+
+            if E.test == 2
+                output = Model(P, setsize, cueing);   % run model on 1 trial, returns predictions (output is a structure with lots of variables in it)
+                response(ConditionCount(condition), condition) = output.response(1,:);  % the first entry of response is the actual response
+                %disp([cueing, E.ptype, output.response(1,:)]);
+                rt(ConditionCount(condition), condition) = output.rt;    % response time
+            end
+
+            if E.test == 1
+                % continuous-reproduction test
+                outputR = Model(P, setsize, cueing);
+                featurestep = floor(C.nc/C.nstim);
+                targetDeg = outputR.F(1)*featurestep; % translate the target feature F (1 to 12) into the angle in degrees
+                fdistance = wrap(outputR.response-targetDeg, 180);   %calculate distance between response and true feature in feature space (degrees!)
+                error(ConditionCount(condition), condition) = abs(fdistance);
+            end
+
+        end
+
+        if E.test == 2
+            % now loop over the 12 design cells to read out the summary
+            % statistics of simulated data in each cell
+            for condition = 1:12
+                ptype = Design(condition,2);
+                cueingcond = Design(condition,1);
+                Pyes(id, ptype, cueingcond) = mean(2-response(:,condition));  % Yes/No: response = 1/2
+                if (ptype == 1)
+                    PC(id, ptype, cueingcond) = PC(id, ptype, cueingcond) + 0.5*Pyes(id, ptype, cueingcond);  % there are 2 conditions per cell with positive probes
+                else
+                    PC(id, ptype, cueingcond) = 1-Pyes(id, ptype, cueingcond);
+                end
+                RT(id, ptype, cueingcond) = mean(rt(:,condition));
+            end
+        end
+        if E.test == 1
+            for condition = 1:12
+                cueingcond = Design(condition,1);
+                Error(id, cueingcond) = Error(id, cueingcond) + mean(error(:,condition));
+            end
+            for cueingcond = 1:3
+                Error(id, cueingcond) = Error(id, cueingcond)./sum(Design(:,1)==cueingcond);
+            end
+        end
+
+        %disp(['ID = ', mat2str(id)]);
+        disp('     ID        Test      Ptype    Cueing    Accuracy/Error');
+        if E.test == 1
+            disp([id, E.test, 0, cueingcond, Error(id, cueingcond)]);
+        else
+            disp([id, E.test, ptype, cueingcond, PC(id, ptype, cueingcond)]);
+        end
+
+    end  % for ID
+
+    %%% Plots
+
+    % Proportion correct and RT as a function of cueing condition
+
+    if E.test == 2
+        Legend = {'Positive', 'New', 'Intrusion'};
+        PreFigure;
+        subplot(1,2,1);
+        plot(1:3, squeeze(mean(PC, 1))');
+        PostFigure([0.5, 3.5, 0, 1], 'Cueing Condition', 'P(correct)', [], Legend);
+        xticklabels({'None','CBA','ABA'});
+        subplot(1,2,2);
+        plot(1:3, squeeze(mean(RT, 1))');
+        PostFigure([0.5, 3.5, 0, 2], 'Cueing Condition', 'RT', [], Legend);
+        xticklabels({'None','CBA','ABA'});
     end
-    for cueingcond = 1:3
-        Error(id, cueingcond) = Error(id, cueingcond)./sum(Design(:,1)==cueingcond);
+
+    if E.test == 1
+        PreFigure;
+        plot(1:3, squeeze(mean(Error, 1))');
+        PostFigure([0.5, 3.5, 0, 90], 'Cueing Condition', 'Reproduction Error');
+        xticks(1:3);
+        xticklabels({'None','CBA','ABA'});
     end
 
-    disp('     ID        Test      Ptype    Cueing    Accuracy   Error');
-    disp([id, E.test, ptype, cueingcond, PC(id, ptype, cueingcond), Error(id, cueingcond)]);
-
-end  % for ID
-
-%%% Plots
-
-% Proportion correct and RT as a function of cueing condition
-
-Legend = {'Positive', 'New', 'Intrusion'};
-PreFigure;
-subplot(1,2,1);
-plot(1:3, squeeze(mean(PC, 1))');
-PostFigure([0.5, 3.5, 0, 1], 'Cueing Condition', 'P(correct)', [], Legend);
-xticklabels({'None','CBA','ABA'});
-subplot(1,2,2);
-plot(1:3, squeeze(mean(RT, 1))');
-PostFigure([0.5, 3.5, 0, 2], 'Cueing Condition', 'RT', [], Legend);
-xticklabels({'None','CBA','ABA'});
-
-PreFigure;
-plot(1:3, squeeze(mean(Error, 1))');
-PostFigure([0.5, 3.5, 0, 90], 'Cueing Condition', 'Reproduction Error');
-xticks(1:3);
-xticklabels({'None','CBA','ABA'});
-
-
+end
 
 %%% Save results
 if E.saveResults == 1
