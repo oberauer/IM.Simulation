@@ -6,6 +6,7 @@ global P
 global C
 global E
 
+E.test = 2;      % change detection
 E.PreRetro = 2;  % this is all retro-cue
 E.material = 2; 
 E.cuesequence = [0,1];      % successive cue targets, with "0" for "any non-target chosen at random", "1" for target, and any number > 1 for the specific non-target indexed by that number

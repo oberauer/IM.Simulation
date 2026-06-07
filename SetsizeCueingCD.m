@@ -7,6 +7,7 @@ global P
 global E
 global C
 
+E.test = 2;      % change detection
 E.PreRetro = 2;  % this is all retro-cue
 E.cuevalidity = 1;
 E.maxsetsize = 6; 

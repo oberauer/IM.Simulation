@@ -22,6 +22,7 @@ global E
 global C
 global M
 
+E.test = 2;      % change detection
 E.PreRetro = 2;  % this is all retro-cue
 E.mask = 3;
 E.cuevalidity = 1;

@@ -203,14 +203,14 @@ if Exp == 23, Removal(Model, 4, 0, 0); end  % Gunseli et al (2015)
 if Exp == 24, RetroCueDecayInterference(Model, 5, 0, 0); end % Hautekiet & Oberauer (2026)
 if Exp == 25, DoubleCueCTF(Model); end
 if Exp == 26, InterruptCTF; end  % van Moorselaar et al. (2017)
-if Exp == 27, E.test = 2; E.wheel = 0; SetsizeCueingCD(Model); end  % CD for set-size and retro-cue manipulation
-if Exp == 28, E.test = 2; E.wheel = 0; SetsizeDeltaCD(Model); end  % CD for set-size and degree-of-change manipulation
-if Exp == 29, E.test = 2; E.wheel = 0; Reloading(Model); end % CD for retro-cue and re-loading experiment
-if Exp == 30, E.test = 2; E.wheel = 0; DelayRS(Model); end  % CD for retro-cue and delay of response selection
-if Exp == 31, E.test = 2; E.wheel = 0; MultiCueIntrusion(Model); end  % 2-cues (last always valid), with intrusion probes sometimes matching the first-cued item
-if Exp == 32, E.test = 2; MultiCueABA(Model); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence
-if Exp == 33, E.test = 2; E.wheel = 0; SensoryMemoryCD(Model); end  % CD with varying SOA from array to probe
-if Exp == 34, E.test = 3; E.wheel = 0; ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
+if Exp == 27, SetsizeCueingCD(Model); end  % CD for set-size and retro-cue manipulation
+if Exp == 28, SetsizeDeltaCD(Model); end  % CD for set-size and degree-of-change manipulation
+if Exp == 29, Reloading(Model); end % CD for retro-cue and re-loading experiment
+if Exp == 30, DelayRS(Model); end  % CD for retro-cue and delay of response selection
+if Exp == 31, MultiCueIntrusion(Model); end  % 2-cues (last always valid), with intrusion probes sometimes matching the first-cued item
+if Exp == 32, MultiCueABA(Model); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence
+if Exp == 33, SensoryMemoryCD(Model); end  % CD with varying SOA from array to probe
+if Exp == 34, ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
 if Exp == 35, DualTaskConsolidation; end  % Nieuwenstein & Wyble (2015)
 
 

@@ -7,6 +7,7 @@ global C
 global E
 
 E.prestime = 0.05; % arrays were shown just 50 ms
+E.test = 2;      % change detection
 E.PreRetro = 2;  % this is all retro-cue
 E.CTI(2) = 0.5;  % cue-probe interval in Pratte & Greene (2023)
 E.cuevalidity = 1;

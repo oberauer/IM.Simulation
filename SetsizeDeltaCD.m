@@ -7,8 +7,8 @@ global P
 global C
 global E
 
+E.test = 2;      % change detection
 E.PreRetro = 2;  % this is all retro-cue
-E.cuevalidity = 1;
 E.maxsetsize = 6; 
 
 likSame = VonMisesN(C.x, pi, P.kappacrit);  % estimated likelihood of "same" trials using the meta-cognitive estimate of feature precision
