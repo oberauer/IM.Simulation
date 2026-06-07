@@ -24,8 +24,10 @@ end
 ParX = CreateIndDiff;
 
 Mdevobs = NaN(E.nsubj, 2, 2, length(SOA));  % id, singleDual, masking, III
-MRT = NaN(E.nsubj, 2, length(SOA));  % id, singleDual, masking, III
+MRT = NaN(E.nsubj, 2, length(SOA));  % id, masking, III
 MCorrect = NaN(E.nsubj, 2, length(SOA));  % id, singleDual, masking, III
+OT = struct('times', []); 
+OverTime = repmat(OT, 1, length(SOA)); 
 
 %[aa, bb, Colorgrid] = ndgrid(ones(1,E.ntrials), ones(1, setsize), 1:360);  %Colors = E.ntrials x setsize x [1:360]
 
@@ -55,6 +57,7 @@ for id = 1:E.nsubj
 
                 fdistance = zeros(E.ntrials, 1);  % distance (target, response)
                 rt = zeros(E.ntrials, 1);
+                overTime = zeros(1, E.ntrials);
                 correct = zeros(E.ntrials, 1);
 
                 for trial = 1:E.ntrials
@@ -69,7 +72,7 @@ for id = 1:E.nsubj
                         % encode S-R bindings for decision task - doing this for every trial = loading the task set into WM
                         W2 = CreateConnections(C.nfeatures);
                         for stim = 1:2
-                            W2 = IMencodeStim(W2, Stimulus(stim,:), Response(stim,:), G, GW, P.cRate, 1, 1); % consolidation time and release time = 1
+                            [W2, G, GW] = IMencodeStim(W2, Stimulus(stim,:), Response(stim,:), G, GW, P.cRate, 1, 1); % consolidation time and release time = 1
                         end
                     end
 
@@ -80,7 +83,7 @@ for id = 1:E.nsubj
 
                     [Map, W, G, GW, Focus, Afocus, content, context, Inpos, strength, bstrength, CTime, SpatAttn] = IMencoding(Map, W, G, GW, L, F, setsize, 1);
                     usedTime = setsize*CTime; %CTime is the mean consolidation time taken
-                    overTime = max(0, usedTime - SOA(iii));
+                    overTime(trial) = max(0, usedTime - SOA(iii));
 
                     % decision task
                     if singleDual == 2
@@ -97,7 +100,7 @@ for id = 1:E.nsubj
                         t = find(maxA > P.boundary(2), 1);
                         if isempty(t), t=nsteps; end
                         response = find(A(t,:)==max(A(t,:)), 1);
-                        rt(trial) = t.*C.tstep + overTime;
+                        rt(trial) = t.*C.tstep + overTime(trial);
                         correct(trial) = response == selectedStim;
                     end
 
@@ -113,6 +116,7 @@ for id = 1:E.nsubj
                 if singleDual == 2
                     MRT(id, masking, iii) = mean(rt);
                     MCorrect(id, masking, iii) = mean(correct,1)';
+                    OverTime(iii).times = [OverTime(iii).times, overTime];
                 end
 
                 disp('    ID        singDual  Masking   III       error     RT(dec.)   Acc(dec.)');
@@ -140,6 +144,13 @@ PreFigure
 plotvector = squeeze(mean(MRT));
 plot(SOA, plotvector);
 PostFigure([-0.1, max(SOA)+0.1, 0, 1.2*max(plotvector(:))], 'Inter-Item Interval', 'RT(s)', ['Masking = ', mat2str(masking-1)], {'No Mask', 'Mask'});
+
+PreFigure;
+for idx = 1:length(SOA)
+    subplot(2,3,idx);
+    histogram(OverTime(idx).times, 50);
+    title('SOA = ', mat2str(SOA(idx)));
+end
 
 halt = 1;
 end

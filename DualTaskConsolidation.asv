@@ -11,10 +11,8 @@ MaskSOA = [E.prestime, 2];  %
 setsize = 4;
 E.outsize = setsize;
 E.forwardrecall = 1; % participants were just asked to report all letters - presumably they did that mostly in forward order
-P.cRate = cRate;
-C.consolidAttempt = 4; % number of consolidation steps attempted in simultaneous condition
+C.consolidAttempt = setsize; % number of consolidation steps attempted in simultaneous condition
 SOA = [0.25, 0.5, 1, 1.5];
-
 
 % Calibrate amplification factor on population level, if desired
 if E.calibrateAmp == 1
@@ -26,7 +24,8 @@ end
 ParX = CreateIndDiff;
 
 Mdevobs = NaN(E.nsubj, 2, 2, length(SOA));  % id, singleDual, masking, III
-MRT = NaN(E.nsubj, 2, length(SOA));  % id, singleDual, masking, III
+MRT = NaN(E.nsubj, 2, length(SOA));  % id, masking, III
+
 MCorrect = NaN(E.nsubj, 2, length(SOA));  % id, singleDual, masking, III
 
 %[aa, bb, Colorgrid] = ndgrid(ones(1,E.ntrials), ones(1, setsize), 1:360);  %Colors = E.ntrials x setsize x [1:360]
@@ -41,18 +40,23 @@ for id = 1:E.nsubj
     % for each subject, create stimuli, and an individual set of feature categories, and the corresponding mappings
     CreateStimuli;  % large number of colors to create the mask
     CreateMapping(E.calibrateAmp==2);
-    stimulus = randn(2, C.nLocCat);  % stimuli for decision task
-    response = randn(2, C.nCat);     % responses for decision task
+    Stimulus = randn(2, C.nLocCat);  % stimuli for decision task
+    Response = randn(2, C.nCat);     % responses for decision task
 
     for singleDual = 1:2
         for masking = 1:2
             for iii = 1:length(SOA)
 
                 E.MaskSOA = MaskSOA(masking);
-                E.RI = SOA(iii) - E.prestime;
+                if singleDual == 2
+                    E.RI = SOA(iii) - E.prestime;
+                else
+                    E.RI = SOA(iii) - E.prestime + 1.2; % 1.2 s free time are added instead of the secondary task 
+                end
 
                 fdistance = zeros(E.ntrials, 1);  % distance (target, response)
                 rt = zeros(E.ntrials, 1);
+                overTime = zeros(E.ntrials, 1);
                 correct = zeros(E.ntrials, 1);
 
                 for trial = 1:E.ntrials
@@ -67,7 +71,7 @@ for id = 1:E.nsubj
                         % encode S-R bindings for decision task - doing this for every trial = loading the task set into WM
                         W2 = CreateConnections(C.nfeatures);
                         for stim = 1:2
-                            [W2, GateClosed, GateWeight, committedNew, bStrength] = IMencodeStim(W2, stimulus(stim,:), response(stim,:), G, GW, P.cRate, 1, 1); % consolidation time and release time = 1
+                            [W2, G, GW] = IMencodeStim(W2, Stimulus(stim,:), Response(stim,:), G, GW, P.cRate, 1, 1); % consolidation time and release time = 1
                         end
                     end
 
@@ -77,35 +81,33 @@ for id = 1:E.nsubj
                     F = features(1:setsize);
 
                     [Map, W, G, GW, Focus, Afocus, content, context, Inpos, strength, bstrength, CTime, SpatAttn] = IMencoding(Map, W, G, GW, L, F, setsize, 1);
-                    usedTime = singleDual*CTime; %CTime is the mean consolidation time taken
-                    overTime = max(0, usedTime - SOA(iii));
-                    Bstrength(trial,1) = mean(bstrength);
-                    Strength(trial,1) = mean(strength);
+                    usedTime = setsize*CTime; %CTime is the mean consolidation time taken
+                    overTime(trial) = max(0, usedTime - SOA(iii));
 
                     % decision task
                     if singleDual == 2
                         selectedStim = randperm(2,1);
-                        cue = [stimulus(selectedStim,:), zeros(1, C.nCat)];
+                        cue = [Stimulus(selectedStim,:), zeros(1, C.nCat)];
                         retrievedBinding = cue * W2;
-                        retrievedVec = retrievedBinding * W';
+                        retrievedVec = retrievedBinding * W2';
                         retrievedResponse = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat));
-                        Evidence = cosines(retrievedResponse', response');
+                        Evidence = cosines(retrievedResponse', Response');
                         nsteps = round(5./C.tstep);   % that should be more than enough (5 sec)
                         drate = ones(nsteps, 1);
-                        A = A + cumsum(drate * Evidence + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
+                        A = cumsum(drate * Evidence + randn(nsteps, 2)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
                         maxA = max(A, [], 2); % maximum value in each row of A = maximum after each time step
                         t = find(maxA > P.boundary(2), 1);
                         if isempty(t), t=nsteps; end
                         response = find(A(t,:)==max(A(t,:)), 1);
-                        rt(trial) = t.*C.tstep + overTime;
+                        rt(trial) = t.*C.tstep + overTime(trial);
                         correct(trial) = response == selectedStim;
                     end
 
                     % memory test
                     probed = 1;  % for now
                     probestim = []; probeIdx = [];
-                    memresponse = IMretrieve(Map, W, G, Focus, Afocus, probed, 1, L(testedArray,:), F(testedArray,:), probestim, probeIdx);
-                    fdistance(trial) = wrap(memresponse-F(testedArray,1), 180);   %calculate distance between response and true feature in feature space (degrees!)
+                    memresponse = IMretrieve(Map, W, G, Focus, Afocus, probed, 1, L, F, probestim, probeIdx);
+                    fdistance(trial) = wrap(memresponse-F(1), 180);   %calculate distance between response and true feature in feature space (degrees!)
 
                 end
 
@@ -113,10 +115,11 @@ for id = 1:E.nsubj
                 if singleDual == 2
                     MRT(id, masking, iii) = mean(rt);
                     MCorrect(id, masking, iii) = mean(correct,1)';
+                    OverTime(iii).time = [OverTime(iii).time, overTime)];
                 end
 
-                disp('    ID      singDual  Masking   III     error    RT(decision)');
-                disp([id, singleDual, masking, iii, mean(Mdevobs(id, singleDual, masking, iii)), (singleDual == 2).*MRT(id, masking, iii)]);
+                disp('    ID        singDual  Masking   III       error     RT(dec.)   Acc(dec.)');
+                disp([id, singleDual, masking, iii, mean(Mdevobs(id, singleDual, masking, iii)), (singleDual == 2).*MRT(id, masking, iii), (singleDual == 2).*MCorrect(id, masking, iii)]);
 
 
             end % III
@@ -127,13 +130,21 @@ end  % for ID
 
 MemAccuracy = (90-Mdevobs)./90; 
 
-% Plot memory accuracy as function of III PreFigure;
+% Plot memory accuracy as function of III 
+PreFigure;
 for masking = 1:2
     subplot(1,2,masking);
-        plotvector = squeeze(mean(MemAccuracy(:,:,masking,:),1));
-        plot(SOA, plotvector);
-        PostFigure([-0.1, max(SOA)+0.1, 0, 1], 'Inter-Item Interval', 'Accuracy', ['Masking = ', mat2str(masking)], {'Single', 'Dual'});
+    plotvector = squeeze(mean(MemAccuracy(:,:,masking,:),1));
+    plot(SOA, plotvector);
+    PostFigure([-0.1, max(SOA)+0.1, 0, 1], 'Inter-Item Interval', 'Accuracy', ['Masking = ', mat2str(masking-1)], {'Single', 'Dual'});
 end
+
+PreFigure
+plotvector = squeeze(mean(MRT));
+plot(SOA, plotvector);
+PostFigure([-0.1, max(SOA)+0.1, 0, 1.2*max(plotvector(:))], 'Inter-Item Interval', 'RT(s)', ['Masking = ', mat2str(masking-1)], {'No Mask', 'Mask'});
+
+PreFigure;
 
 
 halt = 1;
