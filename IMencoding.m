@@ -213,7 +213,7 @@ if E.presentation == 2
         rTime = max(0, repmat(E.prestime+E.ISI, 1, setsize) - attentionWindows);
     end
 
-    cumTime = 0;
+    %cumTime = 0;
 
     for inpos = 1:setsize
 

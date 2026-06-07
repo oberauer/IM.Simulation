@@ -48,6 +48,7 @@ model = 1;  % 1 = IMSim
 % 33: CD with SOA (array, cue) to test sensory memory (Pratte & Greene, 2023, Exp. 1)
 % 34: Change localization with variation of response set size (He, Kellen & Singmann, 2026)
 % 35: Dual-task consolidation (Nieuwenstein & Wyble, 2015)
+% 36: Dual-task consolidation (Stevanovski & Jolicoeur, 2007)
 
 % 40 = Test retro-cue mechanisms individually
 % 41 = Test retro-cue mechanisms fully crossed, for single and dual retro-cue
@@ -59,7 +60,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 40;
+Exp = 36;
 
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 0;   % fit mixture model?
@@ -67,8 +68,8 @@ fitIMSim = 0; % fit IM?
 
 %%% Experimental Constants/Defaults
 
-E.ntrials = 10;     % number of trials to run per subject and condition
-E.nsubj = 2;        % number of subjects
+E.ntrials = 200;     % number of trials to run per subject and condition
+E.nsubj = 30;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -140,7 +141,7 @@ P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended s
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
 P.rRate = 4;         % rate of release of BP units
 P.cRateFactor = 1;   % proportional reduction of cRate for Ricker's dots on a ring
-P.cRateSD = 0.25;     % 0.5 - SD of consolidation rates (as proportion of mean)
+P.cRateSD = 0.5;     % 0.5 - SD of consolidation rates (as proportion of mean)
 P.cStrength = 0.9;   % proportion of maximal strength that consolidation aims for - when that strength is reached, consolidation stops
 P.cBallistic = 0.5;  % probability of consolidation being ballistic
 P.filter = [0.3, 0.1, 0.1, 0.1]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
@@ -212,6 +213,8 @@ if Exp == 32, MultiCueABA(Model); end  % 3-cues (last always valid), with CBA vs
 if Exp == 33, SensoryMemoryCD(Model); end  % CD with varying SOA from array to probe
 if Exp == 34, ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
 if Exp == 35, DualTaskConsolidation; end  % Nieuwenstein & Wyble (2015)
+if Exp == 36, DualTaskSetsizePRP; end  % Stevanovski & Jolicoeur (2007)
+
 
 
 if Exp == 40, RetroCueSeparateMechanisms(Model, [4,7], 1, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
@@ -221,5 +224,5 @@ if Exp == 43, SetsizeAlpha(@IMSimAlpha, 8); end
 if Exp == 44, NbindingCapacity(Model); end
 if Exp == 45, ParameterSensitivity(Model, 'dnoise', [1:5]); end
 if Exp == 46, ParameterSensitivity2(Model, 'a', [0, 0.05, 0.1, 0.2, 0.3, 0.4]); end
-if Exp == 47, ParameterSensitivityCD(Model, 'a', [0, 0.05, 0.1, 0.2, 0.3, 0.4]); end
+if Exp == 47, ParameterSensitivityCD(Model, 'filter(2)', [0, 0.05, 0.1, 0.2, 0.3, 0.4]); end
 

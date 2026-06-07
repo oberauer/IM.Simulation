@@ -1,0 +1,102 @@
+function output = IMSimDual(P, setsize, cueing, refreshings, MemoryState)
+% Function for simulating one trial in a dual-task paradigm with a
+% processing task in the retention interval
+
+global E
+global C
+
+%%%%%%% Preparatory steps %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+                 map = struct('FX', zeros(C.nc));   % feature map
+                    Map = repmat(map, C.nfeatures, 1);
+                    W = CreateConnections(C.nfeatures);
+                    G = zeros(1, P.nb);  % gate-closing units
+                    GW = zeros(1, P.nb); % gate-closing weights
+
+                    if singleDual == 2
+                        % encode S-R bindings for decision task - doing this for every trial = loading the task set into WM
+                        W2 = CreateConnections(C.nfeatures);
+                        for stim = 1:2
+                            [W2, G, GW] = IMencodeStim(W2, Stimulus(stim,:), Response(stim,:), G, GW, P.cRate, 1, 1); % consolidation time and release time = 1
+                        end
+                    end
+
+% Generate memory set for this trial
+if E.layout == 1, L = randperm(C.nloc); end      %shuffle locations of array objects
+if E.layout == 2, L = ones(1, C.nloc); end       % all in location 1
+if E.layout == 3, L = randperm(floor(C.nloc/2)); end  % all on the first semi-circle
+if E.layout == 4, L = randperm(floor(C.nloc/2)) + ceil(C.nloc/2); end  % all on the second semi-circle
+F = zeros(C.nfeatures, C.nstim);
+for ff = 1:C.nfeatures
+    F(ff,:) = randperm(C.nstim);      %shuffle object features
+end
+
+if ismember(E.test, 2:4)  % if this is a change-detection (=recognition) or n-AFC or change localization test
+    [probestim, probeIdx] = IMprepareProbe(F, setsize);
+else
+    probestim = []; probeIdx = []; 
+end
+
+
+
+                    [Map, W, G, GW, Focus, Afocus, content, context, Inpos, Strength, bstrength, CTime, SpatAttn] = IMencoding(Map, W, G, GW, L, F, setsize, 1);
+                    usedTime = setsize*CTime; %CTime is the mean consolidation time taken
+                    overTime(trial) = max(0, usedTime - SOA(iii));
+
+                    % decision task
+                    if singleDual == 2
+                        selectedStim = randperm(2,1);
+                        cue = [Stimulus(selectedStim,:), zeros(1, C.nCat)];
+                        retrievedBinding = cue * W2;
+                        retrievedVec = retrievedBinding * W2';
+                        retrievedResponse = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat));
+                        Evidence = cosines(retrievedResponse', Response');
+                        nsteps = round(5./C.tstep);   % that should be more than enough (5 sec)
+                        drate = ones(nsteps, 1);
+                        A = cumsum(drate * Evidence + randn(nsteps, 2)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
+                        maxA = max(A, [], 2); % maximum value in each row of A = maximum after each time step
+                        t = find(maxA > P.boundary(2), 1);
+                        if isempty(t), t=nsteps; end
+                        decisionresponse = find(A(t,:)==max(A(t,:)), 1);
+                        rt(trial) = t.*C.tstep + overTime(trial);
+                        correct(trial) = decisionresponse == selectedStim;
+                    end
+
+g = G;    % record the state of the GateClosed vector for carry-over to a second to-be-encoded array
+gw = GW;  % record the state of GateWeights before test (during which it will be changed by output interference)
+w = W;  % record the state of W before test (during which it will be changed by output interference and/or decay)
+fx = Map(1).FX;
+
+%%%%%%%%%%%% Memory test: recall or recognition ##########################
+
+if E.test == 1 || E.test == 4, memresponse = zeros(1, E.outsize); end
+if E.test == 2 || E.test == 3, memresponse = zeros(2, E.outsize); end
+memrt = zeros(1,E.outsize);
+for probed = 1:E.outsize
+    [memresponse(:,probed), memrt(probed)] = IMretrieve(Map, W, G, Focus, Afocus, probed, 1, L, F, probestim, probeIdx);
+end  % outpos
+
+%%%%%%%%%%%%%%% Wrap up %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% put together everything we want the function to return in a structure
+output.response = memresponse;
+output.
+output.decisionresponse = decisionresponse; 
+output.decisioncorrect = correct;
+output.rt = rt;
+output.F = F;
+output.L = L;
+output.wx = w; 
+output.g = g;
+output.fx = fx;
+output.map = Map;
+output.CTime = CTime;
+output.SpatAttn = SpatAttn;
+
+if E.test == 2   % additional outputs for recognition
+    output.SameRange = E.SameRange;
+    output.probeIdx = probeIdx;   %location of origin of intrusion probes
+end
+
+
+end

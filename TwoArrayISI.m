@@ -184,7 +184,7 @@ end
 
 % Plot Mean(RT) as function of III and tested array for each combination of SS1 and SS2
 longestRTs = squeeze(mean(MRT(:,3,3,:,:),1));
-ymax = 1.2*max(longestRTs);
+ymax = 1.2*max(longestRTs(:));
 PreFigure;
 plotIdx = 1;
 for SS1 = 1:3
