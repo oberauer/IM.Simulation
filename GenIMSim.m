@@ -59,7 +59,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 35;
+Exp = 40;
 
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 0;   % fit mixture model?
@@ -67,8 +67,8 @@ fitIMSim = 0; % fit IM?
 
 %%% Experimental Constants/Defaults
 
-E.ntrials = 100;     % number of trials to run per subject and condition
-E.nsubj = 20;        % number of subjects
+E.ntrials = 10;     % number of trials to run per subject and condition
+E.nsubj = 2;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -208,13 +208,13 @@ if Exp == 28, E.test = 2; E.wheel = 0; SetsizeDeltaCD(Model); end  % CD for set-
 if Exp == 29, E.test = 2; E.wheel = 0; Reloading(Model); end % CD for retro-cue and re-loading experiment
 if Exp == 30, E.test = 2; E.wheel = 0; DelayRS(Model); end  % CD for retro-cue and delay of response selection
 if Exp == 31, E.test = 2; E.wheel = 0; MultiCueIntrusion(Model); end  % 2-cues (last always valid), with intrusion probes sometimes matching the first-cued item
-if Exp == 32, E.test = 2; E.wheel = 0; MultiCueABA(Model); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence
+if Exp == 32, E.test = 2; MultiCueABA(Model); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence
 if Exp == 33, E.test = 2; E.wheel = 0; SensoryMemoryCD(Model); end  % CD with varying SOA from array to probe
 if Exp == 34, E.test = 3; E.wheel = 0; ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
 if Exp == 35, DualTaskConsolidation; end  % Nieuwenstein & Wyble (2015)
 
 
-if Exp == 40, RetroCueSeparateMechanisms(Model, [4,7], 2, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
+if Exp == 40, RetroCueSeparateMechanisms(Model, [4,7], 1, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
 if Exp == 41, RetroCueFullDesign(Model, C.indVar, C.maxIndVar, fitMM); end
 if Exp == 42, RetroCueStrength(Model, fitMM); end  % Retro-cue exploration
 if Exp == 43, SetsizeAlpha(@IMSimAlpha, 8); end

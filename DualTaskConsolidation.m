@@ -7,7 +7,7 @@ global C
 
 E.mask = 1;
 E.prestime = 0.1;
-MaskSOA = [E.prestime, 2];  %
+MaskSOA = [2, E.prestime];  %
 setsize = 4;
 E.outsize = setsize;
 E.forwardrecall = 1; % participants were just asked to report all letters - presumably they did that mostly in forward order
@@ -150,7 +150,7 @@ for idx = 1:length(SOA)
     subplot(2,2,idx);
     h = histogram(OverTime(idx).times, 50);
     title('SOA = ', mat2str(SOA(idx)));
-    text(0.6, 0.5*max(h.frequencies), ['Mean = ', mat2str(mean(OverTime(idx).times))]);
+    text(0.5*h.BinLimits(2), 0.5*max(h.Values), ['Mean = ', mat2str(round(mean(OverTime(idx).times),5))]);
 end
 
 halt = 1;

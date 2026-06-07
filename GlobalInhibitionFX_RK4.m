@@ -2,7 +2,7 @@
 % This is using Runge-Kutta 4
 
 clear variables
-close all;
+%close all;
 
 nTrials = 3;
 maxSetsize = 12;

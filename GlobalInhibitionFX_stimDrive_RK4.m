@@ -1,10 +1,11 @@
 %%% Try out self-activation and global inhibition in FX to implement decay
+% Version with a stimulus drive
 % This is using Runge-Kutta 4
 
 clear variables
 close all;
 
-nTrials = 3;
+nTrials = 5;
 maxSetsize = 12;
 stimDrive = 0.1;
 encTime = 0.15;
@@ -16,7 +17,7 @@ shunting = 0;
 if shunting == 0
     selfAct = 1.0;
     inhib = 0.002;
-    asyFX = 4;
+    asyFX = 5;
 end
 if shunting == 0.5
     selfAct = 1;
@@ -36,6 +37,7 @@ NumAlive = zeros(nSteps, maxSetsize);
 MaxAct = zeros(nSteps, maxSetsize);
 MeanAct = zeros(nSteps, maxSetsize);
 SumAct = zeros(nSteps, maxSetsize);
+SpatAttn = zeros(nSteps, maxSetsize);
 
 tic
 for setsize = 1:maxSetsize
@@ -44,6 +46,7 @@ for setsize = 1:maxSetsize
     maxAct = zeros(nTrials, nSteps);
     meanPeakAct = zeros(nTrials, nSteps);
     sumAct = zeros(nTrials, nSteps);
+    spatAttn = zeros(nTrials, nSteps);
 
     for trial = 1:nTrials
         FX = zeros(360);
@@ -76,10 +79,11 @@ for setsize = 1:maxSetsize
             sumPeakact = 0;
             for item = 1:setsize
                 sumPeakact = sumPeakact + FX(loc(item), stim(item));
-                alive = alive + round(FX(loc(item), stim(item)) > threshold);
+                alive = alive + double(FX(loc(item), stim(item)) > threshold);
             end
             meanPeakAct(trial, t) = sumPeakact./setsize;
             sumAct(trial,t) = sum(FX(:));
+            spatAttn(trial,t) = sum(mean(FX,2));
 
             % RK4
             k1 = GI(FX);
@@ -102,6 +106,7 @@ for setsize = 1:maxSetsize
     MaxAct(:, setsize) = mean(maxAct, 1)';
     MeanAct(:, setsize) = mean(meanPeakAct, 1)';
     SumAct(:, setsize) = mean(sumAct, 1)';
+    SpatAttn(:, setsize) = mean(spatAttn,1)';
 end
 toc
 
@@ -110,17 +115,21 @@ PreFigure([], [], 2);
 subplot(2,2,1);
 plot(Time, NumAlive);
 PostFigure([0, max(Time), 0, setsize+1], 'Time (s)', 'Number of Items Alive', [], vec2legend(1:maxSetsize));
+subplot(2,2,2);
+plot(Time, SpatAttn);
+PostFigure([0, max(Time), 0, max(0.1, 1.2*max(SpatAttn(:)))], 'Time (s)', 'Alpha Power');
 subplot(2,2,3);
 plot(Time, MaxAct);
-PostFigure([0, max(Time), 0, max(0.1, max(MaxAct(:)))], 'Time (s)', 'Max. Peak Act.');
+PostFigure([0, max(Time), 0, max(0.1, 1.2*max(MaxAct(:)))], 'Time (s)', 'Max. Peak Act.');
 subplot(2,2,4);
 plot(Time, MeanAct);
-PostFigure([0, max(Time), 0, max(0.1, max(MeanAct(:)))], 'Time (s)', 'Mean Peak Act.');
+PostFigure([0, max(Time), 0, max(0.1, 1.2*max(MeanAct(:)))], 'Time (s)', 'Mean Peak Act.');
 
-SumAct1 = SumAct(round(nSteps/2), :);
-subplot(2,2,2);
-plot(1:maxSetsize, SumAct1);
-PostFigure([0, maxSetsize+1, 0, 1.2*max(SumAct1(:))], 'Set Size', 'Summed Act.');
+
+% SumAct1 = SumAct(round(nSteps/2), :);
+% subplot(2,2,2);
+% plot(1:maxSetsize, SumAct1);
+% PostFigure([0, maxSetsize+1, 0, 1.2*max(SumAct1(:))], 'Set Size', 'Summed Act.');
 
 
 
