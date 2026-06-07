@@ -137,19 +137,20 @@ for masking = 1:2
     subplot(1,2,masking);
     plotvector = squeeze(mean(MemAccuracy(:,:,masking,:),1));
     plot(SOA, plotvector);
-    PostFigure([-0.1, max(SOA)+0.1, 0, 1], 'Inter-Item Interval', 'Accuracy', ['Masking = ', mat2str(masking-1)], {'Single', 'Dual'});
+    PostFigure([-0.1, max(SOA)+0.1, 0, 1], 'SOA', 'Accuracy', ['Masking = ', mat2str(masking-1)], {'Single', 'Dual'});
 end
 
 PreFigure
 plotvector = squeeze(mean(MRT));
 plot(SOA, plotvector);
-PostFigure([-0.1, max(SOA)+0.1, 0, 1.2*max(plotvector(:))], 'Inter-Item Interval', 'RT(s)', ['Masking = ', mat2str(masking-1)], {'No Mask', 'Mask'});
+PostFigure([-0.1, max(SOA)+0.1, 0, 1.2*max(plotvector(:))], 'SOA', 'RT(s)', [], {'No Mask', 'Mask'});
 
 PreFigure;
 for idx = 1:length(SOA)
-    subplot(2,3,idx);
-    histogram(OverTime(idx).times, 50);
+    subplot(2,2,idx);
+    h = histogram(OverTime(idx).times, 50);
     title('SOA = ', mat2str(SOA(idx)));
+    text(0.6, 0.5*max(h.frequencies), ['Mean = ', mat2str(mean(OverTime(idx).times))]);
 end
 
 halt = 1;

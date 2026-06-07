@@ -3,7 +3,7 @@
 % Version using the KO/Manohar mediated-binding mechanism
 
 clear all
-%close all
+close all
 
 global E
 global C
@@ -47,6 +47,7 @@ model = 1;  % 1 = IMSim
 % 32: CD with 3-cue ABA vs. CBA (Rerko & Oberauer, 2013, Exp. 3)
 % 33: CD with SOA (array, cue) to test sensory memory (Pratte & Greene, 2023, Exp. 1)
 % 34: Change localization with variation of response set size (He, Kellen & Singmann, 2026)
+% 35: Dual-task consolidation (Nieuwenstein & Wyble, 2015)
 
 % 40 = Test retro-cue mechanisms individually
 % 41 = Test retro-cue mechanisms fully crossed, for single and dual retro-cue
@@ -58,7 +59,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 5;
+Exp = 32;
 
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 0;   % fit mixture model?
@@ -66,10 +67,10 @@ fitIMSim = 0; % fit IM?
 
 %%% Experimental Constants/Defaults
 
-E.ntrials = 200;     % number of trials to run per subject and condition
+E.ntrials = 100;     % number of trials to run per subject and condition
 E.nsubj = 20;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
-E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features
+E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
 E.test = 1;          % 1 = continuous reproduction, 2 = change detection (here: set default value, can be overwritten later)
 E.context = 1;       % 1 = spatial location, 2 = another feature
@@ -93,9 +94,6 @@ E.saveResults = saveResults;
 
 %%% Constants of the memory system and the simulations
 
-if E.material == 1, C.nstim = 360; end    % number of stimuli - here: 360 different colors (or orientations)
-if E.material == 2, C.nstim = 12; end     % number of stimuli - here: 12 different highly distinct features (maximally spaced on the circular feature space)
-if E.material == 3, C.nstim = 180; end % orientation of bars: 180 orientations
 C.nfeatures = 1;  %number of feature dimensions (default)
 C.nloc = 13;      %number of possible object locations (on a virtual circle around fixation)
 C.nc = 360;       %number of units to represent color space (or orientation space)
@@ -112,6 +110,7 @@ C.spatInhibResolution = 0; % 0 = model the dynamics of spatial attention in one 
 C.seqVariant = 2;  % 1 = consolidation and replenishment until strength is reached; 2 = consolid until strength is reached; replenishment until time is over; 3 = both until time is over
 C.consolidAttempt = 100; % default: all items are attempted to be consolidated
 C.retroCueConsolid = 0;  % use retro-cue to consolidate: 0 = not at all, 1 = only once per item to reach C.strength, 2 = unlimited additional codes with separate sets of binding units
+C.changeLocMethod = 2;   % method for change localization: 1 = retrieve features from probed locations, compare to probe stimuli; 2 
 
 %%% Parameters
 
@@ -141,10 +140,10 @@ P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended s
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
 P.rRate = 4;         % rate of release of BP units
 P.cRateFactor = 1;   % proportional reduction of cRate for Ricker's dots on a ring
-P.cRateSD = 0.5;     % 0.7 - SD of consolidation rates (as proportion of mean)
+P.cRateSD = 0.25;     % 0.5 - SD of consolidation rates (as proportion of mean)
 P.cStrength = 0.9;   % proportion of maximal strength that consolidation aims for - when that strength is reached, consolidation stops
 P.cBallistic = 0.5;  % probability of consolidation being ballistic
-P.filter = [0.2, 0.2, 0.2]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
+P.filter = [0.3, 0.1, 0.1]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
 P.rad1 = 0.7;        % proportion of radius of memory array to radius of color wheel (for computation of color-wheel interference as a function of distance between wheel and target location)
 P.outputinterference = 0; % proportion of reduction of W
 P.wnoise = 0.03;     % noise added to W at each time step to implement decay
@@ -185,8 +184,8 @@ if Exp == 4, SimSeqAlphaCDA(Model, Setsize); end % sequential or simultaneous pr
 if Exp == 5, SetsizeRI(Model, 1, fitMM, fitIMSim); end  % set size and retention-interval variation
 if Exp == 6, SimSeq(Model, fitMM); end % sequential/simultaneous encoding of 2 objects with 2 features
 if Exp == 7, SimSeqPresentationRate(Model, P.cRate, fitMM); end % simultaneous encoding vs. sequential encoding with varying presentation rates (2nd parameter: consolidation rate)
-if Exp == 8, P.cStrength = 0.6; SimSeqPresentationRate(Model, P.cRate, fitMM); end
-if Exp == 9, TwoArrayISI; end    % two successive arrays with varying set sizes, varying inter-array interval
+if Exp == 8, P.cStrength = 0.6; SimSeqPresentationRate(Model, P.cRate, fitMM); end  % with P.cStrength for Prolific participants
+if Exp == 9, P.cStrength = 0.6; TwoArrayISI; end    % two successive arrays with varying set sizes, varying inter-array interval, with P.cStrength for Prolific participants
 if Exp == 10, Consolidation(Model, fitMM); end % consolidation time with SOA variation
 if Exp == 11, SetsizeMaskSOA(Model, fitMM); end  % Bays et al. (2011)
 if Exp == 12, Masking(Model, fitMM); end  % Agaoglu et al., (2015)
@@ -212,6 +211,8 @@ if Exp == 31, E.test = 2; E.wheel = 0; MultiCueIntrusion(Model); end  % 2-cues (
 if Exp == 32, E.test = 2; E.wheel = 0; MultiCueABA(Model); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence
 if Exp == 33, E.test = 2; E.wheel = 0; SensoryMemoryCD(Model); end  % CD with varying SOA from array to probe
 if Exp == 34, E.test = 3; E.wheel = 0; ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
+if Exp == 35, DualTaskConsolidation; end  % Nieuwenstein & Wyble (2015)
+
 
 if Exp == 40, RetroCueSeparateMechanisms(Model, [4,7], 2, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
 if Exp == 41, RetroCueFullDesign(Model, C.indVar, C.maxIndVar, fitMM); end

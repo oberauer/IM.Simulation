@@ -65,13 +65,11 @@ end
 
 if (cueing == 4)    % "refreshing" experiments guiding the focus to several items during the retention interval
 
-    %selection = randperm(length(C.RefSequence(refreshings).seq), 1);
     selection = randperm(size(C.RefSequence(refreshings).seq, 1), 1);
     refsequence = C.RefSequence(refreshings).seq(selection, :);  % select a refresh sequence
     for ref = 1:length(refsequence)
         Focus = refsequence(ref);   % focus goes to next item in the refresh sequence
-        AfocusLoc = C.location(L(Focus),:); %  This entails an update of the location focus, and ...
-        %Afocus = zeros(1,C.nc);              % ... the feature focus is dropped
+        AfocusLoc = C.location(L(Focus),:); %  This entails an update of the location focus
         if C.retroCueConsolid > 0 && cTime(Focus) > 0  % if the cued item has not yet been consolidated
             for ff = 1:E.nfeat, Afocus(ff,:) = AfocusLoc./sum(AfocusLoc) * Map(ff).FX; end % use location as (spatial) attentional filter to pull out the target feature from its feature map
             if E.context == 1, context = C.locationnoise + AfocusLoc * C.MappingC; end  %

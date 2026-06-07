@@ -31,7 +31,7 @@ for ff = 1:C.nfeatures
     F(ff,:) = randperm(C.nstim);      %shuffle object features
 end
 
-if E.test == 2 || E.test == 3  % if this is a change-detection (=recognition) test
+if ismember(E.test, 2:4)  % if this is a change-detection (=recognition) or n-AFC or change localization test
     [probestim, probeIdx] = IMprepareProbe(F, setsize);
 else
     probestim = []; probeIdx = []; 

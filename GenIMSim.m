@@ -3,7 +3,7 @@
 % Version using the KO/Manohar mediated-binding mechanism
 
 clear all
-%close all
+close all
 
 global E
 global C
@@ -67,10 +67,10 @@ fitIMSim = 0; % fit IM?
 
 %%% Experimental Constants/Defaults
 
-E.ntrials = 20;     % number of trials to run per subject and condition
+E.ntrials = 100;     % number of trials to run per subject and condition
 E.nsubj = 20;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
-E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features
+E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
 E.test = 1;          % 1 = continuous reproduction, 2 = change detection (here: set default value, can be overwritten later)
 E.context = 1;       % 1 = spatial location, 2 = another feature
@@ -94,9 +94,6 @@ E.saveResults = saveResults;
 
 %%% Constants of the memory system and the simulations
 
-if E.material == 1, C.nstim = 360; end    % number of stimuli - here: 360 different colors (or orientations)
-if E.material == 2, C.nstim = 12; end     % number of stimuli - here: 12 different highly distinct features (maximally spaced on the circular feature space)
-if E.material == 3, C.nstim = 180; end % orientation of bars: 180 orientations
 C.nfeatures = 1;  %number of feature dimensions (default)
 C.nloc = 13;      %number of possible object locations (on a virtual circle around fixation)
 C.nc = 360;       %number of units to represent color space (or orientation space)
@@ -113,6 +110,7 @@ C.spatInhibResolution = 0; % 0 = model the dynamics of spatial attention in one 
 C.seqVariant = 2;  % 1 = consolidation and replenishment until strength is reached; 2 = consolid until strength is reached; replenishment until time is over; 3 = both until time is over
 C.consolidAttempt = 100; % default: all items are attempted to be consolidated
 C.retroCueConsolid = 0;  % use retro-cue to consolidate: 0 = not at all, 1 = only once per item to reach C.strength, 2 = unlimited additional codes with separate sets of binding units
+C.changeLocMethod = 2;   % method for change localization: 1 = retrieve features from probed locations, compare to probe stimuli (sequential); 2 = retrive locations from stimuli, compare to probed locations (parallel)
 
 %%% Parameters
 
@@ -142,10 +140,10 @@ P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended s
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
 P.rRate = 4;         % rate of release of BP units
 P.cRateFactor = 1;   % proportional reduction of cRate for Ricker's dots on a ring
-P.cRateSD = 0.5;     % 0.7 - SD of consolidation rates (as proportion of mean)
+P.cRateSD = 0.25;     % 0.5 - SD of consolidation rates (as proportion of mean)
 P.cStrength = 0.9;   % proportion of maximal strength that consolidation aims for - when that strength is reached, consolidation stops
 P.cBallistic = 0.5;  % probability of consolidation being ballistic
-P.filter = [0.3, 0.1, 0.1]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
+P.filter = [0.3, 0.1, 0.1, 0.1]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
 P.rad1 = 0.7;        % proportion of radius of memory array to radius of color wheel (for computation of color-wheel interference as a function of distance between wheel and target location)
 P.outputinterference = 0; % proportion of reduction of W
 P.wnoise = 0.03;     % noise added to W at each time step to implement decay

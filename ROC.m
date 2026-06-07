@@ -45,7 +45,6 @@ for id = 1:E.nsubj
         choice = zeros(E.ntrials, 1);
         rt = zeros(E.ntrials, 1);
 
-        % running counter of trials in each condition
         for trial = 1:E.ntrials
             output = Model(P, setsize, 1);   % run model on 1 trial, returns predictions (output is a structure with lots of variables in it)
             choice(trial) = output.response;  % the first entry of response is the actual response

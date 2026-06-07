@@ -25,7 +25,7 @@ if ismember(E.test, 1:3)
 
     % drift after probe
 
-    [Map, CWcolor, erase] = IMdisplay(Map, L, probestim);  % update Map.FX and add test display
+    [Map, CWcolor, erase] = IMdisplay(Map, L, probestim, probeIdx);  % update Map.FX and add test display
 
     refocus = 0;
     if Focus ~= probed   % if, at the onset of the probe, the focus is NOT on it, then ...
@@ -119,27 +119,67 @@ if E.test == 4
     [Map, CWcolor] = IMdisplay(Map, L, probestim, probeIdx);  % update Map.FX and add test display
     probeLoc = probeIdx;
     probeLoc(1) = 1; % for the target (where the stimulus was changed), probeIdx indexes the stimulus displayed, not the location
-    for probe = 1:E.rss
-        Focus = probeLoc(probe);
-        AfocusLoc = C.location(L(Focus),:); % set retrieval cue to the probed location
-        cue = [AfocusLoc * C.MappingC + C.locationnoise, zeros(1, C.nCat*E.nfeat)];
-        retrievedFX = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter for FX
-        Afocus = Afocus + retrievedFX;
+
+    if C.changeLocMethod == 1
+        for probe = 1:E.rss
+            Focus = probeLoc(probe);
+            AfocusLoc = C.location(L(Focus),:); % set retrieval cue to the probed location
+            cue = [AfocusLoc * C.MappingC + C.locationnoise, zeros(1, C.nCat*E.nfeat)];
+            retrievedFX = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter for FX
+            Afocus = Afocus + retrievedFX;
+            retrievedBinding = cue * W;
+            retrievedVec = retrievedBinding * W';
+            retrievedW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat));
+            Adrift = Afocus + retrievedW * C.Mapping';
+            A = cumsum(drate * Adrift + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
+            maxA = max(A, [], 2); % maximum value in each row of A = maximum after each time step
+            t = find(maxA > P.boundary(1), 1);
+            if isempty(t), t=nsteps; end
+            retrieved1 = find(A(t,:)==max(A(t,:)), 1);
+            probefeature = find(probestim(probe,:) == max(probestim(probe,:)), 1);
+            Delta(probe) = abs(wrap(retrieved1 - probefeature, 180));
+            rt = rt + t*C.tstep;
+        end
+        response = find(Delta==max(Delta),1);  % the location with the largest deviation between retrieved feature and probe is the change location
+        rt = rt + (E.CTI(cueing)==0)*overTime;
+    end
+
+    if C.changeLocMethod == 2
+        % use stimuli as cues, retrieve locations bound to them
+        cue = [zeros(1, C.nLocCat), sum(probestim,1) * C.Mapping];
         retrievedBinding = cue * W;
-        retrievedVec = retrievedBinding * W';
-        retrievedW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat));
-        Adrift = Afocus + retrievedW * C.Mapping';
-        A = cumsum(drate * Adrift + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
+        retrievedLocVec = retrievedBinding * W';
+        retrievedLoc = retrievedLocVec(1:C.nLocCat) * C.MappingC';
+        SpatAttn = mean(Map(1).FX,2)' - P.filter(4)*retrievedLoc;  % retrieved locations are predicted --> dampened in spatial attention to the probe locations
+        spatPeak = find(SpatAttn==max(SpatAttn), 1);      
+        AfocusLoc = C.ContextFun(C.x, deg2rad(spatPeak), P.kappaf_ctx);
+        sim2probedLoc = cosines(AfocusLoc', C.location(L(probeLoc), :)');
+        Adrift = sim2probedLoc;
+        A = cumsum(drate * Adrift + randn(nsteps, length(Adrift))*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
         maxA = max(A, [], 2); % maximum value in each row of A = maximum after each time step
         t = find(maxA > P.boundary(1), 1);
         if isempty(t), t=nsteps; end
-        retrieved1 = find(A(t,:)==max(A(t,:)), 1);
-        probefeature = find(probestim(probe,:) == max(probestim(probe,:)), 1);
-        Delta(probe) = abs(wrap(retrieved1 - probefeature, 180));
-        rt = rt + t*C.tstep; 
+        response = find(A(t,:)==max(A(t,:)), 1);
+        rt = t*C.tstep + (E.CTI(cueing)==0)*overTime;
+
+        %if response ~= 1
+            PreFigure([],[],2);
+            subplot(1,2,1);
+            plot(sum(C.location(L(probeLoc(2:end)),:),1));
+            hold on
+            plot(C.location(L(probeLoc(1)),:), 'b'); 
+            plot(retrievedLoc, 'r');
+            PostFigure([], [], [], [], {'Probe Loc', 'Target Loc', 'Retrieved Loc'});
+            subplot(1,2,2);
+            plot(mean(Map(1).FX,2)');
+            hold on
+            plot(SpatAttn);
+            PostFigure([], [], [], [], {'Map Locations', 'Spat. Attn'});
+            halt = 1; 
+        %end      
+
     end
-    response = find(Delta==max(Delta),1);  % the location with the largest deviation between retrieved feature and probe is the change location
-    rt = rt + (E.CTI(cueing)==0)*overTime;
+
 end
 
 if E.outsize > 1   % only if further tests follow

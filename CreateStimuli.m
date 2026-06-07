@@ -5,10 +5,11 @@ global C
 global P
 global E
 
-if (nargin < 1), nMaskStim = min(C.nstim, 100); end  % default: mask with a large number of stimuli
+if E.material == 1, C.nstim = 360; end    % number of stimuli - here: 360 different colors (or orientations)
+if E.material == 2, C.nstim = 12; end     % number of stimuli - here: 12 different highly distinct features (maximally spaced on the circular feature space)
+if E.material == 3, C.nstim = 180; end % orientation of bars: 180 orientations
 
-% meanCtime = -(log(1-P.cTau)./P.cRate);
-% C.meanNsteps = meanCtime/C.tstep;
+if (nargin < 1), nMaskStim = min(C.nstim, 100); end  % default: mask with a large number of stimuli
 
 C.stim = zeros(C.nstim, C.nc);
 C.feature = zeros(C.nstim, 1);
