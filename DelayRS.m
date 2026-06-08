@@ -1,4 +1,4 @@
-function [] = DelayRS(Model)
+function D = DelayRS(Model)
 % Simulation of Retro-Cue and Response-Selection Delay for Change Detection
 % (Experiment 2 of Souza, Rerko, & Oberauer, 2016, JEP:HPP):
 % Conditions: (1) Neutral (location cue, probe color, and response question
@@ -131,6 +131,9 @@ subplot(1,3,3);
 plot(1:3, squeeze(mean(PC(:,3,:), 1)) );
 PostFigure([0.5, 3.5, 0.5, 1], 'Cue Condition', 'P(CR intrus)');
 xticklabels({'No Cue', 'RS Delay', 'Retro-Cue'});
+
+D.PC = PC;
+D.RT = RT;
 
 %%% Save results
 if E.saveResults == 1

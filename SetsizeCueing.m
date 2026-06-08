@@ -1,4 +1,4 @@
-function [] = SetsizeCueing(Model, PreRetro, fitMM, fitIMSim)
+function D = SetsizeCueing(Model, PreRetro, fitMM, fitIMSim)
 % Simulation of Set-size and pre-cue/retro-cue effects in continuous
 % reproduction.
 % Experiments 2 and 3 in Oberauer & Lin (2017, Psych Review), varying set
@@ -229,6 +229,9 @@ PostFigure([0.8, E.maxsetsize+1, 0, 1.05*max(max(plotvector))], 'Setsize', 'W.ac
 meanDeviation = ResponseDistrib(Array, Target, Response);
 disp(meanDeviation);
 
+D.Mdevobs = Mdevobs;
+D.Mrt = Mrt;
+
 % Plot Mixture Model Parameters over Setsize
 if fitMM
     MMPm = 1 - MMtranspos - MMguessing - MMcwattraction;
@@ -253,6 +256,12 @@ if fitMM
     subplot(3,2,6);
     plot(squeeze(mean(MMcwattraction,1))');
     PostFigure([0.8,E.maxsetsize+1, 0, 1], 'Setsize', 'Mean P(wheel)', 'P(wheel attraction)');
+
+    D.MMPm = MMPm;
+    D.MMtranspos = MMtranspos;
+    D.MMguessing = MMguessing;
+    D.MMSD = MMSD;
+    D.MMcwattraction = MMcwattraction;
 end
 
 if fitIM

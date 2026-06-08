@@ -1,4 +1,4 @@
-function [] = Masking(Model, fitMM)
+function D = Masking(Model, fitMM)
 % Simulation of structure-mask experiment of Agaoglu et al. (2015)
 
 global P
@@ -141,3 +141,7 @@ subplot(2,2,4);
 plotvector = mean(MMtranspos);  % average over subjects
 plot(SOA, plotvector);
 PostFigure([min(SOA), max(SOA), 0, 1], 'SOA', 'P(Swap)');
+
+D.Mdevobs = Mdevobs;
+D.MMguessing = MMguessing;
+D.MMtranspos = MMtranspos;

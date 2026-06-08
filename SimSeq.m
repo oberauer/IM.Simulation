@@ -1,4 +1,4 @@
-function [] = SimSeq(Model, fitMM)
+function D = SimSeq(Model, fitMM)
 % Simulation of sequential vs. simultaneous presentation, continuous reproduction
 % Getting the effect right requires a rapid gate-closure rate (~20) so that
 % sufficient information survives for consolidation after the mask in the
@@ -189,6 +189,9 @@ PreFigure;
 plot(ISICat(1:length(ISICat)-1), plotvector);
 PostFigure([-0.05, 1, 0, 1.05*max(max(plotvector))], 'ISI', 'Deviation (Deg)', [], legendtext);
 
+D.Mdevobs = Mdevobs;
+D.MDevISI = MDevISI;
+D.ISICatCount = ISICatCount;
 
 % Plot Mixture Model Parameters over Setsize
 if fitMM
@@ -207,6 +210,11 @@ if fitMM
     subplot(2,2,4);
     plot(squeeze(mean(MMtranspos,1)));
     PostFigure([0.8, 2.2, 0, 0.7], 'Sim - Seq', 'Mean P(trans)', 'P(trans) from Bays Mixture', legendtext);
+
+    D.MMSD = MMSD;
+    D.MMpm = MMPm;
+    D.MMguessing = MMguessing;
+    D.MMtranspos = MMtranspos;
 
 end
 

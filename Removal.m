@@ -1,4 +1,4 @@
-function [] = Removal(Model, setsize, fitMM, fitIMSim)
+function D = Removal(Model, setsize, fitMM, fitIMSim)
 % Simulation of removal of not-cued items in in continuous reproduction
 % (Williams & Woodman 2012, Gunseli et al., 2015)
 
@@ -198,6 +198,8 @@ plotvector = squeeze(mean(Mdevobs,1))';
 plot(Cueval, plotvector);
 PostFigure([min(Cueval)-0.1,1, 0, 1.05*max(max(plotvector))], 'Cue Validity', 'Deviation (Deg)', [], legendtext);
 
+D.Mdevobs = Mdevobs;
+
 % Plot response distributions
 %meanDeviation = ResponseDistrib(Array, Target, Response);
 %disp(meanDeviation);
@@ -226,6 +228,10 @@ if fitMM
     subplot(3,2,6);
     plot(Cueval, squeeze(mean(MMcwattraction,1))');
     PostFigure([min(Cueval)-0.1,1, 0, 1], 'Setsize', 'Mean P(wheel)', 'P(wheel attraction)');
+    D.MMPm = MMPm;
+    D.MMtranspos = MMtranspos;
+    D.MMguessing = MMguessing;
+    D.MMSD = MMSD;
 end
 
 if fitIM

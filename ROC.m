@@ -1,4 +1,4 @@
-function [] = ROC(Model, ptype)
+function D = ROC(Model, ptype)
 % Simulation of change localization with varying number of response options
 % to reconstruct ROC with the method of He, Kellen, and Singmann (2026)
 
@@ -97,5 +97,9 @@ end
 plot([1, ResponseSetSize], mean(PC), 'color', 'red');
 PostFigure([0, max(ResponseSetSize)+1, 0, 1.1], 'RSS', 'P(Correct)');
 
+D.CumPhit = CumPhit;
+D.CumPFA = CumPFA;
+D.PC = PC;
+D.RT = RT; 
 output = 1; 
 

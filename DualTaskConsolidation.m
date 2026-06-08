@@ -1,4 +1,4 @@
-function [] = DualTaskConsolidation(featureOverlap)
+function D = DualTaskConsolidation(featureOverlap)
 % Simulation of Nieuwenstein & Wyble (2015)
 % featureOverlap = 1: Decision task stimuli have feature overlap with
 % memoranda (most experiments), = 0: no overlap (Experiment 5: auditory
@@ -166,6 +166,11 @@ for idx = 1:length(SOA)
     title('SOA = ', mat2str(SOA(idx)));
     text(0.5*h.BinLimits(2), 0.5*max(h.Values), ['Mean = ', mat2str(round(mean(OverTime(idx).times),5))]);
 end
+
+D.OverTime = OverTime;
+D.MemAccuracy = MemAccuracy;
+D.MRT = MRT;
+D.MCorrect = MCorrect; 
 
 halt = 1;
 end

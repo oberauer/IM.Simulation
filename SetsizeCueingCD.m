@@ -1,4 +1,4 @@
-function [] = SetsizeCueingCD(Model)
+function D = SetsizeCueingCD(Model)
 % Simulation of Interaction of retro-cueing with set-size in Change Detection
 % Experiment 1 of Souza & Oberauer (2014,JEP:HPP), varying set size (1 to 6) and
 % retro-cueing (no cue vs. valid cue). 
@@ -144,6 +144,9 @@ plotvector(2:E.maxsetsize,2) = squeeze(mean(PC(:,3,2:E.maxsetsize,2), 1));  % in
 plot(1:E.maxsetsize, plotvector);
 PostFigure([0.5, E.maxsetsize+0.5, 0.5, 1], 'Set Size', 'P(CR Intrus)', [], {'No Cue', 'Cue'});
 
+D.PC = PC;
+D.Pyes = Pyes;
+D.RT = RT;
 
 output = 0; 
 

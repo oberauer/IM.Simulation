@@ -1,4 +1,4 @@
-function [] = SensoryMemoryCD(Model)
+function D = SensoryMemoryCD(Model)
 % Simulation of Pratte & Greene (2023): Change detection with 8-item arrays
 % followed by a 100% valid retro cue at various SOAs
 
@@ -113,6 +113,10 @@ PreFigure;
 plotvector = squeeze(mean(mean(Strength)));
 plot(SOA, plotvector);
 PostFigure([0, 1, 0, max(0.01, 1.1*max(plotvector))], 'SOA', 'Strength of Target');
+
+D.PC = PC;
+D.Pyes = Pyes;
+D.Strength = Strength;
 
 %%% Save results
 if E.saveResults == 1

@@ -1,4 +1,4 @@
-function [MMSD, MMguessing, MMtranspos] = SetsizeCTF(Model, fitMM, fitIM)
+function D = SetsizeCTF(Model, fitMM, fitIM)
 % Simulation of set-size effect on success of continuous-reproduction of locations, CDA,
 % and reconstruction of channel tuning functions (CTF) through an inverted
 % encoding model.
@@ -271,6 +271,17 @@ for setsize = 1:E.maxsetsize
     end
 end
 if (E.saveResults == 1), fclose(fid); end
+
+D.Mdevobs = Mdevobs;
+D.Mrt = Mrt;
+D.mCTF = mCTF;
+D.CTF = CTF;
+if fitMM
+    D.MMPm = MMPm;
+    D.MMtranspos = MMtranspos;
+    D.MMguessing = MMguessing;
+    D.MMSD = MMSD;
+end
 
 
 %%% Save results

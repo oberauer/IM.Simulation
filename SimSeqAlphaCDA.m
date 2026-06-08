@@ -1,4 +1,4 @@
-function [] = SimSeqAlphaCDA(Model, maxSetsize)
+function D = SimSeqAlphaCDA(Model, maxSetsize)
 % Simulation of Set-size and simultaneous vs sequential presentation, on Alpha suppression and CDA, with continuous reproduction
 
 global P
@@ -236,7 +236,10 @@ subplot(1,2,2);
 plot(plotvector');
 PostFigure([0.8,setsize+0.2, 0, 1.05*max(max(plotvector))], 'Output Position', 'Strength', 'Sequential', legendtext(1:E.maxsetsize));
 
-
+D.Mdevobs = Mdevobs;
+D.mCDA = mCDA;
+D.mAlpha = mAlpha;
+D.CTF = CTF;
 
 %%% Save results
 

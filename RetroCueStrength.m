@@ -1,4 +1,4 @@
-function [] = RetroCueStrength(Model, fitMM)
+function D = RetroCueStrength(Model, fitMM)
 % Simulation of retro-cue effects in continuous reproduction, varying strengthening
 % Retro-cue effect even at strength = 0. The valid-cue benefit is probaly
 % due to a head start of retrieval: It goes away when CSI = 0.01;
@@ -192,6 +192,9 @@ PostFigure([-0.03 max(Strength)+0.02, 0, 1.1*max(max(plotvector))], 'Strength', 
 meanDeviation = ResponseDistrib(Array, Target, Response);
 disp(meanDeviation);
 
+D.Mdevobs = Mdevobs;
+D.meanDeviation = meanDeviation;
+
 
 % Plot Mixture Model Parameters over Setsize
 if fitMM
@@ -217,6 +220,11 @@ if fitMM
     subplot(3,2,6);
     plot(Strength, squeeze(mean(MMcwattraction,1))');
     PostFigure([-0.03 max(Strength)+0.02, 0, 1], 'Strength', 'Mean P(wheel)', 'P(wheel attraction)');
+        D.MMPm = MMPm;
+    D.MMtranspos = MMtranspos;
+    D.MMguessing = MMguessing;
+    D.MMSD = MMSD;
+    D.MMcwattraction = MMcwattraction;
 end
 
 %%% Save results

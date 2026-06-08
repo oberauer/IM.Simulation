@@ -1,4 +1,4 @@
-function [] = SimSeqPresentationRate(Model, cRate, fitMM)
+function D = SimSeqPresentationRate(Model, cRate, fitMM)
 % Simulation of sequential vs. simultaneous presentation, continuous reproduction
 % Varying the presentation rate for sequential presentation, and
 % correspondingly, the RI for simultaneous presentation (as in Jacob's
@@ -243,6 +243,12 @@ plotvector = squeeze(mean(meanCtime(:,2,:),1));
 plot(InterItemInterval, plotvector);
 PostFigure([-0.1, max(InterItemInterval)+0.1, 0, 0.5], 'Inter-Item Interval', 'Consol. Time/Item', 'Sequential');
 
+D.MdevobsIn = MdevobsIn;
+D.MdevobsOut = MdevobsOut;
+D.Mdevobs1 = Mdevobs1;
+D.MRT = MRT;
+D.meanCtime = meanCtime;
+
 
 % Plot Mixture Model Parameters over Setsize
 if fitMM
@@ -275,6 +281,11 @@ if fitMM
     subplot(2,2,4);
     plot(InterItemInterval, squeeze(mean(MMtranspos(:,2,:),1)));
     PostFigure([0-0.1, max(InterItemInterval)+0.1, 0, 0.7], 'Inter-Item Interval', 'Mean P(trans)', 'Sequential');
+
+    D.MMSD = MMSD;
+    D.MMpm = MMpm;
+    D.MMguessing = MMguessing;
+    D.MMtranspos = MMtranspos;
 
 end
 

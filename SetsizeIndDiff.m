@@ -1,6 +1,6 @@
 % Simulation of Set-size and pre-cue/retro-cue effects
 
-function [Kestimate, MMSD, MMguessing, MMtranspos, mCDAeeg, GroupPar] = SetsizeIndDiff(Model, fitIM)
+function D = SetsizeIndDiff(Model, fitIM)
 
 global P
 global E
@@ -222,6 +222,7 @@ for group = 1:E.ngroups
     
 end % for group
 
+
 % Plot Mean(Deviation) as functions of set size
 
 legendtext = vec2legend(meanGroupVar);
@@ -313,6 +314,15 @@ corrXT = array2table(round(corrX, 2), 'VariableNames', varnames, ...
     'RowNames', varnames);
 disp(corrXT);
 
+D.Mdevobs = Mdevobs;
+D.Mrt = Mrt;
+D.Mgate = Mgate;
+D.Kestimate = Kestimate;
+D.MMSD = MMSD;
+D.MMguessing = MMguessing;
+D.MMtranspos = MMtranspos;
+D.mCDAeeg = mCDAeeg;
+D.GroupPar = GroupPar;
 
 %%% Save results
 

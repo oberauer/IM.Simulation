@@ -1,4 +1,4 @@
-function [] = RetroCueFullDesign(Model, indVar, maxIndVar, fitMM)
+function D = RetroCueFullDesign(Model, indVar, maxIndVar, fitMM)
 % Simulation of retro-cue effect varying task (continuous reproduction vs. change detection, cue validity, and the
 % presence/absence of the 3 mechanisms (strengthening, removal, and perceptual interference
 
@@ -10,6 +10,8 @@ E.PreRetro = 2;
 setsize = 6;
 E.cuevalidity = 1;
 E.material = 2;
+d = struct('meanAcc', zeros(2,2,2,2)); 
+D = repmat(d, 2, 2);
 
 IMprepareRecog; % set up criterion for expected size of change 
 Ptype = [1 1 2 3];  % 2 x positive, 1 x new, 1 x intrusion
@@ -237,6 +239,8 @@ for task = 1:2
         plotX = squeeze(meanAcc(2,2,2,:));  % consolid on, interference on, removal on
         plot(1:2, plotX, 'g');
         PostFigure([0.5, 2.5, 0, 1.1*max(max(plotX))], 'Cueing Condition', 'Accuracy', ['Cue Schema = ', CueingSchema{cueTarget}, '; Removal'], legendtext);
+
+        D(task, cueTarget).meanAcc = meanAcc;
 
     end  % cueing schema (A vs. AB)
 

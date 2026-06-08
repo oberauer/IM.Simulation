@@ -1,4 +1,4 @@
-function [] = ParameterSensitivityCD(Model, ParName, Values)
+function D = ParameterSensitivityCD(Model, ParName, Values)
 % Simulation of effect of varying a parameter in a simultaneous-presentation
 % change-detection paradigm with a single test
 
@@ -119,5 +119,9 @@ PostFigure([min(Values)-0.05*max(Values), 1.05*max(Values), 0, 1.05*max(max(plot
 subplot(1,3,3);
 plot(Values, K);
 PostFigure([min(Values)-0.05*max(Values), 1.05*max(Values), 0, 1.05*max(max(K))], ParName, 'K');
+
+D.PC = PC;
+D.Pyes = Pyes;
+D.RT = RT;
 
 output = 0; 

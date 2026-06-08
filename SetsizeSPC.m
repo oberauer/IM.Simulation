@@ -1,4 +1,4 @@
-function [] = SetsizeSPC(Model, experiment, maxSetsize, fitMM)
+function D = SetsizeSPC(Model, experiment, maxSetsize, fitMM)
 % Simulation of Set-size and Serial-Position Effects for sequential
 % presentation, continuous reproduction
 
@@ -297,6 +297,12 @@ if fitMM
     subplot(3,2,6);
     plot(squeeze(mean(MMcwattraction,1))');
     PostFigure([0.8,setsize+0.2, 0, 1], 'Setsize', 'Mean P(wheel)', 'P(wheel attraction)');
+
+    D.MMSD = MMSD;
+    D.MMpm = MMPm;
+    D.MMguessing = MMguessing;
+    D.MMtranspos = MMtranspos;
+    D.MMcwattraction = MMcwattraction;
 end
 
 % display parameter estimates in command window

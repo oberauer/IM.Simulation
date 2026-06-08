@@ -1,4 +1,4 @@
-function [] = ParameterSensitivity(Model, ParName, Values)
+function D = ParameterSensitivity(Model, ParName, Values)
 % Simulation of effect of varying a parameter in a sequential-presentation
 % continuous-reproduction paradigm
 
@@ -79,5 +79,10 @@ plotvector = squeeze(nanmean(nanmean(Mdevobs,4),1));  % average over outpos (4) 
 plot(Values, plotvector);
 PostFigure([min(Values)-0.05*max(Values), 1.05*max(Values), 0, 1.05*max(max(plotvector))], ParName, 'Deviation (Deg)', [], legendtext);
 
+D.Mdevobs = Mdevobs;
+D.Parname = Parname;
+D.Values = Values;
+D.CircSD = CircSD;
+D.Mrt = Mrt;
 
 

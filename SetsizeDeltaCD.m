@@ -1,4 +1,4 @@
-function [] = SetsizeDeltaCD(Model)
+function D = SetsizeDeltaCD(Model)
 
 % Not-matching probes are sampled from a uniform distribution of the color
 % wheel (as in Lin & Oberauer, 2022). 
@@ -156,6 +156,9 @@ end
 plot([0, binBounds(2:end)-7.5], pyes');
 PostFigure([0, 180, 0, 1], 'D(probe, target)', 'P(yes)', 'Intrus', vec2legend(1:setsize));
 
+D.PC = PC;
+D.Pyes = Pyes;
+D.RT = RT;
 
 %%% Save results
 if E.saveResults == 1

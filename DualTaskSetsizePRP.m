@@ -1,4 +1,4 @@
-function [] = DualTaskSetsizePRP(featureOverlap)
+function D = DualTaskSetsizePRP(featureOverlap)
 % Simulation of Experiment 1 of Stevanovsky & Jolicoeur (2007)
 % featureOverlap = 1: Decision task stimuli have feature overlap with
 % memoranda, = 0: no overlap 
@@ -77,7 +77,7 @@ for id = 1:E.nsubj
                     for trial = 1:E.ntrials
 
                         E.ptype = 1 + (rand > 0.5); % positive or new
-                        output = IMSimDual(P, setsize, singleDual, Stimulus, Response);
+                        output = IMSimDual(P, setsize, singleDual, Stimulus, Response, featureOverlap);
                         memresponse = output.response(1);
                         memcorrect(trial) = memresponse == E.ptype;
                         rt(trial) = output.drt;
@@ -162,6 +162,12 @@ end
 PreFigure;
 plot(SOA, Otime');
 PostFigure([0, max(SOA)+0.1, 0, 1.2*max(Otime(:))], 'SOA', 'Overtime (s)', 'Ballistic Trials Only', vec2legend(Setsize));
+
+D.OverTime = OverTime;
+D.MemAccuracy = MemAccuracy;
+D.MRT = MRT;
+D.MCorrect = MCorrect; 
+D.MBindingResource = MBindingResource;
 
 halt = 1;
 end

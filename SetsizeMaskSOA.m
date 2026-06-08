@@ -1,4 +1,4 @@
-function [] = SetsizeMaskSOA(Model, fitMM)
+function D = SetsizeMaskSOA(Model, fitMM)
 % Simulation of Set-size and array-mask SOA (Bays et al., JoV 2011)
 global P
 global E
@@ -230,6 +230,14 @@ if fitIM
     disp(std(IMparms, 1));
 end
 
+D.Mdevobs = Mdevobs;
+if fitMM
+    D.MMSD = MMSD;
+    D.MMpm = MMpm;
+    D.MMguessing = MMguessing;
+    D.MMtranspos = MMtranspos;
+    D.MMcwattraction = D.MMcwattraction;
+end
 
 %%% Save results
 if E.saveResults == 1

@@ -1,4 +1,4 @@
-function [] = SetsizeSerialRecall(Model, maxSetsize)
+function D = SetsizeSerialRecall(Model, maxSetsize)
 % Simulation of Set-size and serial recall
 
 global P
@@ -20,7 +20,7 @@ end
 ParX = CreateIndDiff;
 
 Mdevobs = NaN(E.nsubj, E.maxsetsize, E.maxsetsize);  % id, inpos, setsize
-Mwact = NaN(E.nsubj, E.maxsetsize);  % id, setsize
+MCDA = NaN(E.nsubj, E.maxsetsize);  % id, setsize
 
 [aa, bb, Colorgrid] = ndgrid(ones(1,E.ntrials), ones(1, E.maxsetsize), 1:360);  %Colors = E.ntrials x E.maxsetsize x [1:360]
 
@@ -39,19 +39,19 @@ for id = 1:E.nsubj
         setsize = max(1, ssidx);
         E.outsize = setsize;
         fdistance = zeros(E.ntrials, setsize);  % distance (target, response) for each serial position
-        wact = zeros(1,E.ntrials);
+        CDAg = zeros(1,E.ntrials);
         
         for trial = 1:E.ntrials
             output = Model(P, setsize, 1);  % cueing = 1 (no cue)
             for sp = 1:setsize
                 fdistance(trial, sp) = wrap(output.response(sp)-output.F(sp), 180);   %calculate distance between response and true feature in feature space (degrees!)
             end
-            wact(trial) = sum(sum(abs(output.wx))); % sum of activation in weight matrix (in case of model 8, wfocus) -> CDA
+            CDAg(trial) = sum(output.g);  % sum of activation in gating units for binding
         end
         for sp = 1:setsize
             Mdevobs(id, setsize, sp) = mean(abs(fdistance(:,sp)));
         end
-        Mwact(id, setsize) = mean(wact);
+        MCDA(id, setsize) = mean(CDAg);
         
     end %for setsize
     
@@ -66,8 +66,10 @@ PostFigure([0.8,setsize+0.2, 0, 1.05*max(max(plotvector))], 'Serial Position', '
 
 % Plot CDA as a function of set size
 
-CDA = mean(Mwact);
+CDA = mean(MCDA);
 PreFigure;
 ymax = max(CDA);
 plot(1:E.maxsetsize, CDA);
 PostFigure([0.8, E.maxsetsize+0.2, 0, 1.05*ymax], 'Set Size', 'CDA');
+
+D.Mdevobs = Mdevobs;

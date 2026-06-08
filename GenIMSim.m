@@ -69,7 +69,7 @@ fitIMSim = 0; % fit IM?
 %%% Experimental Constants/Defaults
 
 E.ntrials = 200;     % number of trials to run per subject and condition
-E.nsubj = 30;        % number of subjects
+E.nsubj = 20;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -178,51 +178,51 @@ C.maxGroupVar = repmat(inf, 1, length(C.indVar));
 if model==1, Model = @IMSim; end          % depending on the model chosen, define Model as the function to be used for simulating data
 
 % Choose a function to run the experiment selected
-if Exp == 1, SetsizeSPC(Model, 1, Setsize, 0); end  % sequential presentation, continuous reproduction with serial-position effects
-if Exp == 2, SetsizeSPC(Model, 2, Setsize, 0); end  % sequential presentation, continuous reproduction with serial-position effects
-if Exp == 3, SetsizeSerialRecall(Model, Setsize); end
-if Exp == 4, SimSeqAlphaCDA(Model, Setsize); end % sequential or simultaneous presentation, CDA and Alpha power suppression
-if Exp == 5, SetsizeRI(Model, 1, fitMM, fitIMSim); end  % set size and retention-interval variation
-if Exp == 6, SimSeq(Model, fitMM); end % sequential/simultaneous encoding of 2 objects with 2 features
-if Exp == 7, SimSeqPresentationRate(Model, P.cRate, fitMM); end % simultaneous encoding vs. sequential encoding with varying presentation rates (2nd parameter: consolidation rate)
-if Exp == 8, P.cStrength = 0.6; SimSeqPresentationRate(Model, P.cRate, fitMM); end  % with P.cStrength for Prolific participants
-if Exp == 9, P.cStrength = 0.6; TwoArrayISI; end    % two successive arrays with varying set sizes, varying inter-array interval, with P.cStrength for Prolific participants
-if Exp == 10, Consolidation(Model, fitMM); end % consolidation time with SOA variation
-if Exp == 11, SetsizeMaskSOA(Model, fitMM); end  % Bays et al. (2011)
-if Exp == 12, Masking(Model, fitMM); end  % Agaoglu et al., (2015)
-if Exp == 13, [Kestimate, MMSD, MMguessing, MMtranspos, Mwact, Decayrate] = SetsizeIndDiff(Model, 0); end %Continuous reproduction, individual differences and CDA
-if Exp == 14, [MMSD, MMguessing, MMtranspos] = SetsizeCTF(Model, 0, 0); end % Continuous reproduction, channel tuning functions
-if Exp == 15, SetsizeTrackNeuralSignals(Setsize); end
-if Exp == 16, MultiFeatureCDA(Model, Setsize); end  % Variation of number of features and setsize
-if Exp == 17, SetsizeCueing(Model, 1, fitMM, fitIMSim); end  % Continuous reproduction, Pre-cue
-if Exp == 18, SetsizeCueing(Model, 2, fitMM, fitIMSim); end  % Continuous reproduction, Retro-cue
-if Exp == 19, CueTargetInterval(Model, 6, 0, 0); end  % Souza et al., 2016
-if Exp == 20, WheelAttraction(Model, Setsize, fitMM, fitIMSim); end % Continuous reproduction, retro-cue and wheel attraction
-if Exp == 21, Refreshing(Model, Setsize, fitMM, fitIMSim); end  % Continuous reproduction, guided refreshing
-if Exp == 22, Removal(Model, 2, 0, 0); end  % Woodman & Williams (2012)
-if Exp == 23, Removal(Model, 4, 0, 0); end  % Gunseli et al (2015)
-if Exp == 24, RetroCueDecayInterference(Model, 5, 0, 0); end % Hautekiet & Oberauer (2026)
-if Exp == 25, DoubleCueCTF(Model); end
-if Exp == 26, InterruptCTF; end  % van Moorselaar et al. (2017)
-if Exp == 27, SetsizeCueingCD(Model); end  % CD for set-size and retro-cue manipulation
-if Exp == 28, SetsizeDeltaCD(Model); end  % CD for set-size and degree-of-change manipulation
-if Exp == 29, Reloading(Model); end % CD for retro-cue and re-loading experiment
-if Exp == 30, DelayRS(Model); end  % CD for retro-cue and delay of response selection
-if Exp == 31, MultiCueIntrusion(Model); end  % 2-cues (last always valid), with intrusion probes sometimes matching the first-cued item
-if Exp == 32, MultiCueABA(Model); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence
-if Exp == 33, SensoryMemoryCD(Model); end  % CD with varying SOA from array to probe
-if Exp == 34, ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
-if Exp == 35, DualTaskConsolidation(1); end  % Nieuwenstein & Wyble (2015); argument = feature overlap between memory and decision stimuli
-if Exp == 36, DualTaskSetsizePRP(0); end  % Stevanovski & Jolicoeur (2007); argument = feature overlap between memory and decision stimuli
+if Exp == 1, D = SetsizeSPC(Model, 1, Setsize, 0); end  % sequential presentation, continuous reproduction with serial-position effects
+if Exp == 2, D = SetsizeSPC(Model, 2, Setsize, 0); end  % sequential presentation, continuous reproduction with serial-position effects
+if Exp == 3, D = SetsizeSerialRecall(Model, Setsize); end
+if Exp == 4, D = SimSeqAlphaCDA(Model, Setsize); end % sequential or simultaneous presentation, CDA and Alpha power suppression
+if Exp == 5, D = SetsizeRI(Model, 1, fitMM, fitIMSim); end  % set size and retention-interval variation
+if Exp == 6, D = SimSeq(Model, fitMM); end % sequential/simultaneous encoding of 2 objects with 2 features
+if Exp == 7, D = SimSeqPresentationRate(Model, P.cRate, fitMM); end % simultaneous encoding vs. sequential encoding with varying presentation rates (2nd parameter: consolidation rate)
+if Exp == 8, P.cStrength = 0.6; D = SimSeqPresentationRate(Model, P.cRate, fitMM); end  % with P.cStrength for Prolific participants
+if Exp == 9, P.cStrength = 0.6; D = TwoArrayISI; end    % two successive arrays with varying set sizes, varying inter-array interval, with P.cStrength for Prolific participants
+if Exp == 10, D = Consolidation(Model, fitMM); end % consolidation time with SOA variation
+if Exp == 11, D = SetsizeMaskSOA(Model, fitMM); end  % Bays et al. (2011)
+if Exp == 12, D = Masking(Model, fitMM); end  % Agaoglu et al., (2015)
+if Exp == 13, D = SetsizeIndDiff(Model, 0); end %Continuous reproduction, individual differences and CDA
+if Exp == 14, D = SetsizeCTF(Model, 0, 0); end % Continuous reproduction, channel tuning functions
+if Exp == 15, D = SetsizeTrackNeuralSignals(Setsize); end
+if Exp == 16, D = MultiFeatureCDA(Model, Setsize); end  % Variation of number of features and setsize
+if Exp == 17, D = SetsizeCueing(Model, 1, fitMM, fitIMSim); end  % Continuous reproduction, Pre-cue
+if Exp == 18, D = SetsizeCueing(Model, 2, fitMM, fitIMSim); end  % Continuous reproduction, Retro-cue
+if Exp == 19, D = CueTargetInterval(Model, 6, 0, 0); end  % Souza et al., 2016
+if Exp == 20, D = WheelAttraction(Model, Setsize, fitMM, fitIMSim); end % Continuous reproduction, retro-cue and wheel attraction
+if Exp == 21, D = Refreshing(Model, Setsize, fitMM, fitIMSim); end  % Continuous reproduction, guided refreshing
+if Exp == 22, D = Removal(Model, 2, 0, 0); end  % Woodman & Williams (2012)
+if Exp == 23, D = Removal(Model, 4, 0, 0); end  % Gunseli et al (2015)
+if Exp == 24, D = RetroCueDecayInterference(Model, 5, 0, 0); end % Hautekiet & Oberauer (2026)
+if Exp == 25, D = DoubleCueCTF(Model); end
+if Exp == 26, D = InterruptCTF; end  % van Moorselaar et al. (2017)
+if Exp == 27, D = SetsizeCueingCD(Model); end  % CD for set-size and retro-cue manipulation
+if Exp == 28, D = SetsizeDeltaCD(Model); end  % CD for set-size and degree-of-change manipulation
+if Exp == 29, D = Reloading(Model); end % CD for retro-cue and re-loading experiment
+if Exp == 30, D = DelayRS(Model); end  % CD for retro-cue and delay of response selection
+if Exp == 31, D = MultiCueIntrusion(Model); end  % 2-cues (last always valid), with intrusion probes sometimes matching the first-cued item
+if Exp == 32, D = MultiCueABA(Model); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence
+if Exp == 33, D = SensoryMemoryCD(Model); end  % CD with varying SOA from array to probe
+if Exp == 34, D = ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
+if Exp == 35, D = DualTaskConsolidation(1); end  % Nieuwenstein & Wyble (2015); argument = feature overlap between memory and decision stimuli
+if Exp == 36, D = DualTaskSetsizePRP(0); end  % Stevanovski & Jolicoeur (2007); argument = feature overlap between memory and decision stimuli
 
 
 
-if Exp == 40, RetroCueSeparateMechanisms(Model, [4,7], 1, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
-if Exp == 41, RetroCueFullDesign(Model, C.indVar, C.maxIndVar, fitMM); end
-if Exp == 42, RetroCueStrength(Model, fitMM); end  % Retro-cue exploration
-if Exp == 43, SetsizeAlpha(@IMSimAlpha, 8); end
+if Exp == 40, D = RetroCueSeparateMechanisms(Model, [4,7], 1, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
+if Exp == 41, D = RetroCueFullDesign(Model, C.indVar, C.maxIndVar, fitMM); end
+if Exp == 42, D = RetroCueStrength(Model, fitMM); end  % Retro-cue exploration
+if Exp == 43, D = SetsizeAlpha(@IMSimAlpha, 8); end
 if Exp == 44, NbindingCapacity(Model); end
-if Exp == 45, ParameterSensitivity(Model, 'dnoise', [1:5]); end
-if Exp == 46, ParameterSensitivity2(Model, 'a', [0, 0.05, 0.1, 0.2, 0.3, 0.4]); end
-if Exp == 47, ParameterSensitivityCD(Model, 'filter(2)', [0, 0.05, 0.1, 0.2, 0.3, 0.4]); end
+if Exp == 45, D = ParameterSensitivity(Model, 'dnoise', [1:5]); end
+if Exp == 46, D = ParameterSensitivity2(Model, 'a', [0, 0.05, 0.1, 0.2, 0.3, 0.4]); end
+if Exp == 47, D = ParameterSensitivityCD(Model, 'filter(2)', [0, 0.05, 0.1, 0.2, 0.3, 0.4]); end
 

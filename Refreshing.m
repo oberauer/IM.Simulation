@@ -1,4 +1,4 @@
-function [] = Refreshing(Model, setsize, fitMM, fitIMSim)
+function D = Refreshing(Model, setsize, fitMM, fitIMSim)
 % Guided refreshing paradigm (Souza, Rerko, & Oberauer, 2015, ANYAS):
 % Holding 6-item arrays in mind, with 4 successive cues guiding refreshing
 % to individual items, so that 1 item is refreshed 2x, 2 items are refreshed 1x, and the remaining 3 items are refreshed 0x. 
@@ -200,6 +200,9 @@ plot(1:4, repmat(mean(Mdevobs(:,2)), 1, 4), '-r');  % zero refreshings baseline 
 PostFigure([0.5, 4.5, 0, 80], 'Last Refreshing Position', 'Deviation', 'Red = 0 Refreshings', {'1 Ref', '2 Ref'});
 hold off
 
+D.Mdevobs = Mdevobs;
+D.MdevLastRef = MdevLastRef;
+
 % Plot response distributions
 ResponseDistribC(Array, Target, Response, Conditions, {'No Ref', '0 Ref', '1 Ref', '2 Ref'});
 
@@ -227,6 +230,10 @@ if fitMM
     hold on
     plot([-0.2, 2.2], repmat(mean(MMtranspos(:,1)), 1, 2), '-b');  % no-refreshing-cue condition as blue line
     PostFigure([-0.2, 2.2, 0, 1], 'N(Refreshings)', 'Mean P(trans)', '"P(transpos) Bays Mixture');
+    D.MMPm = MMPm;
+    D.MMtranspos = MMtranspos;
+    D.MMguessing = MMguessing;
+    D.MMSD = MMSD;
 end
 
 

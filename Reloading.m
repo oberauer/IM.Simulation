@@ -1,4 +1,4 @@
-function [] = Reloading(Model)
+function D = Reloading(Model)
 % Simulation of Reloading effects: 
 % Experiment 2 in Souza, Rerko, & Oberauer (2014, JEP:HPP): Participants encode a
 % first array (set size 2 vs. 4), followed by a retro cue (or no cue). Then
@@ -182,6 +182,11 @@ plotvector(:,1) = squeeze(mean(PC2(:,:,3,1), 1));  % intrusion probes, no-cue co
 plotvector(:,2) = squeeze(mean(PC2(:,:,3,2), 1));  % intrusion probes, cue condition
 plot([2,4], plotvector);
 PostFigure([1, 4.5, 0.5, 1], 'Set Size', 'P(CR Intrus)', 'Response 2', {'No Cue', 'Cue'});
+
+D.PC1 = PC1;
+D.PC2 = PC2;
+D.RT1 = RT1;
+D.RT2 = RT2;
 
 
 %%% Save results

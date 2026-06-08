@@ -1,4 +1,4 @@
-function [] = WheelAttraction(Model, setsize, fitMM, fitIMSim)
+function D = WheelAttraction(Model, setsize, fitMM, fitIMSim)
 % Simulates the color-wheel attraction effect (Experiment 6 in Souza,
 % Rerko, & Oberauer, 2016, JEP:HPP): Arrays of 6 colors, continuous
 % reproduction on a color wheel or a grey wheel (the color becomes visible
@@ -185,6 +185,8 @@ plotvector = squeeze(mean(MRT,1));
 plot(plotvector);
 PostFigure([0.8, 2.2, 0, 1.05*max(max(plotvector))], 'Cue Condition', 'RT (ms)', 'Mean RT', legendtext);
 
+D.Mdevobs = Mdevobs;
+D.MRT = MRT;
 
 % Plot response distributions
 CondCodes = {'No Cue, Color Wheel', 'No Cue, Grey Wheel', 'Valid Cue, Color Wheel', 'Valid Cue, Grey Wheel'};
@@ -237,8 +239,13 @@ if fitMM
     set(gca,'XtickLabel', Xticks);
     PostFigure([0.8,2.2, -0.03, 0.5], [], 'Mean P(CW)', 'Grey Wheel');
     
-end
+    D.MMSD = MMSD;
+    D.MMpm = MMPm;
+    D.MMguessing = MMguessing;
+    D.MMtranspos = MMtranspos;
+    D.MMcwattraction = MMcwattraction;
 
+end
 
 if fitIMSim
     disp('      X       Y          s       kappa      kappaf      r');
@@ -246,6 +253,8 @@ if fitIMSim
     disp('      X       Y          s       kappa      kappaf      r');
     disp(std(IMSimparms, 1));
 end
+
+
 
 %%% Save results
 if E.saveResults == 1

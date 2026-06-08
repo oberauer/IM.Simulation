@@ -1,4 +1,4 @@
-function [] = SetsizeRI(Model, PreRetro, fitMM, fitIMSim)
+function D = SetsizeRI(Model, PreRetro, fitMM, fitIMSim)
 % Simulation of Set-size and retention-interval effects in continuous
 % reproduction.
 
@@ -209,7 +209,8 @@ plotvector = squeeze(mean(Mrt,1));
 plot(RI, plotvector);
 PostFigure([0,max(RI)+0.5, 0, 1.05*max(max(plotvector))], 'RI', 'RT', [], legendtext);
 
-
+D.Mdevobs = Mdevobs;
+D.Mrt = Mrt; 
 
 % % plot individual RI effect as a function of wheel interference, strengthening, and removal criterion
 % CueBenefit = squeeze(mean(Mdevobs(:,1,:),3)) - squeeze(mean(Mdevobs(:,2,:),3));  % neutral - valid
@@ -261,6 +262,12 @@ if fitMM
     subplot(3,2,6);
     plot(squeeze(mean(MMcwattraction,1))');
     PostFigure([0.8,E.maxsetsize+1, 0, 1], 'Setsize', 'Mean P(wheel)', 'P(wheel attraction)');
+
+    D.MMSD = MMSD;
+    D.MMpm = MMpm;
+    D.MMguessing = MMguessing;
+    D.MMtranspos = MMtranspos;
+    D.MMcwattraction = MMcwattraction;
 end
 
 if fitIM

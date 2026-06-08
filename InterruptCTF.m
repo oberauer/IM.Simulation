@@ -1,4 +1,4 @@
-function [] = InterruptCTF
+function D = InterruptCTF
 % Simulation of memory for 1 location, plus interruption by a distractor
 % task demanding attention to another location (van Moorselar et al., 2017)
 % Decode spatial location (of attention)
@@ -179,6 +179,11 @@ for interrupt = 1:2
         PostFigure([0, E.RI, slopeY(1), slopeY(2)], 'Time (0.05 s)', 'CTF Slope', [Itext{interrupt}, TDtext{targDist}]);
     end
 end
+
+D.CDAg = CDAg;
+D.CDAw = CDAw;
+D.Alpha = Alpha;
+D.CTF = CTF;
 
 output = 1;
 

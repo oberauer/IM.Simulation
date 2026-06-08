@@ -1,4 +1,4 @@
-function [] = SetsizeTrackNeuralSignals(maxSetsize)
+function D = SetsizeTrackNeuralSignals(maxSetsize)
 % Simulation of Set-size, tracking CDA, alpha power, and IEM read-out
 % signals over time
 
@@ -136,6 +136,12 @@ percentAlphaSuppression = (mAlpha-mBA)./mBA;
 subplot(1,2,2);
 plot(Timepoints, percentAlphaSuppression);
 PostFigure([0, E.RI, 1.1*min(percentAlphaSuppression(:)), 1.1*max(percentAlphaSuppression(:))], 'Time (s)', 'Percent Change Alpha Power', [], vec2legend(1:E.maxsetsize));
+
+D.CDAg = CDAg;
+D.CDAw = CDAw;
+D.Alpha = Alpha;
+D.BaseAlpha = BaseAlpha;
+D.CTF = CTF;
 
 % save CDA and Alpha results
 if E.saveResults == 1

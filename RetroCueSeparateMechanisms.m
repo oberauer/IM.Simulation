@@ -1,4 +1,4 @@
-function [] = RetroCueSeparateMechanisms(Model, Mechanisms, Tasks, Cueconds, fitMM)
+function D = RetroCueSeparateMechanisms(Model, Mechanisms, Tasks, Cueconds, fitMM)
 % Simulation of retro-cue effect with each mechanism (strengthening, removal, visual interference) switched on individually,
 % varying task (continuous reproduction vs. change detection)
 
@@ -222,6 +222,8 @@ for task = Tasks
         index = index + 1;
     end
 end
+
+D.meanAcc = meanAcc;
 
 out = 1;
 

@@ -1,4 +1,4 @@
-function [] = Consolidation(Model, fitMM)
+function D = Consolidation(Model, fitMM)
 % Time course of consolidation and masking effects: Ricker & Sandry (2018)
 
 global P
@@ -173,6 +173,7 @@ for ptime = 1:length(Ptime)
     xticklabels(xTicks);
 end
 
+D.Mdevobs = Mdevobs;
 
 
 %%% Save results

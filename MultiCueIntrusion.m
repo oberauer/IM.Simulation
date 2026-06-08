@@ -1,4 +1,4 @@
-function [] = MultiCueIntrusion(Model)
+function D = MultiCueIntrusion(Model)
 % Simulation of two successive cues in Change Detection, with intrusion
 % probes matching the first-cued item (Rerko & Oberauer, 2013, Exp. 2)
 
@@ -89,6 +89,9 @@ subplot(1,2,2);
 plot(1:5, mean(RT));
 PostFigure([0.5, 5.5, 0, 1.1*max(mean(RT))], 'Probe Type', 'RT');
 xticklabels(xTicks);
+
+D.PC = PC;
+D.RT = RT;
 
 %%% Save results
 if E.saveResults == 1

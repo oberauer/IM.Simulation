@@ -1,4 +1,4 @@
-function [] = DoubleCueCTF(Model)
+function D = DoubleCueCTF(Model)
 % Simulation of Double-cue experiment (Lewis-Peacock et al. 2013), with
 % decoding of content (!) from WX and from FX, and with pinging (Rose et al., 2016)
 % This decoding from WX uses the re-activation of content by the current
@@ -181,7 +181,6 @@ end  % for ID
 
 % Plots
 
-
 % plot CTFs from back-projection of w into sensory layer (feature maps)
 
 cuesequence = 2;   % only the cue-switch condition is of interest for now
@@ -224,7 +223,6 @@ for ping = 1:2
     end
 end
 
-
 PreFigure;
 subplot(2,2,1);
 plotvector(:,1) = squeeze(mean(mean(PC1(:,:,:,1), 3), 1));  % repeated cue
@@ -237,6 +235,10 @@ plotvector(:,2) = squeeze(mean(mean(PC2(:,:,:,2), 3), 1));  % cue switch
 plot([2,4], plotvector);
 PostFigure([1, 4.5, 0.5, 1], 'Set Size', 'P(correct)', 'Response 2', {'Cue Repetition', 'Cue Switch'});
 
+D.mCTF = mCTF;
+D.CTF = CTF;
+D.PC1 = PC1;
+D.PC2 = PC2;
 
 %%% Save results
 if E.saveResults == 1

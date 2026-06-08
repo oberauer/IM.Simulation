@@ -1,4 +1,4 @@
-function [] = SetsizeAlpha(Model, maxSetsize)
+function D = SetsizeAlpha(Model, maxSetsize)
 % Simulation of Set-size, measuring time course of spatial attention
 % modulation, extracting alpha power from it at each electrode as input to
 % IEM
@@ -198,3 +198,9 @@ for setsize = 1:E.maxsetsize
     PostFigure([-180, 180, 0, 0.8], 'Feature Value', 'CTF Response from FX', ['SS ', mat2str(setsize)], vec2legend(1:nItems));
 end
 
+D.Mdevobs = Mdevobs;
+D.mAlpha = mAlpha;
+D.mCTF = mCTF;
+D.CTF = CTF;
+D.NumberBound = NumberBound;
+D.BindingStrength = BindingStrength; 

@@ -1,4 +1,4 @@
-function [] = TwoArrayISI
+function D = TwoArrayISI
 % Simulation of simultaneous presentation of two arrays with variable ISI
 % (Jacob's experiment on consolidation)
 
@@ -196,6 +196,13 @@ for SS1 = 1:3
         plotIdx = plotIdx+1;
     end
 end
+
+D.Maccuracy = Maccuracy;
+D.MRT = MRT;
+D.Mbstrength = Mbstrength;
+D.Mstrength = Mstrength;
+D.MmaxFX = MmaxFX;
+D.MmaxW = MmaxW;
 
 halt = 1;
 end

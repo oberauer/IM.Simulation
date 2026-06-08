@@ -1,4 +1,4 @@
-function [] = MultiFeatureCDA(Model, maxSetsize)
+function D = MultiFeatureCDA(Model, maxSetsize)
 % Simulation of Set-size and number of features, on Alpha suppression and CDA, with continuous reproduction
 
 global P
@@ -184,6 +184,13 @@ for nfeat = 1:maxFeat
         PostFigure([-180, 180, 0, 2], 'Feature Dimension', 'CTF of Location from FX', ['SS ', mat2str(setsize) ', ', SimSeq{nfeat}], vec2legend(1:nItems));
     end
 end
+
+D.Mdevobs = Mdevobs;
+D.mCTF = mCTF;
+D.CTF = CTF;
+D.meanCDAg = meanCDAg;
+D.meanCDAg = meanCDAw;
+D.meanAlpha = meanAlpha;
 
 
 %%% Save results

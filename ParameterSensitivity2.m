@@ -1,4 +1,4 @@
-function [] = ParameterSensitivity2(Model, ParName, Values)
+function D = ParameterSensitivity2(Model, ParName, Values)
 % Simulation of effect of varying a parameter in a simultaneous-presentation
 % continuous-reproduction paradigm with a single test
 
@@ -170,6 +170,7 @@ plotvector = mean(Mdevobs);
 plot(Values, plotvector);
 PostFigure([min(Values)-0.05*max(Values), 1.05*max(Values), 0, 1.05*max(max(plotvector))], ParName, 'Deviation (Deg)', [], legendtext);
 
+D.Mdevobs = Mdevobs;
 
 % Plot Mixture Model Parameters over Parameter Values
 if fitMM
@@ -195,6 +196,11 @@ if fitMM
     subplot(3,2,6);
     plot(Values, squeeze(mean(MMcwattraction,1))');
     PostFigure([min(Values)-0.2*abs(min(Values)), 1.2*max(Values), 0, 1], ParName, 'Mean P(wheel)', 'P(wheel attraction)');
+    D.MMPm = MMPm;
+    D.MMtranspos = MMtranspos;
+    D.MMguessing = MMguessing;
+    D.MMcwattraction = MMcwattraction;
+    D.MMSD = MMSD;
 end
 
 

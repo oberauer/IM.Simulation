@@ -1,4 +1,4 @@
-function [] = MultiCueABA(Model)
+function D = MultiCueABA(Model)
 % Simulation of retro-cue effect in ABA vs. CBA sequence (Rerko et al., 2013, Exp. 3)
 
 global P
@@ -137,6 +137,8 @@ for test = 1:2
         plot(1:3, mean(plotvector,2), '-r');
         PostFigure([0.5, 3.5, 0, 1.1*max(plotvector(:))], 'Cueing Condition', 'RT', [], Legend);
         xticklabels({'None','CBA','ABA'});
+        D.PC = PC;
+        D.RT = RT;
     end
 
     if E.test == 1
@@ -145,6 +147,7 @@ for test = 1:2
         PostFigure([0.5, 3.5, 0, 90], 'Cueing Condition', 'Reproduction Error');
         xticks(1:3);
         xticklabels({'None','CBA','ABA'});
+        D.Error = Error;
     end
 
 end

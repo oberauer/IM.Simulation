@@ -1,4 +1,4 @@
-function [] = RetroCueDecayInterference(Model, setsize, fitMM, fitIMSim)
+function D = RetroCueDecayInterference(Model, setsize, fitMM, fitIMSim)
 % Simulates the experiment of Hautekiet & Oberauer (2026) varying the RI of
 % the no-cue condition, and eliminating perceptual interference (here:
 % wheel = 0)
@@ -180,6 +180,9 @@ PreFigure
 plotvector = squeeze(mean(Mdevobs,1));
 plot(RI, plotvector);
 PostFigure([0.8, max(RI)+0.2, 0, 1.05*max(max(plotvector))], 'RI', 'Deviation', 'Mean Deviation', legendtext);
+
+D.Mdevobs = Mdevobs;
+
 % 
 % 
 % % Plot Mixture Model Parameters over Wheel condition
