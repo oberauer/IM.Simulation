@@ -27,7 +27,7 @@ MemAccuracy = NaN(E.nsubj, 2, length(Setsize), length(DecisionSetsize), length(S
 MRT = NaN(E.nsubj, length(Setsize), length(DecisionSetsize), length(SOA));  % id, setsize, decision-task setsize, III
 MCorrect = NaN(E.nsubj, length(Setsize), length(DecisionSetsize), length(SOA));  % id, singleDual, setsize, decision-task setsize, III
 OT = struct('times', []);
-OverTime = repmat(OT, 1, length(SOA));
+OverTime = repmat(OT, length(Setsize), length(SOA));
 
 %[aa, bb, Colorgrid] = ndgrid(ones(1,E.ntrials), ones(1, setsize), 1:360);  %Colors = E.ntrials x setsize x [1:360]
 
@@ -86,7 +86,7 @@ for id = 1:E.nsubj
                     if singleDual == 2
                         MRT(id, ssIdx, dssIdx, soaIdx) = mean(rt);
                         MCorrect(id, ssIdx, dssIdx, soaIdx) = mean(correct,1)';
-                        OverTime(soaIdx).times = [OverTime(soaIdx).times, overTime];
+                        OverTime(ssIdx, soaIdx).times = [OverTime(ssIdx, soaIdx).times, overTime];
                     end
 
                     disp('    ID        singDual  setsize   D-setsize   III       error     RT(dec.)   Acc(dec.)');
@@ -102,21 +102,37 @@ end  % for ID
 
 % Plot memory accuracy as function of III
 
-for dssIdx = 1:2 
-PreFigure;
-for ssIdx = 1:length(Setsize)
-    subplot(2,2,ssIdx);
-    plotvector = squeeze(mean(MemAccuracy(:,:,ssIdx,dssIdx,:),1));
-    plot(SOA, plotvector);
-    PostFigure([-0.1, max(SOA)+0.1, 0, 1], 'SOA', 'Accuracy', ['Set Size = ', mat2str(Setsize(ssIdx)), ], {'Single', 'Dual'});
-end
+for dssIdx = 1:2
+    PreFigure;
+    for ssIdx = 1:length(Setsize)
+        subplot(2,2,ssIdx);
+        plotvector = squeeze(mean(MemAccuracy(:,:,ssIdx,dssIdx,:),1));
+        plot(SOA, plotvector);
+        PostFigure([-0.1, max(SOA)+0.1, 0, 1], 'SOA', 'Accuracy', ['M-Setsize = ', mat2str(Setsize(ssIdx)), '; D-Setsize = ', mat2str(DecisionSetsize(dssIdx))], {'Single', 'Dual'});
+    end
 end
 
 PreFigure
-plotvector = squeeze(mean(MRT));
-plot(SOA, plotvector);
-PostFigure([-0.1, max(SOA)+0.1, 0, 1.2*max(plotvector(:))], 'SOA', 'RT(s)', [], vec2legend(Setsize));
+for dssIdx = 1:2
+    subplot(1,2,dssIdx)
+    plotvector = squeeze(mean(MRT(:,:,dssIdx,:)));
+    plot(SOA, plotvector);
+    PostFigure([-0.1, max(SOA)+0.1, 0, 1.2*max(plotvector(:))], 'SOA', 'RT(s)', ['D-Setsize = ', mat2str(DecisionSetsize(dssIdx))], vec2legend(Setsize));
+end
 
+PreFigure;
+for soaIdx = 1:length(SOA)
+    OT = zeros(length(Setsize), length(OverTime(1,1).times));
+    for ssIdx = 1:length(Setsize)
+        OT(ssIdx,:) = OverTime(ssIdx,soaIdx).times;
+    end
+    subplot(2,2,soaIdx);
+    hist(OT', 50);
+    title('SOA = ', mat2str(SOA(soaIdx)));
+end
+
+Otime = zeros(length(Setsize), length(SOA));
+for ssIdx = 1:length
 
 halt = 1;
 end
