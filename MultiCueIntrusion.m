@@ -81,6 +81,7 @@ PreFigure;
 subplot(1,2,1);
 plot(1:5, mean(PC));
 PostFigure([0.5, 5.5, 0.5, 1], 'Probe Type', 'P(correct)');
+xticklabels(xTicks);
 subplot(1,2,2);
 plot(1:5, mean(RT));
 PostFigure([0.5, 5.5, 0, 1.1*max(mean(RT))], 'Probe Type', 'RT');

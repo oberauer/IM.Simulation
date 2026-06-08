@@ -60,10 +60,10 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 31;
+Exp = 20;
 
 Setsize = 6;  % default value (can be overwritten later)
-fitMM = 0;   % fit mixture model?
+fitMM = 1;   % fit mixture model?
 fitIMSim = 0; % fit IM?
 
 %%% Experimental Constants/Defaults
@@ -115,9 +115,9 @@ C.changeLocMethod = 2;   % method for change localization: 1 = retrieve features
 
 %%% Parameters
 
-P.kappaf_feat = 25;  % precision of original stimuli (in the sensory layer), which is also the feature precision in the focus of attention, for content features
+P.kappaf_feat = 15;  % precision of original stimuli (in the sensory layer), which is also the feature precision in the focus of attention, for content features
 P.kappa_feat = 25;   % mean precision of categories, for content features
-P.kappaf_ctx = 25;   % precision of original stimuli, and the focus of attention, for context (needs to be fairly high, otherwise CW intrusion becomes too big)
+P.kappaf_ctx = 15;   % precision of original stimuli, and the focus of attention, for context (needs to be fairly high, otherwise CW intrusion becomes too big)
 P.kappa_ctx = 25;    % precision of categories for context
 P.kappaCatSD = 3;    % SD of precision values of categories (variability across categories)
 P.mCatSD = 5;        % SD of deviation of category center from equal spacing
@@ -144,7 +144,7 @@ P.cRateFactor = 1;   % proportional reduction of cRate for Ricker's dots on a ri
 P.cRateSD = 0.5;     % 0.5 - SD of consolidation rates (as proportion of mean)
 P.cStrength = 0.9;   % proportion of maximal strength that consolidation aims for - when that strength is reached, consolidation stops
 P.cBallistic = 0.5;  % probability of consolidation being ballistic
-P.filter = [0.3, 0.1, 0.1, 0.1]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
+P.filter = [0.1, 0.1, 0.1, 0.1]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
 P.rad1 = 0.7;        % proportion of radius of memory array to radius of color wheel (for computation of color-wheel interference as a function of distance between wheel and target location)
 P.outputinterference = 0; % proportion of reduction of W
 P.wnoise = 0.03;     % noise added to W at each time step to implement decay
