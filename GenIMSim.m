@@ -60,7 +60,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 36;
+Exp = 31;
 
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 0;   % fit mixture model?
@@ -212,8 +212,8 @@ if Exp == 31, MultiCueIntrusion(Model); end  % 2-cues (last always valid), with 
 if Exp == 32, MultiCueABA(Model); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence
 if Exp == 33, SensoryMemoryCD(Model); end  % CD with varying SOA from array to probe
 if Exp == 34, ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
-if Exp == 35, DualTaskConsolidation; end  % Nieuwenstein & Wyble (2015)
-if Exp == 36, DualTaskSetsizePRP; end  % Stevanovski & Jolicoeur (2007)
+if Exp == 35, DualTaskConsolidation(1); end  % Nieuwenstein & Wyble (2015); argument = feature overlap between memory and decision stimuli
+if Exp == 36, DualTaskSetsizePRP(0); end  % Stevanovski & Jolicoeur (2007); argument = feature overlap between memory and decision stimuli
 
 
 

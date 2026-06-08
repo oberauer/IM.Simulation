@@ -1,4 +1,4 @@
-function output = IMSimDual(P, setsize, singleDual, Stimulus, Response)
+function output = IMSimDual(P, setsize, singleDual, Stimulus, Response, featureOverlap)
 % Function for simulating one trial in a dual-task paradigm with a
 % processing task in the retention interval
 
@@ -14,13 +14,6 @@ G = zeros(1, P.nb);  % gate-closing units
 GW = zeros(1, P.nb); % gate-closing weights
 dSetSize = size(Stimulus,1); % decision-task set size
 
-if singleDual == 2
-    % encode S-R bindings for decision task - doing this for every trial = loading the task set into WM
-    W2 = CreateConnections(C.nfeatures);
-    for stim = 1:dSetSize
-        [W2, G, GW] = IMencodeStim(W2, Stimulus(stim,:), Response(stim,:), G, GW, P.cRate, 1, 1); % consolidation time and release time = 1
-    end
-end
 
 % Generate memory set for this trial
 if E.layout == 1, L = randperm(C.nloc); end      %shuffle locations of array objects
@@ -38,6 +31,17 @@ else
     probestim = []; probeIdx = [];
 end
 
+%%%%%%%%%%  Encode S-R bindings for decision task - doing this for every trial = loading the task set into WM
+
+if singleDual == 2
+    W2 = CreateConnections(C.nfeatures);
+    for stim = 1:dSetSize
+        [W2, G, GW] = IMencodeStim(W2, Stimulus(stim,:), Response(stim,:), G, GW, P.cRate, 1, 1); % consolidation time and release time = 1
+    end
+end
+
+g1 = G; 
+
 %%%%%%%%%%% Encode memory set %%%%%%%%%%%%%%%%%%%%%%%%
 
 [Map, W, G, GW, Focus, Afocus, content, context, Inpos, Strength, bstrength, CTime, SpatAttn] = IMencoding(Map, W, G, GW, L, F, setsize, 1);
@@ -47,6 +51,9 @@ overTime = max(0, usedTime - (E.RI + E.prestime));
 %%%%%%%%%%%% Decision task %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if singleDual == 2
+    if featureOverlap == 1
+        Map = UpdateFX(Map); % if the decision stimulus has features overlapping with the memory stimuli, the feature map of the memory stimuli is updated
+    end
     selectedStim = randperm(dSetSize,1);
     cue = [Stimulus(selectedStim,:), zeros(1, C.nCat)];
     retrievedBinding = cue * W2;
@@ -69,9 +76,8 @@ else
     correct = NaN;
 end
 
-g = G;    % record the state of the GateClosed vector for carry-over to a second to-be-encoded array
-gw = GW;  % record the state of GateWeights before test (during which it will be changed by output interference)
-w = W;  % record the state of W before test (during which it will be changed by output interference and/or decay)
+g2 = G;    % record the state of the GateClosed vector after encoding the second array
+w = W;     % record the state of W before test (during which it will be changed by output interference and/or decay)
 fx = Map(1).FX;
 
 %%%%%%%%%%%% Memory test: recall or recognition ##########################
@@ -95,7 +101,8 @@ output.overtime = overTime;
 output.F = F;
 output.L = L;
 output.wx = w;
-output.g = g;
+output.g1 = g1;
+output.g2 = g2;
 output.fx = fx;
 output.map = Map;
 output.CTime = CTime;

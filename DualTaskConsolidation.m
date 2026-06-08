@@ -1,5 +1,8 @@
-function [] = DualTaskConsolidation
+function [] = DualTaskConsolidation(featureOverlap)
 % Simulation of Nieuwenstein & Wyble (2015)
+% featureOverlap = 1: Decision task stimuli have feature overlap with
+% memoranda (most experiments), = 0: no overlap (Experiment 5: auditory
+% digits)
 
 global P
 global E
@@ -114,7 +117,7 @@ for id = 1:E.nsubj
                     % probestim = []; probeIdx = [];
                     % memresponse = IMretrieve(Map, W, G, Focus, Afocus, probed, 1, L, F, probestim, probeIdx);
 
-                    output = IMSimDual(P, setsize, singleDual, Stimulus, Response);
+                    output = IMSimDual(P, setsize, singleDual, Stimulus, Response, featureOverlap);  % featureOverlap = 1 indicates the feature overlap between memoranda and decision-task stimuli
                     for outpos = 1:E.outsize
                         fdistance(trial, outpos) = wrap(output.response(outpos)-output.F(outpos), 180);   %calculate distance between response and true feature in feature space (degrees!)
                     end

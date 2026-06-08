@@ -11,7 +11,6 @@ E.PreRetro = 2;  % this is all retro-cue
 E.material = 2; 
 E.cuesequence = [0,1];      % successive cue targets, with "0" for "any non-target chosen at random", "1" for target, and any number > 1 for the specific non-target indexed by that number
 E.cuevalidity = 0.5;        % In multi-cue paradigm, predictability of number of cues appears to have no effect, so this must be set low for all cues
-IMprepareRecog;
 
 % Calibrate amplification factor on population level, if desired
 if E.calibrateAmp == 1
@@ -29,7 +28,7 @@ RT = zeros(E.nsubj, 5);    % Response time
 
 for id = 1:E.nsubj
     
-        % extract parameter values for each subject - for those parameters that vary between subjects
+    % extract parameter values for each subject - for those parameters that vary between subjects
     for ii = 1:length(C.indVar)
         eval(['P.', C.indVar{ii}, ' = ParX(id, ii);']); 
     end
@@ -37,6 +36,7 @@ for id = 1:E.nsubj
     % for each subject, create stimuli, and an individual set of feature categories, and the corresponding mappings
     CreateStimuli;
     CreateMapping(E.calibrateAmp==2);
+    IMprepareRecog;
     
     ConditionCount = ones(1,5);
     response = NaN(E.ntrials,5);

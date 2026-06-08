@@ -1,5 +1,7 @@
-function [] = DualTaskSetsizePRP
+function [] = DualTaskSetsizePRP(featureOverlap)
 % Simulation of Experiment 1 of Stevanovsky & Jolicoeur (2007)
+% featureOverlap = 1: Decision task stimuli have feature overlap with
+% memoranda, = 0: no overlap 
 
 global P
 global E
@@ -25,7 +27,8 @@ IMprepareRecog; % set up criterion for expected size of change
 
 MemAccuracy = NaN(E.nsubj, 2, length(Setsize), length(DecisionSetsize), length(SOA));  % id, singleDual, setsize, decision-task setsize, III
 MRT = NaN(E.nsubj, length(Setsize), length(DecisionSetsize), length(SOA));  % id, setsize, decision-task setsize, III
-MCorrect = NaN(E.nsubj, length(Setsize), length(DecisionSetsize), length(SOA));  % id, singleDual, setsize, decision-task setsize, III
+MCorrect = NaN(E.nsubj, length(Setsize), length(DecisionSetsize), length(SOA));  % id, setsize, decision-task setsize, III
+MBindingResource = NaN(E.nsubj, length(Setsize), length(DecisionSetsize), length(SOA));  % id, setsize, decision-task setsize, III
 OT = struct('times', []);
 OverTime = repmat(OT, length(Setsize), length(SOA));
 
@@ -69,6 +72,7 @@ for id = 1:E.nsubj
                     rt = zeros(E.ntrials, 1);
                     overTime = zeros(1, E.ntrials);
                     correct = zeros(E.ntrials, 1);
+                    G1 = zeros(E.ntrials, 1);
 
                     for trial = 1:E.ntrials
 
@@ -79,14 +83,16 @@ for id = 1:E.nsubj
                         rt(trial) = output.drt;
                         correct(trial) = output.dcorrect;
                         overTime(trial) = output.overtime;
+                        G1(trial) = mean(output.g1==0); % binding resource (from gating) free after encoding S-R mappings
 
                     end
 
-                    MemAccuracy(id, singleDual, ssIdx, dssIdx, soaIdx) = mean(memcorrect);  %mean deviation (average over trials)
+                    MemAccuracy(id, singleDual, ssIdx, dssIdx, soaIdx) = mean(memcorrect);  %mean memory accoracy (average over trials)
                     if singleDual == 2
                         MRT(id, ssIdx, dssIdx, soaIdx) = mean(rt);
                         MCorrect(id, ssIdx, dssIdx, soaIdx) = mean(correct,1)';
                         OverTime(ssIdx, soaIdx).times = [OverTime(ssIdx, soaIdx).times, overTime];
+                        MBindingResource(id, ssIdx, dssIdx, soaIdx) = mean(G1);
                     end
 
                     disp('    ID        singDual  setsize   D-setsize   III       error     RT(dec.)   Acc(dec.)');
@@ -108,7 +114,7 @@ for dssIdx = 1:2
         subplot(2,2,ssIdx);
         plotvector = squeeze(mean(MemAccuracy(:,:,ssIdx,dssIdx,:),1));
         plot(SOA, plotvector);
-        PostFigure([-0.1, max(SOA)+0.1, 0, 1], 'SOA', 'Accuracy', ['M-Setsize = ', mat2str(Setsize(ssIdx)), '; D-Setsize = ', mat2str(DecisionSetsize(dssIdx))], {'Single', 'Dual'});
+        PostFigure([0, max(SOA)+0.1, 0, 1], 'SOA', 'Accuracy', ['M-Setsize = ', mat2str(Setsize(ssIdx)), '; D-Setsize = ', mat2str(DecisionSetsize(dssIdx))], {'Single', 'Dual'});
     end
 end
 
@@ -117,7 +123,23 @@ for dssIdx = 1:2
     subplot(1,2,dssIdx)
     plotvector = squeeze(mean(MRT(:,:,dssIdx,:)));
     plot(SOA, plotvector);
-    PostFigure([-0.1, max(SOA)+0.1, 0, 1.2*max(plotvector(:))], 'SOA', 'RT(s)', ['D-Setsize = ', mat2str(DecisionSetsize(dssIdx))], vec2legend(Setsize));
+    PostFigure([0, max(SOA)+0.1, 0, 1.2*max(plotvector(:))], 'SOA', 'RT(s)', ['D-Setsize = ', mat2str(DecisionSetsize(dssIdx))], vec2legend(Setsize));
+end
+
+PreFigure
+for dssIdx = 1:2
+    subplot(1,2,dssIdx)
+    plotvector = squeeze(mean(MCorrect(:,:,dssIdx,:)));
+    plot(SOA, plotvector);
+    PostFigure([0, max(SOA)+0.1, 0, 1.2*max(plotvector(:))], 'SOA', 'P(correct decision)', ['D-Setsize = ', mat2str(DecisionSetsize(dssIdx))], vec2legend(Setsize));
+end
+
+PreFigure
+for dssIdx = 1:2
+    subplot(1,2,dssIdx)
+    plotvector = squeeze(mean(MBindingResource(:,:,dssIdx,:)));
+    plot(SOA, plotvector);
+    PostFigure([0, max(SOA)+0.1, 0, 1.2*max(plotvector(:))], 'SOA', 'Binging Units after Task Set', ['D-Setsize = ', mat2str(DecisionSetsize(dssIdx))], vec2legend(Setsize));
 end
 
 PreFigure;
@@ -139,7 +161,7 @@ for ssIdx = 1:length(Setsize)
 end
 PreFigure;
 plot(SOA, Otime');
-PostFigure([0, max(SOA)+0.2, 0, 1.2*max(Otime(:))], 'SOA', 'Overtime (s)', 'Ballistic Trials Only', vec2legend(Setsize));
+PostFigure([0, max(SOA)+0.1, 0, 1.2*max(Otime(:))], 'SOA', 'Overtime (s)', 'Ballistic Trials Only', vec2legend(Setsize));
 
 halt = 1;
 end
