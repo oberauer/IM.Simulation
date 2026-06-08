@@ -43,7 +43,7 @@ if ismember(E.test, 1:3)
         AfocusLoc = ones(1,C.nc)*mean(C.location(L(Focus),:)); % uniformly distributed spatial focus with overall activation strength matching a locally focused focus
     end
     if E.CTI(cueing) == 0 || refocus == 1  % if FX has not been read out yet in the CTI from the same location ...
-        cRate = gamrnd(P.cRate^2/P.cRateSD^2, P.cRateSD^2/P.cRate);
+        cRate = gamrnd(P.cRate^2/(P.cRate*P.cRateSD)^2, (P.cRate*P.cRateSD)^2/P.cRate);
         refocusDuration = -(log(1-P.cStrength)./cRate); % consolidation time determines the time for switching the focus to a new visual object
         [Map, W] = IMdecayFX(Map, W, refocusDuration, 0.005); % let FX decay with fine-grained time step (--> diminishes strength of the color wheel)
         retrievedFX = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter for FX

@@ -69,6 +69,9 @@ for id = 1:E.nsubj
         end
         RT(id, probetype) = nanmean(rt(:,probetype));
     end
+
+    disp('    ID        PC-pos    PC-new    PC-far   PC-near   PC-cued');
+    disp([id, PC(id,:)]);
     
 end  % for ID
 
@@ -81,6 +84,7 @@ PreFigure;
 subplot(1,2,1);
 plot(1:5, mean(PC));
 PostFigure([0.5, 5.5, 0.5, 1], 'Probe Type', 'P(correct)');
+xticklabels(xTicks);
 subplot(1,2,2);
 plot(1:5, mean(RT));
 PostFigure([0.5, 5.5, 0, 1.1*max(mean(RT))], 'Probe Type', 'RT');
