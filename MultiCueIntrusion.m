@@ -69,6 +69,9 @@ for id = 1:E.nsubj
         end
         RT(id, probetype) = nanmean(rt(:,probetype));
     end
+
+    disp('    ID        PC-pos    PC-new    PC-far   PC-near   PC-cued');
+    disp([id, PC(id,:)]);
     
 end  % for ID
 

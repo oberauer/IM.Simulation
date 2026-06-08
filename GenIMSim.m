@@ -60,7 +60,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 20;
+Exp = 31;
 
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 1;   % fit mixture model?
@@ -115,9 +115,9 @@ C.changeLocMethod = 2;   % method for change localization: 1 = retrieve features
 
 %%% Parameters
 
-P.kappaf_feat = 15;  % precision of original stimuli (in the sensory layer), which is also the feature precision in the focus of attention, for content features
+P.kappaf_feat = 25;  % precision of original stimuli (in the sensory layer), which is also the feature precision in the focus of attention, for content features
 P.kappa_feat = 25;   % mean precision of categories, for content features
-P.kappaf_ctx = 15;   % precision of original stimuli, and the focus of attention, for context (needs to be fairly high, otherwise CW intrusion becomes too big)
+P.kappaf_ctx = 25;   % precision of original stimuli, and the focus of attention, for context (needs to be fairly high, otherwise CW intrusion becomes too big)
 P.kappa_ctx = 25;    % precision of categories for context
 P.kappaCatSD = 3;    % SD of precision values of categories (variability across categories)
 P.mCatSD = 5;        % SD of deviation of category center from equal spacing
