@@ -107,11 +107,11 @@ C.ContentFun = @VonMises;
 C.ContextFun = @VonMises;
 C.accum = 1; 
 C.CDA = 1;         % 1: use number of committed binding units; 2 = use summed weight in weight matrices
-C.spatInhibResolution = 0; % 0 = model the dynamics of spatial attention in one step per consolidation event; 1 = model it iteratively by time steps
 C.seqVariant = 2;  % 1 = consolidation and replenishment until strength is reached; 2 = consolid until strength is reached; replenishment until time is over; 3 = both until time is over
 C.consolidAttempt = 100; % default: all items are attempted to be consolidated
 C.retroCueConsolid = 0;  % use retro-cue to consolidate: 0 = not at all, 1 = only once per item to reach C.strength, 2 = unlimited additional codes with separate sets of binding units
 C.changeLocMethod = 2;   % method for change localization: 1 = retrieve features from probed locations, compare to probe stimuli (sequential); 2 = retrive locations from stimuli, compare to probed locations (parallel)
+C.fullArrayBallistic = 0; % 0 = ballistic consolidation applies only to ongoing consolidation process; 1 = ballistic applies to entire array
 
 %%% Parameters
 

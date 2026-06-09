@@ -14,6 +14,9 @@ E.material = 2;
 SOA = [0.1, 0.2, 0.4, 0.8];
 Setsize = [1,2,4];
 DecisionSetsize = [2,4];
+if featureOverlap == 0
+    C.fullArrayBallistic = 1; % if there is no feature overlap, the decision stimulus does not erase FX, so consoldiation can be ballistic for the full array
+end
 
 % Calibrate amplification factor on population level, if desired
 if E.calibrateAmp == 1
