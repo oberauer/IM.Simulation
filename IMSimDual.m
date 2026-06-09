@@ -86,7 +86,7 @@ if E.test == 1 || E.test == 4, memresponse = zeros(1, E.outsize); end
 if E.test == 2 || E.test == 3, memresponse = zeros(2, E.outsize); end
 memrt = zeros(1,E.outsize);
 for probed = 1:E.outsize
-    [memresponse(:,probed), memrt(probed)] = IMretrieve(Map, W, G, Focus, Afocus, probed, 1, L, F, probestim, probeIdx);
+    [memresponse(:,probed), memrt(probed), Map, ~, ~, ~, ~, ~, maxW] = IMretrieve(Map, W, G, Focus, Afocus, probed, 1, L, F, probestim, probeIdx);
 end  % outpos
 
 %%%%%%%%%%%%%%% Wrap up %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -107,6 +107,7 @@ output.fx = fx;
 output.map = Map;
 output.CTime = CTime;
 output.SpatAttn = SpatAttn;
+output.maxW = maxW;
 
 if E.test == 2   % additional outputs for recognition
     output.SameRange = E.SameRange;
