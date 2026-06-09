@@ -66,12 +66,12 @@ if E.presentation == 1
     end
     
     cTime = -(log(1-cStrength)./cRate); % vector of consolidation times needed to reach cStrength percent of maximal strength
-    cTime = diff([0, min(E.prestime + E.RI - max(attentionWindows(1), overTime), cumsum(cTime)) ]);
-    %make sure that the cumulative consolidation time does not exceed presentation time + RI, minus the integration window because consolidation can start only after the integration window;
     ballistic = rand < P.cBallistic;  % determine whether the consolidation event that hits E.RI is ballistic or not
     
     if C.fullArrayBallistic == 0
-        if ballistic
+        cTime = diff([0, min(E.prestime + E.RI - max(attentionWindows(1), overTime), cumsum(cTime)) ]);
+        %make sure that the cumulative consolidation time does not exceed presentation time + RI, minus the integration window because consolidation can start only after the integration window;
+        if ballistic == 1
             firstNotStarted = find([cTime, 0]==0, 1); % first consolidation event that does not even start because RI is exceeded
             extended = max(1, firstNotStarted-1); % --> give the preceding consolidation event (if there is one) an extension
             cTime(extended) = -log(1-P.cStrength)/cRate(extended);  % give that consolidation event the full time it needs to achieve the target strength

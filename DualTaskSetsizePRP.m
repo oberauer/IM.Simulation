@@ -1,7 +1,6 @@
 function D = DualTaskSetsizePRP(featureOverlap)
 % Simulation of Experiment 1 of Stevanovsky & Jolicoeur (2007)
-% featureOverlap = 1: Decision task stimuli have feature overlap with
-% memoranda, = 0: no overlap 
+% featureOverlap = 1: Decision task stimuli have feature overlap with memoranda, = 0: no overlap 
 
 global P
 global E
@@ -138,7 +137,7 @@ for dssIdx = 1:2
     subplot(1,2,dssIdx)
     plotvector = squeeze(mean(MCorrect(:,:,dssIdx,:)));
     plot(SOA, plotvector);
-    PostFigure([0, max(SOA)+0.1, 0, 1.2*max(plotvector(:))], 'SOA', 'P(correct decision)', ['D-Setsize = ', mat2str(DecisionSetsize(dssIdx))], vec2legend(Setsize));
+    PostFigure([0, max(SOA)+0.1, 0, 1], 'SOA', 'P(correct decision)', ['D-Setsize = ', mat2str(DecisionSetsize(dssIdx))], vec2legend(Setsize));
 end
 
 PreFigure
@@ -146,7 +145,7 @@ for dssIdx = 1:2
     subplot(1,2,dssIdx)
     plotvector = squeeze(mean(MBindingResource(:,:,dssIdx,:)));
     plot(SOA, plotvector);
-    PostFigure([0, max(SOA)+0.1, 0, 1.2*max(plotvector(:))], 'SOA', 'Binging Units after Task Set', ['D-Setsize = ', mat2str(DecisionSetsize(dssIdx))], vec2legend(Setsize));
+    PostFigure([0, max(SOA)+0.1, 0, 1], 'SOA', 'Binging Units after Task Set', ['D-Setsize = ', mat2str(DecisionSetsize(dssIdx))], vec2legend(Setsize));
 end
 
 PreFigure;
@@ -169,7 +168,7 @@ for ssIdx = 1:length(Setsize)
 end
 PreFigure;
 plot(SOA, Otime');
-PostFigure([0, max(SOA)+0.1, 0, 1.2*max(Otime(:))], 'SOA', 'Overtime (s)', 'Ballistic Trials Only', vec2legend(Setsize));
+PostFigure([0, max(SOA)+0.1, 0, 1.2*max(Otime(:))], 'SOA', 'Overtime (s)', 'Mean Overtime', vec2legend(Setsize));
 
 for dssIdx = 1:2
     PreFigure;
@@ -177,7 +176,7 @@ for dssIdx = 1:2
         subplot(2,2,ssIdx);
         plotvector = squeeze(mean(RetrievalStrength(:,:,ssIdx,dssIdx,:),1));
         plot(SOA, plotvector);
-        PostFigure([0, max(SOA)+0.1, 0, 1.2*max(plotvector(:))], 'SOA', 'Retrieval Strength from W', ['M-Setsize = ', mat2str(Setsize(ssIdx)), '; D-Setsize = ', mat2str(DecisionSetsize(dssIdx))], {'Single', 'Dual'});
+        PostFigure([0, max(SOA)+0.1, 0, 1], 'SOA', 'Retrieval Strength from W', ['M-Setsize = ', mat2str(Setsize(ssIdx)), '; D-Setsize = ', mat2str(DecisionSetsize(dssIdx))], {'Single', 'Dual'});
     end
 end
 
