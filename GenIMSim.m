@@ -60,7 +60,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 36;
+Exp = 4;
 
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 1;   % fit mixture model?
@@ -68,8 +68,8 @@ fitIMSim = 0; % fit IM?
 
 %%% Experimental Constants/Defaults
 
-E.ntrials = 20;     % number of trials to run per subject and condition
-E.nsubj = 3;        % number of subjects
+E.ntrials = 200;     % number of trials to run per subject and condition
+E.nsubj = 20;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -121,9 +121,9 @@ P.kappaf_ctx = 25;   % precision of original stimuli, and the focus of attention
 P.kappa_ctx = 25;    % precision of categories for context
 P.kappaCatSD = 3;    % SD of precision values of categories (variability across categories)
 P.mCatSD = 5;        % SD of deviation of category center from equal spacing
-P.delta = 0.80;      % proportion of committed binding units that remain committed, and weights that remain, upon encoding of each new item
+P.delta = 0.75;      % .80 proportion of committed binding units that remain committed, and weights that remain, upon encoding of each new item
 P.pMax = 1.0;        % the initial proportion of binding units recruited 
-P.pBase = 0.3;       % minimal (base) strength of bindings (lower asymptote)
+P.pBase = 0.2;       % .30 minimal (base) strength of bindings (lower asymptote)
 P.keepFocus = 0.3;   % probability of keeping the last-presented item in the FoA until test
 P.a = 0.1;           % strength of item memory - implemented as "C.locationnoise" in CreateStimuli: all location cues receive some baseline activation
 P.nb = 100;          % number of units in the binding layer

@@ -10,26 +10,22 @@ E.PreRetro = 2;
 setsize = 6;
 E.cuevalidity = 1;
 E.material = 2;
-d = struct('meanAcc', zeros(2,2,2,2)); 
+d = struct('meanAcc', zeros(2,2,2,2));
 D = repmat(d, 2, 2);
 
-IMprepareRecog; % set up criterion for expected size of change 
+IMprepareRecog; % set up criterion for expected size of change
 Ptype = [1 1 2 3];  % 2 x positive, 1 x new, 1 x intrusion
 option = optimset('Display','off','TolFun',1e-10, 'FunValCheck','on', 'MaxIter', 2000);
 
 cueingStrength = P.cueingStrength;
-testdisplay = P.testdisplay;
-removalTau = P.removalTau;
-removalGain = P.removalGain;
+filter = P.filter;
+removalThreshold = P.removalThreshold;
 
 % Calibrate amplification factor on population level, if desired
 if E.calibrateAmp == 1
     CreateStimuli;
     CreateMapping(1);
 end
-
-% generate parameters with individual differences
-ParX = CreateIndDiff; 
 
 for task = 1:2
 
@@ -45,6 +41,13 @@ for task = 1:2
             for rem = 1:2
 
                 for inter = 1:2
+
+                    if str == 1, P.cueingStrength = cueingStrength; else, P.cueingStrength = 0; end
+                    if rem == 1, P.removalThreshold = 0; else, P.removalThreshold = removalThreshold; end
+                    if inter == 1, P.filter = zeros(1,4); else, P.filter = filter; end
+
+                    % generate parameters with individual differences
+                    ParX = CreateIndDiff;
 
                     Mdevobs = NaN(E.nsubj, 2);  % mean observed deviation of responses from target feature for subjects, cueing conditions,
                     Mrt = NaN(E.nsubj, 2);      % mean RT
@@ -72,9 +75,6 @@ for task = 1:2
                         for ii = 1:length(indVar)
                             eval(['P.', indVar{ii}, ' = ParX(id, ii);']);
                         end
-                        if str == 1, P.cueingStrength = cueingStrength; else, P.cueingStrength = 0; end
-                        if rem == 1, P.removalTau = 0; P.removalGain = -100; else, P.removalTau = removalTau; P.removalGain = removalGain; end
-                        if inter == 1, P.testdisplay = 0; else, P.testdisplay = testdisplay; end
 
                         % for each subject, create stimuli, and an individual set of feature categories, and the corresponding mappings
                         CreateStimuli;
@@ -148,8 +148,6 @@ for task = 1:2
 
                             if fitMM == 1 && task == 1
                                 ssData = Dataprocessing(Probedpos, Pangle, Cangle, Targ, Resp, Setsize, Colorgrid);   %prepare data for model fitting
-                                %             ssData.cueing = repmat(cueing, length(Response), 1);
-                                %             ssData.preretro = 2;
 
                                 % fit Mixture Model
                                 startparms = [15, .1, .1, .1];
@@ -179,16 +177,16 @@ for task = 1:2
 
                     if task == 1, Accuracy = Mdevobs; end
                     if task == 2, Accuracy = squeeze(mean(Pcorrect,3)); end  % average over probe types
-                    
+
                     % PreFigure;
                     % plotvector = mean(Accuracy,1);
                     % plot(plotvector);
-                    % titletext = ['Cueval = ', mat2str(round(E.cuevalidity,2)), '; Str = ', mat2str(consolid), '; Rem = ', mat2str(rem), '; Inter = ', mat2str(inter)];
+                    % titletext = ['Cueval = ', mat2str(round(E.cuevalidity,2)), '; Str = ', mat2str(str), '; Rem = ', mat2str(rem), '; Inter = ', mat2str(inter)];
                     % PostFigure([0.5, 3.5, 0, 1.05*max(max(Accuracy))], 'Cueing Condition', 'Accuracy', titletext);
 
                     meanAcc(str, inter, rem, :) = mean(Accuracy, 1);
 
-                    % Plot Mixture Model Parameters over Setsize
+                    % Plot Mixture Model Parameters
                     if fitMM && task == 1
                         MMPm = 1 - MMtranspos - MMguessing - MMcwattraction;
                         PreFigure
@@ -210,33 +208,33 @@ for task = 1:2
                     end
                 end % interference
             end  % removal
-        end  % consolidation
+        end  % strengthening
 
         legendtext = {'No Str., no Inter', 'Str., no Inter' ,'No Str., Inter', 'Str., Inter'};
-        CueingSchema = {'Target', 'Target-Other'}; 
+        CueingSchema = {'Target', 'Target-Other'};
         PreFigure;
 
         subplot(1,2,1);
-        plotX = squeeze(meanAcc(1,1,1,:));  % consolid off, interference off, removal off
+        plotX = squeeze(meanAcc(1,1,1,:));  % strengthening off, interference off, removal off
         plot(1:2, plotX);
         hold on
-        plotX = squeeze(meanAcc(2,1,1,:));  % consolid on, interference off, removal off
+        plotX = squeeze(meanAcc(2,1,1,:));  % strengthening on, interference off, removal off
         plot(1:2, plotX, 'r');
-        plotX = squeeze(meanAcc(1,2,1,:));  % consolid off, interference on, removal off
+        plotX = squeeze(meanAcc(1,2,1,:));  % strengthening off, interference on, removal off
         plot(1:2, plotX, 'b');
-        plotX = squeeze(meanAcc(2,2,1,:));  % consolid on, interference on, removal off
+        plotX = squeeze(meanAcc(2,2,1,:));  % strengthening on, interference on, removal off
         plot(1:2, plotX, 'g');
         PostFigure([0.5, 2.5, 0, 1.1*max(max(plotX))], 'Cueing Condition', 'Accuracy', ['Cueing Schema = ', CueingSchema{cueTarget}, '; No Removal'], legendtext);
-        
+
         subplot(1,2,2);
-        plotX = squeeze(meanAcc(1,1,2,:));  % consolid off, interference off, removal on
+        plotX = squeeze(meanAcc(1,1,2,:));  % strengthening off, interference off, removal on
         plot(1:2, plotX);
         hold on
-        plotX = squeeze(meanAcc(2,1,2,:));  % consolid on, interference off, removal on
+        plotX = squeeze(meanAcc(2,1,2,:));  % strengthening on, interference off, removal on
         plot(1:2, plotX, 'r');
-        plotX = squeeze(meanAcc(1,2,2,:));  % consolid off, interference on, removal on
+        plotX = squeeze(meanAcc(1,2,2,:));  % strengthening off, interference on, removal on
         plot(1:2, plotX, 'b');
-        plotX = squeeze(meanAcc(2,2,2,:));  % consolid on, interference on, removal on
+        plotX = squeeze(meanAcc(2,2,2,:));  % strengthening on, interference on, removal on
         plot(1:2, plotX, 'g');
         PostFigure([0.5, 2.5, 0, 1.1*max(max(plotX))], 'Cueing Condition', 'Accuracy', ['Cue Schema = ', CueingSchema{cueTarget}, '; Removal'], legendtext);
 
