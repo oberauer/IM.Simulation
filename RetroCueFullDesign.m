@@ -12,7 +12,6 @@ E.cuevalidity = 1;
 d = struct('meanAcc', zeros(2,2,2,2));
 D = repmat(d, 2, 2);
 
-IMprepareRecog; % set up criterion for expected size of change
 Ptype = [1 1 2 3];  % 2 x positive, 1 x new, 1 x intrusion
 option = optimset('Display','off','TolFun',1e-10, 'FunValCheck','on', 'MaxIter', 2000);
 
@@ -29,6 +28,9 @@ for task = 1:2
     if E.calibrateAmp == 1
         CreateStimuli;
         CreateMapping(1);
+    end
+    if E.test == 2
+        IMprepareRecog; % set up criterion for expected size of change
     end
 
     for cueTarget = 1:2  % 1 = last cued item, 2 = next-to-last cued item
