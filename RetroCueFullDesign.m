@@ -1,4 +1,4 @@
-function D = RetroCueFullDesign(Model, indVar, maxIndVar, fitMM)
+function D = RetroCueFullDesign(Model, indVar, fitMM)
 % Simulation of retro-cue effect varying task (continuous reproduction vs. change detection, cue validity, and the
 % presence/absence of the 3 mechanisms (strengthening, removal, and perceptual interference
 
@@ -6,10 +6,9 @@ global P
 global E
 global C
 
-E.PreRetro = 2;
 setsize = 6;
+E.PreRetro = 2;
 E.cuevalidity = 1;
-E.material = 2;
 d = struct('meanAcc', zeros(2,2,2,2));
 D = repmat(d, 2, 2);
 
@@ -21,16 +20,16 @@ cueingStrength = P.cueingStrength;
 filter = P.filter;
 removalThreshold = P.removalThreshold;
 
-% Calibrate amplification factor on population level, if desired
-if E.calibrateAmp == 1
-    CreateStimuli;
-    CreateMapping(1);
-end
-
 for task = 1:2
 
     E.test = task;
     E.material = task; % for change detection, use small set of highly distinct stimuli
+
+    % Calibrate amplification factor on population level, if desired - depends on material, so cannot be done before material is set
+    if E.calibrateAmp == 1
+        CreateStimuli;
+        CreateMapping(1);
+    end
 
     for cueTarget = 1:2  % 1 = last cued item, 2 = next-to-last cued item
 
@@ -63,8 +62,7 @@ for task = 1:2
                     Target = zeros(1,E.nsubj*3*E.ntrials);
                     Response = zeros(1,E.nsubj*3*E.ntrials);
 
-                    % for each set-size level, for each trial, generate a vector of 360 color
-                    % values coding the colors on the wheel
+                    % for each set-size level, for each trial, generate a vector of 360 color values coding the colors on the wheel
                     [aa, bb, Colorgrid] = ndgrid(ones(1,E.ntrials), ones(1, setsize), 1:360);  %Colors = E.ntrials x E.maxsetsize x [1:360]
 
                     tcount = 1; %trial count
@@ -173,7 +171,6 @@ for task = 1:2
                         end % for cueing
 
                     end  % for ID
-
 
                     if task == 1, Accuracy = Mdevobs; end
                     if task == 2, Accuracy = squeeze(mean(Pcorrect,3)); end  % average over probe types

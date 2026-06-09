@@ -218,7 +218,7 @@ if Exp == 36, D = DualTaskSetsizePRP(0); end  % Stevanovski & Jolicoeur (2007); 
 
 
 if Exp == 40, D = RetroCueSeparateMechanisms(Model, [4,7], 1, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
-if Exp == 41, D = RetroCueFullDesign(Model, C.indVar, C.maxIndVar, fitMM); end
+if Exp == 41, D = RetroCueFullDesign(Model, C.indVar, fitMM); end
 if Exp == 42, D = RetroCueStrength(Model, fitMM); end  % Retro-cue exploration
 if Exp == 43, D = SetsizeAlpha(@IMSimAlpha, 8); end
 if Exp == 44, NbindingCapacity(Model); end
