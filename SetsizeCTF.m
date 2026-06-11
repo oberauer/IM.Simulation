@@ -221,7 +221,7 @@ for setsize = 1:E.maxsetsize
     mCTF = mCTF./E.nsubj;
     subplot(2,3,setsize);
     plot(channelCenters-180, mCTF);
-    PostFigure([-180, 180, 0, 2], 'Location', 'CTF Response from W', ['Setsize: ', mat2str(setsize)], vec2legend(1:nItems));
+    PostFigure([-180, 180, 0, 2], 'Location', 'CTF Location from W', ['Setsize: ', mat2str(setsize)], vec2legend(1:nItems));
 end
 if (E.saveResults == 1), fclose(fid); end
 
@@ -240,7 +240,7 @@ for setsize = 1:E.maxsetsize
     mCTF = mCTF./E.nsubj;
     subplot(2,3,setsize);
     plot(channelCenters-180, mCTF);
-    PostFigure([-180, 180, 0, 2], 'Feature Value', 'CTF Response from W', ['Setsize: ', mat2str(setsize)], vec2legend(1:nItems));
+    PostFigure([-180, 180, 0, 2], 'Feature Value', 'CTF Feature from W', ['Setsize: ', mat2str(setsize)], vec2legend(1:nItems));
 end
 if (E.saveResults == 1), fclose(fid); end
 
@@ -259,7 +259,7 @@ for setsize = 1:E.maxsetsize
     mCTF = mCTF./E.nsubj;
     subplot(2,3,setsize);
     plot(channelCenters-180, mCTF);
-    PostFigure([-180, 180, 0, 2], 'Location', 'CTF Response from FX', ['Setsize: ', mat2str(setsize)], vec2legend(1:nItems));
+    PostFigure([-180, 180, 0, 2], 'Location', 'CTF Location from FX', ['Setsize: ', mat2str(setsize)], vec2legend(1:nItems));
     if E.saveResults == 1
         for item = 1:nItems
             fprintf(fid, '%d %d  ', setsize, item);

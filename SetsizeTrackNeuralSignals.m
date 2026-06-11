@@ -1,4 +1,4 @@
-function D = SetsizeTrackNeuralSignals(maxSetsize)
+function D = SetsizeTrackNeuralSignals(simSeq)
 % Simulation of Set-size, tracking CDA, alpha power, and IEM read-out
 % signals over time
 
@@ -6,11 +6,20 @@ global E
 global C
 global P
 
-E.maxsetsize = maxSetsize;
-E.presentation = 1;
-E.RI = 3;
-P.asyFX = 5;  % initialization
+E.maxsetsize = 6;
+if simSeq == 1
+    E.presentation = 1;
+    E.RI = 2;
+    E.prestime = 0.15; % presentation time in Fukuda et al. (2015)
+end
+if simSeq == 2
+    E.presentation = 2;
+    E.prestime = 0.1; % presentation time in Wang et al. (2019)
+    E.ISI = 0.36;     % ISI in Wang et al. (2019)
+    E.RI = E.maxsetsize*(E.prestime+E.ISI); 
+end
 Timepoints = 0:C.tstep:E.RI;
+P.asyFX = 5;  % initialization
 
 % Calibrate amplification factor on population level, if desired
 if E.calibrateAmp == 1
@@ -57,20 +66,20 @@ for id = 1:E.nsubj
     % Train IEM with set size = 1
     setsize = 1;
     nfactor = 5;
-    EEG_WX = zeros(E.ntrials, E.RI/C.tstep+1, nElectrodes);
-    EEG_FX = zeros(E.ntrials, E.RI/C.tstep+1, nElectrodes);
+    EEG_WX = zeros(E.ntrials, round(E.RI/C.tstep)+1, nElectrodes);
+    EEG_FX = zeros(E.ntrials, round(E.RI/C.tstep)+1, nElectrodes);
     LocationMask = zeros(nfactor*E.ntrials, C.nc);
     StimMask = zeros(nfactor*E.ntrials, C.nc);
     for trial = 1:(nfactor*E.ntrials)
         %output = IMSim(P, setsize, 1);  % cueing = 1 (no cue)
-        Map = preTrialActivity(Map);
+        Map = preTrialActivity(Map, setsize);
         [~, L, F, ~, ~, ~, ~, ~, ~, eegW, eegfx] = IMtrackSignals(setsize, Map, eW, eNoise);
         EEG_WX(trial,:,:) = eegW;  % feed last-used context into weight matrix -> reactivate content -> project onto electrodes
         EEG_FX(trial,:,:) = eegfx; % read out locations (averaging over features) from feature map
         LocationMask(trial, round(C.Location(L(1:setsize)))) = 1; % stimulus mask: codes the stimulus location (set to 1 at presented location(s), and 0 everywhere else)
         StimMask(trial, F(1:setsize)) = 1;
     end
-    for t = 1:E.RI/C.tstep
+    for t = 1:round(E.RI/C.tstep)
         IEM(t).Wb = TrainIEM(StimMask, basisSet, squeeze(EEG_WX(:,t,:)));    % train IEM at each time point
         IEM(t).Wfx = TrainIEM(LocationMask, basisSet, squeeze(EEG_FX(:,t,:)));    % train IEM at each time point
     end
@@ -83,11 +92,12 @@ for id = 1:E.nsubj
         Pangle = zeros(E.ntrials, setsize);  % presented (angular) location in the channel space of CTF_FX
         Cangle = zeros(E.ntrials, setsize);  % presented (angular) feature in the channel space of CTF_W
         ItemIdx = ones(E.ntrials, 1);  % only the target is to be tracked with IEM
-        EEG_WX = zeros(E.ntrials, E.RI/C.tstep+1, nElectrodes);
-        EEG_FX = zeros(E.ntrials, E.RI/C.tstep+1, nElectrodes);
+        EEG_WX = zeros(E.ntrials, round(E.RI/C.tstep)+1, nElectrodes);
+        EEG_FX = zeros(E.ntrials, round(E.RI/C.tstep)+1, nElectrodes);
         baseAlpha = zeros(1,E.ntrials);
         for trial = 1:E.ntrials
-            Map = preTrialActivity(Map);   % some random pre-trial activity
+            if simSeq == 1, Map = preTrialActivity(Map, E.maxsetsize); end  % activity carrying over from previous trial with a random set size
+            if simSeq == 2, Map = preTrialActivity(Map, 1); end  % activity carrying over from previous trial, last-presented single stimulus
             baseAlpha(trial) = sum(abs(mean(Map(1).FX,2)' * eW + randn(1,nElectrodes)*eNoise));
             [Map, L, F, cda_g(trial,:), cda_w(trial,:), alpha(trial,:), ctime(trial), Pangle(trial,:), Cangle(trial,:), eegW, eegfx] = IMtrackSignals(setsize, Map, eW, eNoise);
             EEG_WX(trial,:,:) = eegW;
@@ -100,7 +110,7 @@ for id = 1:E.nsubj
         BaseAlpha(id, setsize) = mean(baseAlpha);
         CT(setsize).ctime = [CT(setsize).ctime; ctime];
 
-        for t = 1:E.RI/C.tstep
+        for t = 1:round(E.RI/C.tstep)
             CTF(id,setsize,t).meanCTF_W = ApplyIEM(IEM(t).Wb, squeeze(EEG_WX(:,t,:)), Cangle, channelCenters, ItemIdx);
             CTF(id,setsize,t).meanCTF_FX = ApplyIEM(IEM(t).Wfx, squeeze(EEG_FX(:,t,:)), 360*Pangle/C.nloc, channelCenters, ItemIdx);
         end
@@ -117,12 +127,13 @@ end  % for ID
 mCDAg = squeeze(mean(CDAg)); % CDA from summed G, average over subjects
 mCDAw = squeeze(mean(CDAw)); % CDA from summed W, average over subjects
 PreFigure([], [], 2);
-subplot(1,2,1);
-plot(Timepoints, mCDAg');
-PostFigure([0, E.RI, 0, 1.1*max(max(mCDAg))], 'Time (s)', 'CDA from G', [], vec2legend(1:E.maxsetsize));
-subplot(1,2,2);
-plot(Timepoints, mCDAw');
-PostFigure([0, E.RI, 0, 1.1*max(max(mCDAw))], 'Time (s)', 'CDA from W', [], vec2legend(1:E.maxsetsize));
+if C.CDA == 1 
+    plot(Timepoints, mCDAg');
+    PostFigure([0, E.RI, 0, 1.1*max(max(mCDAg))], 'Time (s)', 'CDA from G', [], vec2legend(1:E.maxsetsize));
+else
+    plot(Timepoints, mCDAw');
+    PostFigure([0, E.RI, 0, 1.1*max(max(mCDAw))], 'Time (s)', 'CDA from W', [], vec2legend(1:E.maxsetsize));
+end
 
 % plot Alpha as a function of time and set size
 mAlpha = squeeze(mean(Alpha)); % average over subjects
@@ -145,9 +156,10 @@ D.CTF = CTF;
 
 % save CDA and Alpha results
 if E.saveResults == 1
-    fid = fopen('IMSim.TrackAlphaCDA.dat', 'w');
+    if simSeq == 1, fid = fopen('IMSim.TrackAlphaCDA.Sim.dat', 'w'); end
+    if simSeq == 2, fid = fopen('IMSim.TrackAlphaCDA.Seq.dat', 'w'); end
     for setsize = 1:E.maxsetsize
-        for t = 1:E.RI/C.tstep
+        for t = 1:round(E.RI/C.tstep)
             fprintf(fid, '%d %d  %d %d \n', setsize, t, mCDAg(t, setsize), mAlpha(t, setsize));
         end
     end
@@ -155,14 +167,17 @@ if E.saveResults == 1
 end
 
 % plot CTF as a function of time and set size
-if E.saveResults == 1, fid = fopen('IMSim.TrackCTF.dat', 'w'); end
+if E.saveResults == 1 
+    if simSeq == 1, fid = fopen('IMSim.TrackCTF.Sim.dat', 'w'); end
+    if simSeq == 2, fid = fopen('IMSim.TrackCTF.Seq.dat', 'w'); end
+end
 h1 = PreFigure;
 h2 = PreFigure;
 for setsize = 1:E.maxsetsize
-    mCTFw = zeros(nChannels, E.RI/C.tstep);
-    mCTFfx = zeros(nChannels, E.RI/C.tstep);
+    mCTFw = zeros(nChannels, round(E.RI/C.tstep));
+    mCTFfx = zeros(nChannels, round(E.RI/C.tstep));
     for id = 1:E.nsubj
-        for t = 1:E.RI/C.tstep
+        for t = 1:round(E.RI/C.tstep)
             mCTFw(:,t) = mCTFw(:,t) + CTF(id, setsize, t).meanCTF_W';
             mCTFfx(:,t) = mCTFfx(:,t) + CTF(id, setsize, t).meanCTF_FX';
         end
@@ -181,7 +196,7 @@ for setsize = 1:E.maxsetsize
     title(['Decoding from FX; Setsize = ', num2str(setsize)]);
 
     if E.saveResults == 1
-        for t = 1:E.RI/C.tstep
+        for t = 1:round(E.RI/C.tstep)
             fprintf(fid, '%d %d  ', setsize, t);
             for channel = 1:nChannels
                 fprintf(fid, '%d ', mCTFfx(channel, t));
@@ -189,8 +204,8 @@ for setsize = 1:E.maxsetsize
             fprintf(fid, '\n');
         end
     end
-
 end
+if E.saveResults == 1, fclose(fid); end
 
 % Plot mean CDA, and CDA after 1 s, as a function of set size
 % + Alpha from 300 to 1000 ms (as in Fukuda et al., 2015)
@@ -224,13 +239,14 @@ for setsize = 1:E.maxsetsize
     PostFigure([], 'Consolidation Times', '', ['Setsize = ', mat2str(setsize)]);
 end
 
-    function Map = preTrialActivity(Map)
-        nStim = randperm(E.maxsetsize,1);
+    function Map = preTrialActivity(Map, maxSetsize)
+        nStim = randperm(maxSetsize,1);
         F = randperm(C.nstim);
         L = randperm(C.nloc);
         for j = 1:nStim
             Map(1).FX = Map(1).FX + C.location(L(j),:)' * C.stim(F(j),:);
         end
+        Map = UpdateFX(Map);               % update FX from previous test
         Map = IMdecayFX(Map, 0, 0.5, 0.1); % allow a larger time step because we don't need high precision here
     end
 

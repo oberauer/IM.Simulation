@@ -43,7 +43,7 @@ masking = attentionWindows > abs(E.MaskSOA);
 
 strengthFX = randn(1, setsize) * P.SDstrengthFX + 1;
 
-%%% Simultaneous presentation
+%%%%%%%%%%%%% Simultaneous presentation %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if E.presentation == 1
 
@@ -171,7 +171,7 @@ if E.presentation == 1
 
 end
 
-%%% Sequential presentation
+%%%%%%%% Sequential presentation %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if E.presentation == 2
     if E.forwardrecall, encorder = 1:setsize; else, encorder = randperm(setsize); end

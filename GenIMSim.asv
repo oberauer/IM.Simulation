@@ -27,7 +27,8 @@ model = 1;  % 1 = IMSim
 % 12: Continuous reproduction, masking (Agaoglu et al., 2015)
 % 13: Continuous reproduction, CDA, individual differences 
 % 14: Continuous reproduction, channel tuning functions from IEM
-% 15: Continuous reproduction, track CDA, alpha power, and IEM-CTF over time
+% 15: Continuous reproduction, track CDA, alpha power, and IEM-CTF over
+% time, simultaneou
 % 16: Continuous reproduction, multi-feature objects and CDA
 % 17: Continuous reproduction, simultaneous presentation, set size + pre-cue
 % 18: Continuous reproduction, simultaneous presentation, set size + retro-cue
@@ -60,16 +61,16 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 36;
+Exp = 4;
 
 Setsize = 6;  % default value (can be overwritten later)
-fitMM = 1;   % fit mixture model?
+fitMM = 0;   % fit mixture model?
 fitIMSim = 0; % fit IM?
 
 %%% Experimental Constants/Defaults
 
 E.ntrials = 20;     % number of trials to run per subject and condition
-E.nsubj = 3;        % number of subjects
+E.nsubj = 20;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -111,7 +112,7 @@ C.seqVariant = 2;  % 1 = consolidation and replenishment until strength is reach
 C.consolidAttempt = 100; % default: all items are attempted to be consolidated
 C.retroCueConsolid = 0;  % use retro-cue to consolidate: 0 = not at all, 1 = only once per item to reach C.strength, 2 = unlimited additional codes with separate sets of binding units
 C.changeLocMethod = 2;   % method for change localization: 1 = retrieve features from probed locations, compare to probe stimuli (sequential); 2 = retrive locations from stimuli, compare to probed locations (parallel)
-C.fullArrayBallistic = 1; % 0 = ballistic consolidation applies only to ongoing consolidation process; 1 = 
+C.fullArrayBallistic = 0; % 0 = ballistic consolidation applies only to ongoing consolidation process; 1 = ballistic applies to entire array
 
 %%% Parameters
 
@@ -121,9 +122,9 @@ P.kappaf_ctx = 25;   % precision of original stimuli, and the focus of attention
 P.kappa_ctx = 25;    % precision of categories for context
 P.kappaCatSD = 3;    % SD of precision values of categories (variability across categories)
 P.mCatSD = 5;        % SD of deviation of category center from equal spacing
-P.delta = 0.80;      % proportion of committed binding units that remain committed, and weights that remain, upon encoding of each new item
+P.delta = 0.8;       % proportion of committed binding units that remain committed, and weights that remain, upon encoding of each new item
 P.pMax = 1.0;        % the initial proportion of binding units recruited 
-P.pBase = 0.3;       % minimal (base) strength of bindings (lower asymptote)
+P.pBase = 0.4;       % .30 minimal (base) strength of bindings (lower asymptote)
 P.keepFocus = 0.3;   % probability of keeping the last-presented item in the FoA until test
 P.a = 0.1;           % strength of item memory - implemented as "C.locationnoise" in CreateStimuli: all location cues receive some baseline activation
 P.nb = 100;          % number of units in the binding layer
@@ -141,7 +142,7 @@ P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended s
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
 P.rRate = 4;         % rate of release of BP units
 P.cRateFactor = 1;   % proportional reduction of cRate for Ricker's dots on a ring
-P.cRateSD = 0.5;     % 0.5 - SD of consolidation rates (as proportion of mean)
+P.cRateSD = 0.5;     % SD of consolidation rates (as proportion of mean)
 P.cStrength = 0.9;   % proportion of maximal strength that consolidation aims for - when that strength is reached, consolidation stops
 P.cBallistic = 0.5;  % probability of consolidation being ballistic
 P.filter = [0.1, 0.1, 0.1, 0.1]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
@@ -192,33 +193,34 @@ if Exp == 11, D = SetsizeMaskSOA(Model, fitMM); end  % Bays et al. (2011)
 if Exp == 12, D = Masking(Model, fitMM); end  % Agaoglu et al., (2015)
 if Exp == 13, D = SetsizeIndDiff(Model, 0); end %Continuous reproduction, individual differences and CDA
 if Exp == 14, D = SetsizeCTF(Model, 0, 0); end % Continuous reproduction, channel tuning functions
-if Exp == 15, D = SetsizeTrackNeuralSignals(Setsize); end
-if Exp == 16, D = MultiFeatureCDA(Model, Setsize); end  % Variation of number of features and setsize
-if Exp == 17, D = SetsizeCueing(Model, 1, fitMM, fitIMSim); end  % Continuous reproduction, Pre-cue
-if Exp == 18, D = SetsizeCueing(Model, 2, fitMM, fitIMSim); end  % Continuous reproduction, Retro-cue
-if Exp == 19, D = CueTargetInterval(Model, 6, 0, 0); end  % Souza et al., 2016
-if Exp == 20, D = WheelAttraction(Model, Setsize, fitMM, fitIMSim); end % Continuous reproduction, retro-cue and wheel attraction
-if Exp == 21, D = Refreshing(Model, Setsize, fitMM, fitIMSim); end  % Continuous reproduction, guided refreshing
-if Exp == 22, D = Removal(Model, 2, 0, 0); end  % Woodman & Williams (2012)
-if Exp == 23, D = Removal(Model, 4, 0, 0); end  % Gunseli et al (2015)
-if Exp == 24, D = RetroCueDecayInterference(Model, 5, 0, 0); end % Hautekiet & Oberauer (2026)
-if Exp == 25, D = DoubleCueCTF(Model); end
-if Exp == 26, D = InterruptCTF; end  % van Moorselaar et al. (2017)
-if Exp == 27, D = SetsizeCueingCD(Model); end  % CD for set-size and retro-cue manipulation
-if Exp == 28, D = SetsizeDeltaCD(Model); end  % CD for set-size and degree-of-change manipulation
-if Exp == 29, D = Reloading(Model); end % CD for retro-cue and re-loading experiment
-if Exp == 30, D = DelayRS(Model); end  % CD for retro-cue and delay of response selection
-if Exp == 31, D = MultiCueIntrusion(Model); end  % 2-cues (last always valid), with intrusion probes sometimes matching the first-cued item
-if Exp == 32, D = MultiCueABA(Model); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence
-if Exp == 33, D = SensoryMemoryCD(Model); end  % CD with varying SOA from array to probe
-if Exp == 34, D = ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
-if Exp == 35, D = DualTaskConsolidation(1); end  % Nieuwenstein & Wyble (2015); argument = feature overlap between memory and decision stimuli
-if Exp == 36, D = DualTaskSetsizePRP(0); end  % Stevanovski & Jolicoeur (2007); argument = feature overlap between memory and decision stimuli
+if Exp == 15, D = SetsizeTrackNeuralSignals(1); end  % argument: 1 = simultaneous, 2 = sequential
+if Exp == 16, D = SetsizeTrackNeuralSignals(2); end  % argument: 1 = simultaneous, 2 = sequential
+if Exp == 17, D = MultiFeatureCDA(Model, Setsize); end  % Variation of number of features and setsize
+if Exp == 18, D = SetsizeCueing(Model, 1, fitMM, fitIMSim); end  % Continuous reproduction, Pre-cue
+if Exp == 19, D = SetsizeCueing(Model, 2, fitMM, fitIMSim); end  % Continuous reproduction, Retro-cue
+if Exp == 20, D = CueTargetInterval(Model, 6, 0, 0); end  % Souza et al., 2016
+if Exp == 21, D = WheelAttraction(Model, Setsize, fitMM, fitIMSim); end % Continuous reproduction, retro-cue and wheel attraction
+if Exp == 22, D = Refreshing(Model, Setsize, fitMM, fitIMSim); end  % Continuous reproduction, guided refreshing
+if Exp == 23, D = Removal(Model, 2, 0, 0); end  % Woodman & Williams (2012)
+if Exp == 24, D = Removal(Model, 4, 0, 0); end  % Gunseli et al (2015)
+if Exp == 25, D = RetroCueDecayInterference(Model, 5, 0, 0); end % Hautekiet & Oberauer (2026)
+if Exp == 26, D = DoubleCueCTF(Model); end
+if Exp == 27, D = InterruptCTF; end  % van Moorselaar et al. (2017)
+if Exp == 28, D = SetsizeCueingCD(Model); end  % CD for set-size and retro-cue manipulation
+if Exp == 29, D = SetsizeDeltaCD(Model); end  % CD for set-size and degree-of-change manipulation
+if Exp == 30, D = Reloading(Model); end % CD for retro-cue and re-loading experiment
+if Exp == 31, D = DelayRS(Model); end  % CD for retro-cue and delay of response selection
+if Exp == 32, D = MultiCueIntrusion(Model); end  % 2-cues (last always valid), with intrusion probes sometimes matching the first-cued item
+if Exp == 33, D = MultiCueABA(Model); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence
+if Exp == 34, D = SensoryMemoryCD(Model); end  % CD with varying SOA from array to probe
+if Exp == 35, D = ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
+if Exp == 36, D = DualTaskConsolidation(1); end  % Nieuwenstein & Wyble (2015); argument = feature overlap between memory and decision stimuli
+if Exp == 37, D = DualTaskSetsizePRP(0); end  % Stevanovski & Jolicoeur (2007); argument = feature overlap between memory and decision stimuli
 
 
 
 if Exp == 40, D = RetroCueSeparateMechanisms(Model, [4,7], 1, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
-if Exp == 41, D = RetroCueFullDesign(Model, C.indVar, C.maxIndVar, fitMM); end
+if Exp == 41, D = RetroCueFullDesign(Model, C.indVar, fitMM); end
 if Exp == 42, D = RetroCueStrength(Model, fitMM); end  % Retro-cue exploration
 if Exp == 43, D = SetsizeAlpha(@IMSimAlpha, 8); end
 if Exp == 44, NbindingCapacity(Model); end

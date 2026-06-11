@@ -3,7 +3,7 @@
 % Version using the KO/Manohar mediated-binding mechanism
 
 clear all
-close all
+%close all
 
 global E
 global C
@@ -27,28 +27,29 @@ model = 1;  % 1 = IMSim
 % 12: Continuous reproduction, masking (Agaoglu et al., 2015)
 % 13: Continuous reproduction, CDA, individual differences 
 % 14: Continuous reproduction, channel tuning functions from IEM
-% 15: Continuous reproduction, track CDA, alpha power, and IEM-CTF over time
-% 16: Continuous reproduction, multi-feature objects and CDA
-% 17: Continuous reproduction, simultaneous presentation, set size + pre-cue
-% 18: Continuous reproduction, simultaneous presentation, set size + retro-cue
-% 19: Continuous reproduction, cue-target interval
-% 20: Continuous reproduction, wheel-attraction effect (Souza et al., 2016, JEP:HPP, Exp. 6)
-% 21: Continuous reproduction, guided refreshing (Souza et al., 2015, ANYAS)
-% 22: Continuous reproduction, removal (Williams & Woodman, 2012)
-% 23: Continuous reproduction, removal (Gunseli et al., 2015)
-% 24: Continuous reproduction, varying RI and absence of test interference (Hautekiet & Oberauer, 2026)
-% 25: Continuous reproduction, double-cue with IEM-CFT of feature content
-% 26: Continuous reproduction, interruption with CTF (van Moorselaar et al. 2017)
-% 27: CD, setsize, retrocue
-% 28: CD, set size and continuous degrees of change
-% 29: CD with retro-cueing and re-loading (Souza et al., 2014, JEP:HPP, Exp. 2)
-% 30: CD with retro-cue and response selection delay
-% 31: CD with 2-cue intrusion (Rerko & Oberauer, 2013, Exp. 2)
-% 32: CD with 3-cue ABA vs. CBA (Rerko & Oberauer, 2013, Exp. 3)
-% 33: CD with SOA (array, cue) to test sensory memory (Pratte & Greene, 2023, Exp. 1)
-% 34: Change localization with variation of response set size (He, Kellen & Singmann, 2026)
-% 35: Dual-task consolidation (Nieuwenstein & Wyble, 2015)
-% 36: Dual-task consolidation (Stevanovski & Jolicoeur, 2007)
+% 15: Continuous reproduction, track CDA, alpha power, and IEM-CTF over time, simultaneous presentation (Fukuda et al., 2015)
+% 16: Continuous reproduction, track CDA, alpha power, and IEM-CTF over time, sequential presentation (Wang et al., 2019)
+% 17: Continuous reproduction, multi-feature objects and CDA
+% 18: Continuous reproduction, simultaneous presentation, set size + pre-cue
+% 19: Continuous reproduction, simultaneous presentation, set size + retro-cue
+% 20: Continuous reproduction, cue-target interval
+% 21: Continuous reproduction, wheel-attraction effect (Souza et al., 2016, JEP:HPP, Exp. 6)
+% 22: Continuous reproduction, guided refreshing (Souza et al., 2015, ANYAS)
+% 23: Continuous reproduction, removal (Williams & Woodman, 2012)
+% 24: Continuous reproduction, removal (Gunseli et al., 2015)
+% 25: Continuous reproduction, varying RI and absence of test interference (Hautekiet & Oberauer, 2026)
+% 26: Continuous reproduction, double-cue with IEM-CFT of feature content
+% 27: Continuous reproduction, interruption with CTF (van Moorselaar et al. 2017)
+% 28: CD, setsize, retrocue
+% 29: CD, set size and continuous degrees of change
+% 30: CD with retro-cueing and re-loading (Souza et al., 2014, JEP:HPP, Exp. 2)
+% 31: CD with retro-cue and response selection delay
+% 32: CD with 2-cue intrusion (Rerko & Oberauer, 2013, Exp. 2)
+% 33: CD with 3-cue ABA vs. CBA (Rerko & Oberauer, 2013, Exp. 3)
+% 34: CD with SOA (array, cue) to test sensory memory (Pratte & Greene, 2023, Exp. 1)
+% 35: Change localization with variation of response set size (He, Kellen & Singmann, 2026)
+% 36: Dual-task consolidation (Nieuwenstein & Wyble, 2015)
+% 37: Dual-task consolidation (Stevanovski & Jolicoeur, 2007)
 
 % 40 = Test retro-cue mechanisms individually
 % 41 = Test retro-cue mechanisms fully crossed, for single and dual retro-cue
@@ -60,7 +61,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 4;
+Exp = 15;
 
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 0;   % fit mixture model?
@@ -69,7 +70,7 @@ fitIMSim = 0; % fit IM?
 %%% Experimental Constants/Defaults
 
 E.ntrials = 20;     % number of trials to run per subject and condition
-E.nsubj = 200;        % number of subjects
+E.nsubj = 20;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -192,28 +193,29 @@ if Exp == 11, D = SetsizeMaskSOA(Model, fitMM); end  % Bays et al. (2011)
 if Exp == 12, D = Masking(Model, fitMM); end  % Agaoglu et al., (2015)
 if Exp == 13, D = SetsizeIndDiff(Model, 0); end %Continuous reproduction, individual differences and CDA
 if Exp == 14, D = SetsizeCTF(Model, 0, 0); end % Continuous reproduction, channel tuning functions
-if Exp == 15, D = SetsizeTrackNeuralSignals(Setsize); end
-if Exp == 16, D = MultiFeatureCDA(Model, Setsize); end  % Variation of number of features and setsize
-if Exp == 17, D = SetsizeCueing(Model, 1, fitMM, fitIMSim); end  % Continuous reproduction, Pre-cue
-if Exp == 18, D = SetsizeCueing(Model, 2, fitMM, fitIMSim); end  % Continuous reproduction, Retro-cue
-if Exp == 19, D = CueTargetInterval(Model, 6, 0, 0); end  % Souza et al., 2016
-if Exp == 20, D = WheelAttraction(Model, Setsize, fitMM, fitIMSim); end % Continuous reproduction, retro-cue and wheel attraction
-if Exp == 21, D = Refreshing(Model, Setsize, fitMM, fitIMSim); end  % Continuous reproduction, guided refreshing
-if Exp == 22, D = Removal(Model, 2, 0, 0); end  % Woodman & Williams (2012)
-if Exp == 23, D = Removal(Model, 4, 0, 0); end  % Gunseli et al (2015)
-if Exp == 24, D = RetroCueDecayInterference(Model, 5, 0, 0); end % Hautekiet & Oberauer (2026)
-if Exp == 25, D = DoubleCueCTF(Model); end
-if Exp == 26, D = InterruptCTF; end  % van Moorselaar et al. (2017)
-if Exp == 27, D = SetsizeCueingCD(Model); end  % CD for set-size and retro-cue manipulation
-if Exp == 28, D = SetsizeDeltaCD(Model); end  % CD for set-size and degree-of-change manipulation
-if Exp == 29, D = Reloading(Model); end % CD for retro-cue and re-loading experiment
-if Exp == 30, D = DelayRS(Model); end  % CD for retro-cue and delay of response selection
-if Exp == 31, D = MultiCueIntrusion(Model); end  % 2-cues (last always valid), with intrusion probes sometimes matching the first-cued item
-if Exp == 32, D = MultiCueABA(Model); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence
-if Exp == 33, D = SensoryMemoryCD(Model); end  % CD with varying SOA from array to probe
-if Exp == 34, D = ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
-if Exp == 35, D = DualTaskConsolidation(1); end  % Nieuwenstein & Wyble (2015); argument = feature overlap between memory and decision stimuli
-if Exp == 36, D = DualTaskSetsizePRP(0); end  % Stevanovski & Jolicoeur (2007); argument = feature overlap between memory and decision stimuli
+if Exp == 15, D = SetsizeTrackNeuralSignals(1); end  % argument: 1 = simultaneous, 2 = sequential
+if Exp == 16, D = SetsizeTrackNeuralSignals(2); end  % argument: 1 = simultaneous, 2 = sequential
+if Exp == 17, D = MultiFeatureCDA(Model, Setsize); end  % Variation of number of features and setsize
+if Exp == 18, D = SetsizeCueing(Model, 1, fitMM, fitIMSim); end  % Continuous reproduction, Pre-cue
+if Exp == 19, D = SetsizeCueing(Model, 2, fitMM, fitIMSim); end  % Continuous reproduction, Retro-cue
+if Exp == 20, D = CueTargetInterval(Model, 6, 0, 0); end  % Souza et al., 2016
+if Exp == 21, D = WheelAttraction(Model, Setsize, fitMM, fitIMSim); end % Continuous reproduction, retro-cue and wheel attraction
+if Exp == 22, D = Refreshing(Model, Setsize, fitMM, fitIMSim); end  % Continuous reproduction, guided refreshing
+if Exp == 23, D = Removal(Model, 2, 0, 0); end  % Woodman & Williams (2012)
+if Exp == 24, D = Removal(Model, 4, 0, 0); end  % Gunseli et al (2015)
+if Exp == 25, D = RetroCueDecayInterference(Model, 5, 0, 0); end % Hautekiet & Oberauer (2026)
+if Exp == 26, D = DoubleCueCTF(Model); end
+if Exp == 27, D = InterruptCTF; end  % van Moorselaar et al. (2017)
+if Exp == 28, D = SetsizeCueingCD(Model); end  % CD for set-size and retro-cue manipulation
+if Exp == 29, D = SetsizeDeltaCD(Model); end  % CD for set-size and degree-of-change manipulation
+if Exp == 30, D = Reloading(Model); end % CD for retro-cue and re-loading experiment
+if Exp == 31, D = DelayRS(Model); end  % CD for retro-cue and delay of response selection
+if Exp == 32, D = MultiCueIntrusion(Model); end  % 2-cues (last always valid), with intrusion probes sometimes matching the first-cued item
+if Exp == 33, D = MultiCueABA(Model); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence
+if Exp == 34, D = SensoryMemoryCD(Model); end  % CD with varying SOA from array to probe
+if Exp == 35, D = ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
+if Exp == 36, D = DualTaskConsolidation(1); end  % Nieuwenstein & Wyble (2015); argument = feature overlap between memory and decision stimuli
+if Exp == 37, D = DualTaskSetsizePRP(0); end  % Stevanovski & Jolicoeur (2007); argument = feature overlap between memory and decision stimuli
 
 
 
