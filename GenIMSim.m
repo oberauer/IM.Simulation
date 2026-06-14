@@ -3,7 +3,7 @@
 % Version using the KO/Manohar mediated-binding mechanism
 
 clear all
-%close all
+close all
 
 global E
 global C
@@ -61,7 +61,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 15;
+Exp = 33;
 
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 0;   % fit mixture model?
@@ -69,7 +69,7 @@ fitIMSim = 0; % fit IM?
 
 %%% Experimental Constants/Defaults
 
-E.ntrials = 20;     % number of trials to run per subject and condition
+E.ntrials = 200;     % number of trials to run per subject and condition
 E.nsubj = 20;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
@@ -211,7 +211,7 @@ if Exp == 29, D = SetsizeDeltaCD(Model); end  % CD for set-size and degree-of-ch
 if Exp == 30, D = Reloading(Model); end % CD for retro-cue and re-loading experiment
 if Exp == 31, D = DelayRS(Model); end  % CD for retro-cue and delay of response selection
 if Exp == 32, D = MultiCueIntrusion(Model); end  % 2-cues (last always valid), with intrusion probes sometimes matching the first-cued item
-if Exp == 33, D = MultiCueABA(Model); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence
+if Exp == 33, D = MultiCueABA(Model, 2); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence
 if Exp == 34, D = SensoryMemoryCD(Model); end  % CD with varying SOA from array to probe
 if Exp == 35, D = ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
 if Exp == 36, D = DualTaskConsolidation(1); end  % Nieuwenstein & Wyble (2015); argument = feature overlap between memory and decision stimuli

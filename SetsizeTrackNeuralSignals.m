@@ -208,7 +208,7 @@ end
 if E.saveResults == 1, fclose(fid); end
 
 % Plot mean CDA, and CDA after 1 s, as a function of set size
-% + Alpha from 300 to 1000 ms (as in Fukuda et al., 2015)
+% + Alpha in relevant time windows
 
 PreFigure;
 subplot(1,3,1);
@@ -219,17 +219,32 @@ ymax = max(max(plotvector));
 plot(1:E.maxsetsize, plotvector);
 PostFigure([0.8, E.maxsetsize+0.2, 0, 1.05*ymax], 'Set Size', 'CDA from G', [], {'mean CDA', 'CDA @ 1s'});
 
-subplot(1,3,2);
-Alpha300 = squeeze(mean(mean(Alpha(id, 6:22, :),2),1)); % starting at 300 ms, ending at 1100 ms, as in Fukuda et al. (2015)
-ymax = 1.2*max(max(Alpha300));
-plot(1:E.maxsetsize, Alpha300);
-PostFigure([0.8, E.maxsetsize+0.2, 0, ymax], 'Set Size', 'Alpha Power 300-1100 ms');
+if simSeq == 1
+    subplot(1,3,2);
+    Alpha300 = squeeze(mean(mean(Alpha(:, 6:22, :),2),1)); % starting at 300 ms, ending at 1100 ms, as in Fukuda et al. (2015)
+    ymax = 1.2*max(max(Alpha300));
+    plot(1:E.maxsetsize, Alpha300);
+    PostFigure([0.8, E.maxsetsize+0.2, 0, ymax], 'Set Size', 'Alpha Power 300-1100 ms');
 
-subplot(1,3,3);
-Alpha500 = squeeze(mean(mean(Alpha(id, 10:16, :),2),1)); % starting at 500 ms, ending at 800 ms, as in Fukuda et al. (2016)
-ymax = 1.2*max(max(Alpha500));
-plot(1:E.maxsetsize, Alpha500);
-PostFigure([0.8, E.maxsetsize+0.2, 0, ymax], 'Set Size', 'Alpha Power 500-800 ms');
+    subplot(1,3,3);
+    Alpha500 = squeeze(mean(mean(Alpha(:, 10:16, :),2),1)); % starting at 500 ms, ending at 800 ms, as in Fukuda et al. (2016)
+    ymax = 1.2*max(max(Alpha500));
+    plot(1:E.maxsetsize, Alpha500);
+    PostFigure([0.8, E.maxsetsize+0.2, 0, ymax], 'Set Size', 'Alpha Power 500-800 ms');
+end
+if simSeq == 2
+    AlphaWindow = zeros(1, E.maxsetsize);
+    for setsize = 1:E.maxsetsize
+        windowEnd = floor(setsize * (E.prestime + E.ISI)./C.tstep);
+        windowStart = windowEnd - 6;
+        window = windowStart:windowEnd;
+        AlphaWindow(setsize) = squeeze(mean(mean(Alpha(:, window, setsize))));
+    end
+    subplot(1,3,2);
+    ymax = 1.2*max(max(AlphaWindow));
+    plot(1:E.maxsetsize, AlphaWindow);
+    PostFigure([0.8, E.maxsetsize+0.2, 0, ymax], 'Set Size', 'Alpha Power after last item');
+end
 
 % plot cumulative consolidation times
 PreFigure;
@@ -246,7 +261,7 @@ end
         for j = 1:nStim
             Map(1).FX = Map(1).FX + C.location(L(j),:)' * C.stim(F(j),:);
         end
-        Map = UpdateFX(Map);               % update FX from previous test
+        %Map = UpdateFX(Map);               % update FX from previous test
         Map = IMdecayFX(Map, 0, 0.5, 0.1); % allow a larger time step because we don't need high precision here
     end
 

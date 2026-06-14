@@ -1,10 +1,11 @@
-function D = MultiCueABA(Model)
+function D = MultiCueABA(Model, Test)
 % Simulation of retro-cue effect in ABA vs. CBA sequence (Rerko et al., 2013, Exp. 3)
 
 global P
 global E
 global C
 
+if nargin < 2, Test = 1:2; end
 E.PreRetro = 2;  % this is all retro-cue
 E.material = 2;
 setsize = 6;
@@ -25,9 +26,10 @@ ParX = CreateIndDiff;
 Pyes = zeros(E.nsubj, 3, 3);  % Probability of saying "Yes" (="Same") for each subject, probe type, and cueing condition
 PC = zeros(E.nsubj, 3, 3);    % Proportion correct
 RT = zeros(E.nsubj, 3, 3);    % Response time
-Error = zeros(E.nsubj, 3); % Continuous-reproduction error
+Error = zeros(E.nsubj, 3);    % Continuous-reproduction error
+SupportW = zeros(E.nsubj, 3); % support of target when retrieved through W
 
-for test = 1:2
+for test = Test
     E.test = test;
 
     for id = 1:E.nsubj
@@ -48,6 +50,7 @@ for test = 1:2
         response = zeros(E.ntrials, 12);             % responses in all trials for the 12 design cells
         rt = zeros(E.ntrials, 12);                   % response times
         error = zeros(E.ntrials, 12);                % continuous-reproduction errors
+        strengthFromW = zeros(E.ntrials, 12);        % strength of target feature from retrieval through W
         Conditionvector = repmat(1:12, 1, E.ntrials);  % vector of conditions (design cells) for the 12 x ntrials trials
         Conditionvector = Conditionvector(randperm(length(Conditionvector)));  % shuffle the order of design cells
         ConditionCount = zeros(1,12);                                           % running counter of trials in each condition
@@ -68,6 +71,7 @@ for test = 1:2
                 response(ConditionCount(condition), condition) = output.response(1,:);  % the first entry of response is the actual response
                 %disp([cueing, E.ptype, output.response(1,:)]);
                 rt(ConditionCount(condition), condition) = output.rt;    % response time
+                strengthFromW(ConditionCount(condition), condition) = output.maxW; 
             end
 
             if E.test == 1
@@ -94,6 +98,7 @@ for test = 1:2
                     PC(id, ptype, cueingcond) = 1-Pyes(id, ptype, cueingcond);
                 end
                 RT(id, ptype, cueingcond) = mean(rt(:,condition));
+                SupportW(id, ptype, cueingcond) = mean(strengthFromW(:, condition));
             end
         end
         if E.test == 1
@@ -139,6 +144,13 @@ for test = 1:2
         xticklabels({'None','CBA','ABA'});
         D.PC = PC;
         D.RT = RT;
+        PreFigure;
+        plotvector = squeeze(mean(SupportW, 1))';
+        plot(1:3, plotvector);
+        PostFigure([0.5, 3.5, 0, max(0.1, 1.1*max(plotvector(:)))], 'Cueing Condition', 'Strength from W', [], Legend);
+        xticks(1:3);
+        xticklabels({'None','CBA','ABA'});
+        D.SupportW = SupportW;
     end
 
     if E.test == 1
@@ -150,9 +162,9 @@ for test = 1:2
         D.Error = Error;
     end
 
-end
+end  % for test ...
 
-%%% Save results
+%%% Save results (only of test = 2)
 if E.saveResults == 1
     filename = ['IMSim.MultiCueABA.dat'];
     fid = fopen(filename, 'w');
