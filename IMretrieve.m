@@ -111,7 +111,7 @@ if ismember(E.test, 1:3)
 
 end
 
-if E.test == 4
+if E.test == 4  % change localization
     nsteps = round(5./C.tstep);   % that should be more than enough (5 sec)
     drate = ones(nsteps, 1);
     Delta = zeros(1, E.rss);
@@ -120,6 +120,7 @@ if E.test == 4
     probeLoc = probeIdx;
     probeLoc(1) = 1; % for the target (where the stimulus was changed), probeIdx indexes the stimulus displayed, not the location
 
+    % Change-localization method 1: retrieve features from the probed locations one by one, find the one with the largest feature change to the corresponding probe
     if C.changeLocMethod == 1
         for probe = 1:E.rss
             Focus = probeLoc(probe);
@@ -144,6 +145,7 @@ if E.test == 4
         rt = rt + (E.CTI(cueing)==0)*overTime;
     end
 
+    % Change-localization method 2: use the superposition of all probe features as cue to retrieve locations, and subtract them from FX. Find maximal location in FX 
     if C.changeLocMethod == 2
         % use stimuli as cues, retrieve locations bound to them
         cue = [zeros(1, C.nLocCat), sum(probestim,1) * C.Mapping];

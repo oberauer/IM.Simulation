@@ -50,6 +50,7 @@ model = 1;  % 1 = IMSim
 % 35: Change localization with variation of response set size (He, Kellen & Singmann, 2026)
 % 36: Dual-task consolidation (Nieuwenstein & Wyble, 2015)
 % 37: Dual-task consolidation (Stevanovski & Jolicoeur, 2007)
+% 38: Discrete whole report, number of correct responses (Adam et al., 2017)
 
 % 40 = Test retro-cue mechanisms individually
 % 41 = Test retro-cue mechanisms fully crossed, for single and dual retro-cue
@@ -61,7 +62,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 33;
+Exp = 28;
 
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 0;   % fit mixture model?
@@ -70,7 +71,7 @@ fitIMSim = 0; % fit IM?
 %%% Experimental Constants/Defaults
 
 E.ntrials = 200;     % number of trials to run per subject and condition
-E.nsubj = 20;        % number of subjects
+E.nsubj = 10;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -155,13 +156,9 @@ P.removalTau = 0.8;  % threshold for the logistic translating cue validity into 
 P.removalGain = 10;  % gain for the logistic translating cue validity into removal strength
 P.inhib = 0;         % global inhibition of activation during retrieval
 P.cuerate = 5;       % rate of using the cue
-%P.dnoise = 2.5;     % SD of noise added to each accumulator in recall/recollection of a feature
+P.dnoise = 1.5;     % SD of noise added to each accumulator in recall/recollection of a feature
 P.driftnoise = 1.0;  % SD of noise added to each accumulator for recognition decision
-%P.boundary = [70, 20]; % boundary for response for [recall/recollection, recognition decision] 
-
-P.dnoise = 1.5;      % SD of noise added to each accumulator in recall/recollection of a feature
-P.boundary = [30, 10]; % boundary for response for [recall/recollection, recognition decision] 
-
+P.boundary = [30, 10]; % boundary for retrieval of a feature / for recognition decision
 P.sz = 0;             % starting point variability for yes/no accumulators for recognition
 P.kappacrit = 1;      % proportion of kappa_feat: meta-cognitive estimate of average precision -> used in Bayesian optimal decision rule for same-change decision in Change Detection
 
@@ -211,15 +208,15 @@ if Exp == 29, D = SetsizeDeltaCD(Model); end  % CD for set-size and degree-of-ch
 if Exp == 30, D = Reloading(Model); end % CD for retro-cue and re-loading experiment
 if Exp == 31, D = DelayRS(Model); end  % CD for retro-cue and delay of response selection
 if Exp == 32, D = MultiCueIntrusion(Model); end  % 2-cues (last always valid), with intrusion probes sometimes matching the first-cued item
-if Exp == 33, D = MultiCueABA(Model, 2); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence
+if Exp == 33, D = MultiCueABA(Model, 2); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence; second argument: vector of tasks
 if Exp == 34, D = SensoryMemoryCD(Model); end  % CD with varying SOA from array to probe
 if Exp == 35, D = ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
 if Exp == 36, D = DualTaskConsolidation(1); end  % Nieuwenstein & Wyble (2015); argument = feature overlap between memory and decision stimuli
 if Exp == 37, D = DualTaskSetsizePRP(0); end  % Stevanovski & Jolicoeur (2007); argument = feature overlap between memory and decision stimuli
+if Exp == 38, D = DiscreteWholeReport; end    % Adam et al. (2017, APP)
 
 
-
-if Exp == 40, D = RetroCueSeparateMechanisms(Model, [4,7], 1, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
+if Exp == 40, D = RetroCueSeparateMechanisms(Model, [4:7], 1, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
 if Exp == 41, D = RetroCueFullDesign(Model, C.indVar, fitMM); end
 if Exp == 42, D = RetroCueStrength(Model, fitMM); end  % Retro-cue exploration
 if Exp == 43, D = SetsizeAlpha(@IMSimAlpha, 8); end

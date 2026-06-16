@@ -15,13 +15,13 @@ if E.test == 3  % n-AFC
     probestim = zeros(length(E.respAlt), C.nc); 
     probeIdx(1) = F(1, E.respAlt(1)); % usually this is the positive (correct) alternative
     probestim(1,:) = C.stim(probeIdx(1),:);
-    for j = 1:sum(E.respAlt==2)
-        probeIdx(j+1) = F(1, setsize+j); % extra-set probes
-        probestim(j+1,:) = C.stim(probeIdx(j+1),:);
+    for j = find(E.respAlt==2)
+        probeIdx(j) = F(1, setsize+j); % extra-set probes
+        probestim(j,:) = C.stim(probeIdx(j),:);
     end
-    for k = 1:sum(E.respAlt==3)   
-        probeIdx(j+k+1) = F(1, k+1);  % intrusion probes
-        probestim(j+k+1,:) = C.stim(probeIdx(j+k+1),:);
+    for k = find(E.respAlt==3)   
+        probeIdx(k) = F(1, k);  % intrusion probes, or other set probes (in case of multiple tests), taken from the positions in the set in which respAlt == 3
+        probestim(k,:) = C.stim(probeIdx(k),:);  
     end
 end
 if E.test == 4   % change localization

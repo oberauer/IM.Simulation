@@ -117,6 +117,7 @@ end
 %%%%%%%%%%%% Embedded Function %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5555
 
     function [Afocus, AfocusLoc] = Retrieve(wx, Map, Focus)
+        
         % retrieve content at the cued context
         if E.context == 1
             AfocusLoc = C.location(L(Focus),:); % use currently focused location as retrieval cue (= CuedLoc)

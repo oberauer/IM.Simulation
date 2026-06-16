@@ -28,6 +28,7 @@ PC = zeros(E.nsubj, 3, 3);    % Proportion correct
 RT = zeros(E.nsubj, 3, 3);    % Response time
 Error = zeros(E.nsubj, 3);    % Continuous-reproduction error
 SupportW = zeros(E.nsubj, 3); % support of target when retrieved through W
+Retrieved = zeros(3, C.nc);   % retrieved distribution (from W) centered on 180 degrees, separately for cueing condition
 
 for test = Test
     E.test = test;
@@ -76,11 +77,17 @@ for test = Test
 
             if E.test == 1
                 % continuous-reproduction test
-                outputR = Model(P, setsize, cueing);
+                output = Model(P, setsize, cueing);
                 featurestep = floor(C.nc/C.nstim);
-                targetDeg = outputR.F(1)*featurestep; % translate the target feature F (1 to 12) into the angle in degrees
-                fdistance = wrap(outputR.response-targetDeg, 180);   %calculate distance between response and true feature in feature space (degrees!)
+                targetDeg = output.F(1)*featurestep; % translate the target feature F (1 to 12) into the angle in degrees
+                fdistance = wrap(output.response-targetDeg, 180);   %calculate distance between response and true feature in feature space (degrees!)
                 error(ConditionCount(condition), condition) = abs(fdistance);
+                AfocusLoc = C.location(output.L(1),:); % set retrieval cue to the probed location
+                cue = [AfocusLoc * C.MappingC + C.locationnoise, zeros(1, C.nCat*E.nfeat)];
+                retrievedBinding = cue * output.wx;
+                retrievedVec = retrievedBinding * output.wx';
+                retrievedFeature = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat)) * C.Mapping';
+                Retrieved(cueingcond,:) = Retrieved(cueingcond,:) + circshift(retrievedFeature, -round(targetDeg)+180);
             end
 
         end
@@ -160,6 +167,10 @@ for test = Test
         xticks(1:3);
         xticklabels({'None','CBA','ABA'});
         D.Error = Error;
+        mRetrieved = Retrieved./(4*E.ntrials*E.nsubj);
+        PreFigure([],[],2);
+        plot(-179:180, mRetrieved');
+        PostFigure([-179, 180, 0, max(mRetrieved(:))], 'Deviation', 'Strength', [], {'None', 'CBA', 'ABA'});
     end
 
 end  % for test ...
