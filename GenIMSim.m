@@ -62,7 +62,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 28;
+Exp = 47;
 
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 0;   % fit mixture model?
@@ -71,7 +71,7 @@ fitIMSim = 0; % fit IM?
 %%% Experimental Constants/Defaults
 
 E.ntrials = 200;     % number of trials to run per subject and condition
-E.nsubj = 10;        % number of subjects
+E.nsubj = 50;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -213,7 +213,7 @@ if Exp == 34, D = SensoryMemoryCD(Model); end  % CD with varying SOA from array 
 if Exp == 35, D = ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
 if Exp == 36, D = DualTaskConsolidation(1); end  % Nieuwenstein & Wyble (2015); argument = feature overlap between memory and decision stimuli
 if Exp == 37, D = DualTaskSetsizePRP(0); end  % Stevanovski & Jolicoeur (2007); argument = feature overlap between memory and decision stimuli
-if Exp == 38, D = DiscreteWholeReport; end    % Adam et al. (2017, APP)
+if Exp == 38, D = DiscreteWholeReport(Model); end    % Adam et al. (2017, APP)
 
 
 if Exp == 40, D = RetroCueSeparateMechanisms(Model, [4:7], 1, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
@@ -223,5 +223,5 @@ if Exp == 43, D = SetsizeAlpha(@IMSimAlpha, 8); end
 if Exp == 44, NbindingCapacity(Model); end
 if Exp == 45, D = ParameterSensitivity(Model, 'dnoise', [1:5]); end
 if Exp == 46, D = ParameterSensitivity2(Model, 'a', [0, 0.05, 0.1, 0.2, 0.3, 0.4]); end
-if Exp == 47, D = ParameterSensitivityCD(Model, 'filter(2)', [0, 0.05, 0.1, 0.2, 0.3, 0.4]); end
+if Exp == 47, D = ParameterSensitivityCD(Model, 'nCat', [8, 12, 16, 20, 28]); end
 

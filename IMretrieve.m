@@ -52,8 +52,8 @@ if ismember(E.test, 1:3)
     retrievedBinding = cue * W;
     retrievedVec = retrievedBinding * W';
     retrievedW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat)) * C.Mapping'; % the strength with which each color is bound to the location cue through W
-    maxFX = retrievedFX(F(1));
-    maxW = retrievedW(F(1));
+    maxFX = retrievedFX(F(Focus));
+    maxW = retrievedW(F(Focus));
     
     Adrift = Afocus + retrievedW; % vector of drift rates (one for each of the 360 colors) 
     nsteps = round(5./C.tstep);   % that should be more than enough (5 sec)
