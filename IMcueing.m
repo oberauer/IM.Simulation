@@ -43,11 +43,11 @@ if (ismember (cueing, [1:3, 5]))  % if the cueing condition is NOT "refreshing",
 
     if CuedIdx > 0 && CuedIdx ~= Focus    % if a location was cued and forced the focus to shift during the RI...
         Focus = CuedIdx;          % ...update focus location, and ...
-        Afocus = zeros(1,C.nc);   % ... drop content of the feature focus, as well as ...
-        %AfocusLoc = C.location(L(Focus),:);  % ... update context (location) focus
+        Afocus = zeros(1,C.nc);   % ... drop content of the feature focus
     end
 
     if E.CTI(cueing) > 0
+        if C.eraseFXbyCue == 1, Map(1).FX = 0*Map(1).FX; end
         [Afocus, AfocusLoc] = Retrieve(W, Map, Focus); 
         if C.retroCueConsolid > 0
             if cTime(Focus) > 0 % if the cued item has not yet been consolidated
@@ -117,7 +117,7 @@ end
 %%%%%%%%%%%% Embedded Function %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5555
 
     function [Afocus, AfocusLoc] = Retrieve(wx, Map, Focus)
-        
+
         % retrieve content at the cued context
         if E.context == 1
             AfocusLoc = C.location(L(Focus),:); % use currently focused location as retrieval cue (= CuedLoc)

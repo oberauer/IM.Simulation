@@ -77,7 +77,12 @@ C.Mapping = C.Mapping * C.amplify;
 C.MappingC = C.MappingC * C.amplify;
 
 
-
+WMrepres = zeros(C.nstim, C.nCat);
+for s = 1:C.nstim
+    WMrepres(s,:) = C.stim(s,:) * C.Mapping;
+end
+%disp(cosines(WMrepres'));
+halt = 1;
 
 
 

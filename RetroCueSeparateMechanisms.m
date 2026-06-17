@@ -45,14 +45,14 @@ for task = Tasks
         P.filter = zeros(1,3);
         C.retroCueConsolid = 0;
         E.CTI(2) = 0;
-        P.eraseFX = 0;
+        C.eraseFXbyCue = 1; 
 
         % re-introduce individual mechanisms
         if mechanism == 1, P.cueingStrength = 1; end  % leave only strengthening
         if mechanism == 2, C.retroCueConsolid = 1; end  % leave ony consolidation for retrieval
         if mechanism == 3, P.removalThreshold = removalThreshold; end  % leave only removal
         if mechanism == 4, E.CTI(2) = 1; P.filter = filter; end  % leave only visual interference + headstart for escaping it
-        if mechanism == 5, E.CTI(2) = 1; P.eraseFX = eraseFX; end  % leave only read-out from FX + headstart for doing so
+        if mechanism == 5, E.CTI(2) = 1; C.eraseFXbyCue = 0; end  % leave only read-out from FX + headstart for doing so
         if mechanism == 6, E.CTI(2) = 1; end  % leave only headstart on its own
 
         % generate parameters with individual differences
@@ -102,11 +102,7 @@ for task = Tasks
 
                     output = Model(P, setsize, cueing);   % here the model is run!
 
-                    %                     Array(tcount,:) = output.F(1,1:setsize);  % record of the array on this trial
-                    %                     Target(tcount) = output.F(1,1);    % target feature
-
                     if task == 1
-                        %Response(tcount) = output.response;   % response feature
                         fdistance(trial) = wrap(output.response-output.F(1), 180);   %calculate distance between response and true feature in feature space (degrees!)
                     end
                     if task == 2
@@ -115,8 +111,6 @@ for task = Tasks
                         %delta = output.response(2);
                     end
                     rt(trial) = output.rt;            % response time
-
-                    %tcount = tcount+1;   % trial counter is incremented
 
                     if task == 1
                         %collect data for further modeling with Mixture Model
@@ -218,6 +212,7 @@ for task = Tasks
         plot(Cueconds, plotX, 'r');
         if (task==1), PostFigure([0.5, max(Cueconds)+0.5, 0, 90], 'Cueing Condition', 'Error (deg)', Titletext{mechanism}, legendtext); end
         if (task==2), PostFigure([0.5, max(Cueconds)+0.5, 0.5, 1], 'Cueing Condition', 'Accuracy', Titletext{mechanism}, legendtext); end
+        xticks(Cueconds)
         xticklabels(xlabel(Cueconds));
         index = index + 1;
     end

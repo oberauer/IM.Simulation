@@ -62,7 +62,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 47;
+Exp = 28;
 
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 0;   % fit mixture model?
@@ -71,7 +71,7 @@ fitIMSim = 0; % fit IM?
 %%% Experimental Constants/Defaults
 
 E.ntrials = 200;     % number of trials to run per subject and condition
-E.nsubj = 50;        % number of subjects
+E.nsubj = 20;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -101,6 +101,11 @@ C.nfeatures = 1;  %number of feature dimensions (default)
 C.nloc = 13;      %number of possible object locations (on a virtual circle around fixation)
 C.nc = 360;       %number of units to represent color space (or orientation space)
 C.nCat = 8;       % number of content categories
+
+
+C.nCat = 12; 
+
+
 C.nLocCat = 8;    % number of context categories
 C.x = pi*(1:C.nc)./180;  % x axis for the distributions of population codes in circular color space / orientation space
 C.tstep = 0.05;    % time steps for simulation (in s)
@@ -114,6 +119,7 @@ C.consolidAttempt = 100; % default: all items are attempted to be consolidated
 C.retroCueConsolid = 0;  % use retro-cue to consolidate: 0 = not at all, 1 = only once per item to reach C.strength, 2 = unlimited additional codes with separate sets of binding units
 C.changeLocMethod = 2;   % method for change localization: 1 = retrieve features from probed locations, compare to probe stimuli (sequential); 2 = retrive locations from stimuli, compare to probed locations (parallel)
 C.fullArrayBallistic = 0; % 0 = ballistic consolidation applies only to ongoing consolidation process; 1 = ballistic applies to entire array
+C.eraseFXbyCue = 0;       % 0 = retro-cue does not erase FX; 1 = retro-cue erases FX (needed for teasing apart retro-cue mechanisms)
 
 %%% Parameters
 
@@ -121,8 +127,8 @@ P.kappaf_feat = 25;  % precision of original stimuli (in the sensory layer), whi
 P.kappa_feat = 25;   % mean precision of categories, for content features
 P.kappaf_ctx = 25;   % precision of original stimuli, and the focus of attention, for context (needs to be fairly high, otherwise CW intrusion becomes too big)
 P.kappa_ctx = 25;    % precision of categories for context
-P.kappaCatSD = 3;    % SD of precision values of categories (variability across categories)
-P.mCatSD = 5;        % SD of deviation of category center from equal spacing
+P.kappaCatSD = 0;    % 3 SD of precision values of categories (variability across categories)
+P.mCatSD = 0;        % 5 SD of deviation of category center from equal spacing
 P.delta = 0.8;       % proportion of committed binding units that remain committed, and weights that remain, upon encoding of each new item
 P.pMax = 1.0;        % the initial proportion of binding units recruited 
 P.pBase = 0.4;       % .30 minimal (base) strength of bindings (lower asymptote)
@@ -159,6 +165,11 @@ P.cuerate = 5;       % rate of using the cue
 P.dnoise = 1.5;     % SD of noise added to each accumulator in recall/recollection of a feature
 P.driftnoise = 1.0;  % SD of noise added to each accumulator for recognition decision
 P.boundary = [30, 10]; % boundary for retrieval of a feature / for recognition decision
+
+
+%P.boundary = [70, 10]; 
+%P.dnoise = 0.5; 
+
 P.sz = 0;             % starting point variability for yes/no accumulators for recognition
 P.kappacrit = 1;      % proportion of kappa_feat: meta-cognitive estimate of average precision -> used in Bayesian optimal decision rule for same-change decision in Change Detection
 
@@ -216,7 +227,7 @@ if Exp == 37, D = DualTaskSetsizePRP(0); end  % Stevanovski & Jolicoeur (2007); 
 if Exp == 38, D = DiscreteWholeReport(Model); end    % Adam et al. (2017, APP)
 
 
-if Exp == 40, D = RetroCueSeparateMechanisms(Model, [4:7], 1, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
+if Exp == 40, D = RetroCueSeparateMechanisms(Model, [6:7], 1, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
 if Exp == 41, D = RetroCueFullDesign(Model, C.indVar, fitMM); end
 if Exp == 42, D = RetroCueStrength(Model, fitMM); end  % Retro-cue exploration
 if Exp == 43, D = SetsizeAlpha(@IMSimAlpha, 8); end

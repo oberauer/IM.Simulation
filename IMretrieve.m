@@ -8,7 +8,8 @@ global C
 global P
 
 Afocus = Afocus(1,:); % reduce to 1 vector in case E.nfeat > 1: Only the first feature is tested
-retrievedFX = Afocus; % default, will be overwritten below unless E.CTI(cueing) > 0
+maxFX = 0; % default, will be overwritten below unless E.CTI(cueing) > 0
+maxW = 0;  % default, will be overwritten below unless E.CTI(cueing) > 0
 
 if ismember(E.test, 1:3)
 
@@ -47,15 +48,23 @@ if ismember(E.test, 1:3)
         refocusDuration = -(log(1-P.cStrength)./cRate); % consolidation time determines the time for switching the focus to a new visual object
         [Map, W] = IMdecayFX(Map, W, refocusDuration, 0.005); % let FX decay with fine-grained time step (--> diminishes strength of the color wheel)
         retrievedFX = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter for FX
-        Afocus = Afocus + retrievedFX;
+
+        retrievedBinding = cue * W;
+        retrievedVec = retrievedBinding * W';
+        retrievedW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat)) * C.Mapping'; % the strength with which each color is bound to the location cue through W
+        maxFX = retrievedFX(F(Focus));
+        maxW = retrievedW(F(Focus));
+        Afocus = Afocus + retrievedFX + retrievedW;
+        Adrift = Afocus;
+
     end
-    retrievedBinding = cue * W;
-    retrievedVec = retrievedBinding * W';
-    retrievedW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat)) * C.Mapping'; % the strength with which each color is bound to the location cue through W
-    maxFX = retrievedFX(F(Focus));
-    maxW = retrievedW(F(Focus));
+    % retrievedBinding = cue * W;
+    % retrievedVec = retrievedBinding * W';
+    % retrievedW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat)) * C.Mapping'; % the strength with which each color is bound to the location cue through W
+    % maxFX = retrievedFX(F(Focus));
+    % maxW = retrievedW(F(Focus));
+    %Adrift = Afocus + retrievedW; % vector of drift rates (one for each of the 360 colors) 
     
-    Adrift = Afocus + retrievedW; % vector of drift rates (one for each of the 360 colors) 
     nsteps = round(5./C.tstep);   % that should be more than enough (5 sec)
     drate = ones(nsteps, 1);
     A = A + cumsum(drate * Adrift + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
