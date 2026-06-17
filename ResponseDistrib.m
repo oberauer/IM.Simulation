@@ -73,6 +73,6 @@ x = ceil(sqrt(length(setsizes)));
 y = round(sqrt(length(setsizes))); 
 for ssIdx = setsizes
     subplot(x,y,ssIdx);
-    plot(Target(Setsize==setsize(ssIdx)), Response(Setsize==setsize(ssIdx))); 
+    scatter(Target(Setsize==setsizes(ssIdx)), Response(Setsize==setsizes(ssIdx)), 'o', 'MarkerEdgeAlpha', 0.1); 
     PostFigure([0, 360, 0, 360], 'True', 'Reported', ['Setsize = ', mat2str(setsizes(ssIdx))] );
 end

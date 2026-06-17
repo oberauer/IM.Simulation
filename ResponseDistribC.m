@@ -85,6 +85,6 @@ x = ceil(sqrt(length(Conditions)));
 y = round(sqrt(length(Conditions))); 
 for cond = 1:max(Conditions)
     subplot(x,y,cond);
-    plot(Target(Conditions==cond), Response(Conditions==cond)); 
+    scatter(Target(Conditions==cond), Response(Conditions==cond), 'o', 'MarkerEdgeAlpha', 0.1); 
     PostFigure([0, 360, 0, 360], 'True', 'Reported', CondLabels{cond});
 end
