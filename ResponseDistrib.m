@@ -66,3 +66,13 @@ for setsize = setdiff(setsizes, 1)
 end
 set (gcf, 'Color','w');
 set (gca, 'box', 'on');
+
+% true vs. retrieved features
+PreFigure;
+x = ceil(sqrt(length(setsizes)));
+y = round(sqrt(length(setsizes))); 
+for ssIdx = setsizes
+    subplot(x,y,ssIdx);
+    plot(Target(Setsize==setsize(ssIdx)), Response(Setsize==setsize(ssIdx))); 
+    PostFigure([0, 360, 0, 360], 'True', 'Reported', ['Setsize = ', mat2str(setsizes(ssIdx))] );
+end

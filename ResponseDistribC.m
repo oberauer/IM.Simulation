@@ -16,16 +16,18 @@ setsize = size(Array, 2) - 1;
 Diff = wrap(Response - Target, 180);
 
 % response distributions centered on the target
+D = struct(respDist = zeros(1,nBin));
+Distribution = repmat(D, 1, max(Conditions));
 figure;
 for cond = 1:max(Conditions)
-    distribution(cond).respDist = zeros(1,nBin);
+    %Distribution(cond).respDist = zeros(1,nBin);
     diff = Diff(Conditions==cond);
     for tIndex = 1:length(diff)
-        distribution(cond).respDist((diff(tIndex) >= lb) & (diff(tIndex) < ub)) = distribution(cond).respDist((diff(tIndex) >= lb) & (diff(tIndex) < ub)) + 1;
+        Distribution(cond).respDist((diff(tIndex) >= lb) & (diff(tIndex) < ub)) = Distribution(cond).respDist((diff(tIndex) >= lb) & (diff(tIndex) < ub)) + 1;
     end
     
     subplot(2, ceil(max(Conditions)/2), cond);
-    plot(binLabel, distribution(cond).respDist ./ sum(distribution(cond).respDist), '-k')
+    plot(binLabel, Distribution(cond).respDist ./ sum(Distribution(cond).respDist), '-k')
     ylim([0 .4]);
     title('Errors; ', [CondLabels{cond}]);
 end
@@ -35,7 +37,7 @@ set (gca, 'box', 'on');
 % response distributions centered on the non-targetrs
 figure;
 for cond = 1:max(Conditions)
-    distribution(cond).respDist = zeros(1,nBin);
+    Distribution(cond).respDist = zeros(1,nBin);
     response = Response(Conditions==cond);
     target = Target(Conditions==cond);
     array = Array(Conditions==cond, :);
@@ -48,10 +50,10 @@ for cond = 1:max(Conditions)
             tmpDistribution((diff >= lb) & (diff < ub)) = tmpDistribution((diff >= lb) & (diff < ub)) + 1;
         end
         tmpDistribution = tmpDistribution ./ (setsize-1); %divide by number of non-target memory items that entered into successive diff calculcations and counts in distribution
-        distribution(cond).respDist = distribution(cond).respDist + tmpDistribution;
+        Distribution(cond).respDist = Distribution(cond).respDist + tmpDistribution;
     end
     subplot(2, ceil(max(Conditions)/2), cond);
-    plot(binLabel, distribution(cond).respDist ./ sum(distribution(cond).respDist), '-k');
+    plot(binLabel, Distribution(cond).respDist ./ sum(Distribution(cond).respDist), '-k');
     ylim([0 .1]);
     title(['Dev. from NT; ', CondLabels{cond}]);
 end
@@ -63,16 +65,26 @@ CWdiff = wrap(Response' - Array(:, setsize+1), 180); %Color in color wheel close
 
 figure
 for cond = 1:max(Conditions)
-    distribution(cond).respDist = zeros(1,nBin);
+    Distribution(cond).respDist = zeros(1,nBin);
     cwdiff = CWdiff(Conditions==cond);
     for tIndex = 1:length(cwdiff)
-        distribution(cond).respDist((cwdiff(tIndex) >= lb) & (cwdiff(tIndex) < ub)) = distribution(cond).respDist((cwdiff(tIndex) >= lb) & (cwdiff(tIndex) < ub)) + 1;
+        Distribution(cond).respDist((cwdiff(tIndex) >= lb) & (cwdiff(tIndex) < ub)) = Distribution(cond).respDist((cwdiff(tIndex) >= lb) & (cwdiff(tIndex) < ub)) + 1;
     end
     
     subplot(2, ceil(max(Conditions)/2), cond);
-    plot(binLabel, distribution(cond).respDist ./ sum(distribution(cond).respDist), '-k')
+    plot(binLabel, Distribution(cond).respDist ./ sum(Distribution(cond).respDist), '-k')
     ylim([0 .1]);
     title(['Dev. from CW; ', CondLabels{cond}]);
 end
 set (gcf, 'Color','w');
 set (gca, 'box', 'on');
+
+% true vs. retrieved features
+PreFigure;
+x = ceil(sqrt(length(Conditions)));
+y = round(sqrt(length(Conditions))); 
+for cond = 1:max(Conditions)
+    subplot(x,y,cond);
+    plot(Target(Conditions==cond), Response(Conditions==cond)); 
+    PostFigure([0, 360, 0, 360], 'True', 'Reported', CondLabels{cond});
+end
