@@ -101,11 +101,6 @@ C.nfeatures = 1;  %number of feature dimensions (default)
 C.nloc = 13;      %number of possible object locations (on a virtual circle around fixation)
 C.nc = 360;       %number of units to represent color space (or orientation space)
 C.nCat = 8;       % number of content categories
-
-
-C.nCat = 12; 
-
-
 C.nLocCat = 8;    % number of context categories
 C.x = pi*(1:C.nc)./180;  % x axis for the distributions of population codes in circular color space / orientation space
 C.tstep = 0.05;    % time steps for simulation (in s)
@@ -127,8 +122,8 @@ P.kappaf_feat = 25;  % precision of original stimuli (in the sensory layer), whi
 P.kappa_feat = 25;   % mean precision of categories, for content features
 P.kappaf_ctx = 25;   % precision of original stimuli, and the focus of attention, for context (needs to be fairly high, otherwise CW intrusion becomes too big)
 P.kappa_ctx = 25;    % precision of categories for context
-P.kappaCatSD = 0;    % 3 SD of precision values of categories (variability across categories)
-P.mCatSD = 0;        % 5 SD of deviation of category center from equal spacing
+P.kappaCatSD = 3;    % 3 SD of precision values of categories (variability across categories)
+P.mCatSD = 5;        % 5 SD of deviation of category center from equal spacing
 P.delta = 0.8;       % proportion of committed binding units that remain committed, and weights that remain, upon encoding of each new item
 P.pMax = 1.0;        % the initial proportion of binding units recruited 
 P.pBase = 0.4;       % .30 minimal (base) strength of bindings (lower asymptote)
