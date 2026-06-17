@@ -43,7 +43,7 @@ if ismember(E.test, 1:3)
         cue = [C.stim(F(2,Focus),:) * C.Mapping + C.stimnoise, zeros(1, C.nCat)]; % the 2nd feature is the retrieval cue for the first (= target) feature.
         AfocusLoc = ones(1,C.nc)*mean(C.location(L(Focus),:)); % uniformly distributed spatial focus with overall activation strength matching a locally focused focus
     end
-    if E.PreRetro == 2 || E.CTI(cueing) == 0 || refocus == 1  % if retrieval has not yet happened in the CTI from the same location ...
+    if E.PreRetro == 1 || E.CTI(cueing) == 0 || refocus == 1  % if retrieval has not yet happened in the CTI from the same location ...
         cRate = gamrnd(P.cRate^2/(P.cRate*P.cRateSD)^2, (P.cRate*P.cRateSD)^2/P.cRate);
         refocusDuration = -(log(1-P.cStrength)./cRate); % consolidation time determines the time for switching the focus to a new visual object
         [Map, W] = IMdecayFX(Map, W, refocusDuration, 0.005); % let FX decay with fine-grained time step (--> diminishes strength of the color wheel)
