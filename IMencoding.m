@@ -9,23 +9,14 @@ global C
 
 if nargin < 8, cueing = 0; end
 
-% Pre-Cue:
-CuedIdx = 0;
-if (ismember(cueing, [2,3]) && E.PreRetro == 1)
-    if (cueing == 2 || cueing == 5), CuedIdx = 1; end  % valid retro-cue: always on target
-    if (cueing == 3)
-        if (setsize == 1), CuedIdx = 1; else, CuedIdx = 1+randperm(setsize-1,1); end  % invalid retro-cue: never on target (except when setsize = 1)
-    end
-end
-
 %  consolidation times
 cRateSD = P.cRateSD*P.cRate;
 cRate = gamrnd(P.cRate^2/cRateSD^2, cRateSD^2/P.cRate, 1, setsize);  % generate the vector of consolidation rates
 cStrength = repmat(P.cStrength, 1, setsize);
-if CuedIdx > 0
-    cStrength(CuedIdx) = P.cStrength + (1-P.cStrength)*0.7; % pre-cued item receives higher cStrength -> longer consolidation
-    cStrength(setdiff(1:setsize, CuedIdx)) = 0.5*P.cStrength; % not pre-cued items receive reduced cStrength
-end
+% if CuedIdx > 0
+%     cStrength(CuedIdx) = P.cStrength + (1-P.cStrength)*0.7; % pre-cued item receives higher cStrength -> longer consolidation
+%     cStrength(setdiff(1:setsize, CuedIdx)) = 0.5*P.cStrength; % not pre-cued items receive reduced cStrength
+% end
 
 Inpos = zeros(1,setsize);  % initialize vector coding the input positions of the items (in the encoding order). In this vector, and the result vectors, the items are ordered by output position!
 Focus = randperm(setsize, 1);  % start with random location of the focus
@@ -42,6 +33,16 @@ attentionWindows = gamrnd(maskWindow.^2./sdmaskWindow.^2, sdmaskWindow.^2./maskW
 masking = attentionWindows > abs(E.MaskSOA);
 
 strengthFX = randn(1, setsize) * P.SDstrengthFX + 1;
+
+% Pre-Cue:
+CuedIdx = 0;
+if (ismember(cueing, [2,3]) && E.PreRetro == 1)
+    if (cueing == 2 || cueing == 5), CuedIdx = 1; end  % valid retro-cue: always on target
+    if (cueing == 3)
+        if (setsize == 1), CuedIdx = 1; else, CuedIdx = 1+randperm(setsize-1,1); end  % invalid retro-cue: never on target (except when setsize = 1)
+    end
+    strengthFX(CuedIdx) = strengthFX(CuedIdx) + P.cueingStrength;
+end
 
 %%%%%%%%%%%%% Simultaneous presentation %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -101,16 +102,11 @@ if E.presentation == 1
 
             if max(SpatAttn) > 0
 
-                % in case of pre-cue, start consolidating with this item
-                if (ismember(cueing, [2,3]) && E.PreRetro == 1 && inpos == 1)
-                    Focus = CuedIdx;
-                    AfocusLoc = C.location(L(Focus),:);     % location attended to in the feature maps
-                else
-                    spatPeak = find(SpatAttn==max(SpatAttn), 1);
-                    AfocusLoc = C.ContextFun(C.x, deg2rad(spatPeak), P.kappaf_ctx);
-                    sim2originalLoc = cosines(AfocusLoc', C.location(L(1:setsize), :)');
-                    Focus = find(sim2originalLoc == max(sim2originalLoc), 1);
-                end
+                spatPeak = find(SpatAttn==max(SpatAttn), 1);
+                AfocusLoc = C.ContextFun(C.x, deg2rad(spatPeak), P.kappaf_ctx);
+                sim2originalLoc = cosines(AfocusLoc', C.location(L(1:setsize), :)');
+                Focus = find(sim2originalLoc == max(sim2originalLoc), 1);
+
                 %Focus = encorder(inpos);  % Focus codes the item index for the attended item, which is the (planned) output position (in case of full report)
                 % focus attention to the relevant stimulus location in the feature map(s) FX
                 %AfocusLoc = C.location(L(Focus),:);     % location attended to in the feature maps
@@ -160,11 +156,11 @@ if E.presentation == 1
     Inpos(Inpos==0) = setdiff(1:setsize, Inpos); % fill empty Inpos values with the remaining, not consolidated items
 
     % pre-cued item is brought to the FoA after all items have been encoded
-    if (ismember(cueing, [2,3]) && E.PreRetro == 1)
-        Focus = CuedIdx;
-        AfocusLoc = C.location(L(Focus),:);     % location attended to in the feature maps
-        for ff = 1:E.nfeat, Afocus(ff,:) = AfocusLoc./sum(AfocusLoc) * Map(ff).FX; end % use location as (spatial) attentional filter to pull out the target feature from its feature map
-    end
+    % if (ismember(cueing, [2,3]) && E.PreRetro == 1)
+    %     Focus = CuedIdx;
+    %     AfocusLoc = C.location(L(Focus),:);     % location attended to in the feature maps
+    %     for ff = 1:E.nfeat, Afocus(ff,:) = AfocusLoc./sum(AfocusLoc) * Map(ff).FX; end % use location as (spatial) attentional filter to pull out the target feature from its feature map
+    % end
 
     decaytime = max(0, E.RI - max(0, cumTime-E.prestime)); % remaining time until test; cumTime-E.prestime is the part of the RI that has already been spent with consolidation
     [Map, W] = IMdecayFX(Map, W, decaytime);

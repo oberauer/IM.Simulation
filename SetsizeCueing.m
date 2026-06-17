@@ -146,10 +146,11 @@ for id = 1:E.nsubj
                 if npar > 3, MMcwattraction(id, cueing, setsize) = MMparms(4); end
             end
             
+        disp('    ID        Setsize    Cueing     Error      ');
+        disp([id, setsize, cueing, mean(Mdevobs(id, cueing, setsize))]);
+
         end % for cueing
 
-        disp('    ID        Setsize   Error      ');
-        disp([id, setsize, mean(Mdevobs(id, :, setsize))]);
 
     end %for setsize
     
