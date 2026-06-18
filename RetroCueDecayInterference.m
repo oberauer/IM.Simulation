@@ -29,7 +29,9 @@ MMSD = NaN(E.nsubj, 2, 3);    % SD parameter of mixture model
 MMguessing = NaN(E.nsubj, 2, 3);  % P(guess) parameter of mixture model
 MMtranspos = NaN(E.nsubj, 2, 3);  % P(transposition) parameter of mixture model
 MMcwattraction = NaN(E.nsubj, 2, 3);  % P(color wheel attraction) parameter of mixture model
-MRT = NaN(E.nsubj, 2, 3);   % subj, cueing condition, wheel condition
+MactFX = NaN(E.nsubj, 2, 3);   % subj, cueing condition, wheel condition
+MactW = NaN(E.nsubj, 2, 3);   % subj, cueing condition, wheel condition
+% MRT = NaN(E.nsubj, 2, 3);   % subj, cueing condition, wheel condition
 
 IMSimparms = zeros(E.nsubj, 6);
 
@@ -57,6 +59,8 @@ for id = 1:E.nsubj
 
         fdistance = zeros(1,E.ntrials);
         rt = zeros(1,E.ntrials);
+        maxFX = zeros(1,E.ntrials);
+        maxW = zeros(1,E.ntrials);
         Probedpos = zeros(E.ntrials,1);
         Pangle = zeros(E.ntrials,setsize);
         Cangle = zeros(E.ntrials,setsize);
@@ -76,6 +80,8 @@ for id = 1:E.nsubj
 
                 Array(tcount,:) = [output.F(1,1:setsize), output.CWcolor];  %add the color in the color wheel closest to target location in column setsize+1
                 fdistance(trial) = wrap(output.response-output.F(1), 180);   %calculate distance between response and true feature in feature space (degrees!)
+                maxFX(trial) = output.maxFX;
+                maxW(trial) = output.maxW;
                 rt(trial) = output.rt;
                 Target(tcount) = output.F(1,1);
                 Response(tcount) = output.response;
@@ -96,6 +102,8 @@ for id = 1:E.nsubj
 
                 Mdevobs(id, cueing, ri) = mean(abs(fdistance));  %mean deviation
                 MRT(id, cueing, ri) = mean(rt);
+                MactFX(id, cueing, ri) = mean(maxFX);
+                MactW(id, cueing, ri) = mean(maxW);
 
                 condData = Dataprocessing(Probedpos, Pangle, Cangle, Targ, Resp, Setsize, Colorgrid);   %prepare data for mixture-model fitting (separate structures for each condition)
                 condData.cueing = repmat(cueing, length(Response), 1);
@@ -173,6 +181,10 @@ for id = 1:E.nsubj
 
 end  % for ID
 
+D.Mdevobs = Mdevobs;
+D.MactFX = MactFX;
+D.MactW = MactW;
+
 % Plot Mean(Deviation) as functions of Wheel
 legendtext = {'No Cue', 'Retro-Cue'};
 
@@ -181,66 +193,17 @@ plotvector = squeeze(mean(Mdevobs,1));
 plot(RI, plotvector);
 PostFigure([0.8, max(RI)+0.2, 0, 1.05*max(max(plotvector))], 'RI', 'Deviation', 'Mean Deviation', legendtext);
 
-D.Mdevobs = Mdevobs;
+PreFigure
+subplot(1,2,1);
+plotvector = squeeze(mean(MactFX,1));
+plot(RI, plotvector);
+PostFigure([0.8, max(RI)+0.2, 0, 1.05*max(max(plotvector))], 'RI', 'Activation from FX', 'Mean Deviation', legendtext);
+subplot(1,2,2);
+plotvector = squeeze(mean(MactW,1));
+plot(RI, plotvector);
+PostFigure([0.8, max(RI)+0.2, 0, 1.05*max(max(plotvector))], 'RI', 'Activation from W', 'Mean Deviation', legendtext);
 
-% 
-% 
-% % Plot Mixture Model Parameters over Wheel condition
-% if fitMM
-%     MMPm = 1 - MMtranspos - MMguessing - MMcwattraction;
-%     Xticks = {'Color', ' ', 'Grey'};  % Matlab insists on placing a tick every 0.5 steps, so have to insert a blank tick
-%     PreFigure
-%     subplot(3,2,1);
-%     plot(squeeze(mean(MMSD,1))');
-%     set(gca,'XtickLabel', Xticks);
-%     PostFigure([0.8,2.2, 0, max(max(mean(MMSD,1)))+0.5], 'Wheel Condition', 'Mean SD', 'SD from Bays Mixture', {'No Cue', 'Retro-Cue'});
-%     subplot(3,2,2);
-%     plot(squeeze(mean(MMPm,1))');
-%     set(gca,'XtickLabel', Xticks);
-%     PostFigure([0.8,2.2, 0, 1], 'Wheel Condition', 'Mean P(m)', '"P(mem) Bays Mixture');
-%     subplot(3,2,3);
-%     plot(squeeze(mean(MMguessing,1))');
-%     set(gca,'XtickLabel', Xticks);
-%     PostFigure([0.8,2.2, 0, 0.5], 'Wheel Condition', 'Mean P(guess)', 'P(guess) Bays Mixture');
-%     subplot(3,2,4);
-%     plot(squeeze(mean(MMtranspos,1))');
-%     set(gca,'XtickLabel', Xticks);
-%     PostFigure([0.8,2.2, 0, 0.5], 'Wheel Condition', 'Mean P(trans)', 'P(transpos) Bays Mixture');
-%     subplot(3,2,5);
-%     plot(squeeze(mean(MMcwattraction,1))');
-%     PostFigure([0.8,2.2, 0, 0.5], 'Wheel Condition', 'Mean P(CW)', 'P(CW) Bays Mixture');
-% 
-%     % Figure layout as in Souza et al (2016)
-%     meanPm = squeeze(mean(MMPm, 1));
-%     meanCWA = squeeze(mean(MMcwattraction, 1));
-%     Xticks = {'No Cue', ' ', 'Cue'};
-%     PreFigure;
-%     subplot(2,2,1);
-%     plot(1:2, meanPm(:,1)); % color-wheel
-%     set(gca,'XtickLabel', Xticks);
-%     PostFigure([0.8, 2.2, 0, 1], [], 'Mean P(m)', 'Color Wheel');
-%     subplot(2,2,2);
-%     plot(1:2, meanPm(:,2));
-%     set(gca,'XtickLabel', Xticks);
-%     PostFigure([0.8,2.2, 0, 1], [], 'Mean P(m)', 'Grey Wheel');
-%     subplot(2,2,3);
-%     plot(1:2, meanCWA(:,1)); % color-wheel
-%     set(gca,'XtickLabel', Xticks);
-%     PostFigure([0.8,2.2, -0.03, 0.5], [], 'Mean P(CW)', 'Color Wheel');
-%     subplot(2,2,4);
-%     plot(1:2, meanCWA(:,2));
-%     set(gca,'XtickLabel', Xticks);
-%     PostFigure([0.8,2.2, -0.03, 0.5], [], 'Mean P(CW)', 'Grey Wheel');
-% 
-% end
 
-% 
-% if fitIMSim
-%     disp('      X       Y          s       kappa      kappaf      r');
-%     disp(mean(IMSimparms, 1));
-%     disp('      X       Y          s       kappa      kappaf      r');
-%     disp(std(IMSimparms, 1));
-% end
 
 %%% Save results
 if E.saveResults == 1

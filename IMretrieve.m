@@ -47,14 +47,14 @@ if ismember(E.test, 1:3)
         cRate = gamrnd(P.cRate^2/(P.cRate*P.cRateSD)^2, (P.cRate*P.cRateSD)^2/P.cRate);
         refocusDuration = -(log(1-P.cStrength)./cRate); % consolidation time determines the time for switching the focus to a new visual object
         [Map, W] = IMdecayFX(Map, W, refocusDuration, 0.005); % let FX decay with fine-grained time step (--> diminishes strength of the color wheel)
-        retrievedFX = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter for FX
+        featureFromFX = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter for FX
 
         retrievedBinding = cue * W;
         retrievedVec = retrievedBinding * W';
-        retrievedW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat)) * C.Mapping'; % the strength with which each color is bound to the location cue through W
-        maxFX = retrievedFX(F(Focus));
-        maxW = retrievedW(F(Focus));
-        Afocus = Afocus + retrievedFX + retrievedW;
+        featureFromW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat)) * C.Mapping'; % the strength with which each color is bound to the location cue through W
+        maxFX = featureFromFX(F(Focus));
+        maxW = featureFromW(F(Focus));
+        Afocus = Afocus + featureFromFX + featureFromW;
         Adrift = Afocus;
 
     end
@@ -135,12 +135,12 @@ if E.test == 4  % change localization
             Focus = probeLoc(probe);
             AfocusLoc = C.location(L(Focus),:); % set retrieval cue to the probed location
             cue = [AfocusLoc * C.MappingC + C.locationnoise, zeros(1, C.nCat*E.nfeat)];
-            retrievedFX = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter for FX
-            Afocus = Afocus + retrievedFX;
+            featureFromFX = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter for FX
+            Afocus = Afocus + featureFromFX;
             retrievedBinding = cue * W;
             retrievedVec = retrievedBinding * W';
-            retrievedW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat));
-            Adrift = Afocus + retrievedW * C.Mapping';
+            featureFromW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat));
+            Adrift = Afocus + featureFromW * C.Mapping';
             A = cumsum(drate * Adrift + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
             maxA = max(A, [], 2); % maximum value in each row of A = maximum after each time step
             t = find(maxA > P.boundary(1), 1);

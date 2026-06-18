@@ -47,13 +47,14 @@ if (ismember (cueing, [1:3, 5]))  % if the cueing condition is NOT "refreshing",
         Afocus = zeros(1,C.nc);   % ... drop content of the feature focus
         cRate = gamrnd(P.cRate^2/(P.cRate*P.cRateSD)^2, (P.cRate*P.cRateSD)^2/P.cRate);
         refocusDuration = -(log(1-P.cStrength)./cRate); % consolidation time determines the time for switching the focus to a new visual object
-        [Afocus, AfocusLoc] = Retrieve(W, Map, Focus); 
+        %[Afocus, AfocusLoc] = Retrieve(W, Map, Focus); 
         [Map, W] = IMdecayFX(Map, W, refocusDuration, 0.005); % let FX decay with fine-grained time step (--> diminishes strength of the color wheel)
     end
 
     if E.CTI(cueing) > 0
         if C.eraseFXbyCue == 1, Map(1).FX = 0*Map(1).FX; end
-        [Afocus, AfocusLoc] = Retrieve(W, Map, Focus); 
+        [Afocus, AfocusLoc, featureFromFX, featureFromW] = Retrieve(W, Map, Focus); 
+        %disp([featureFromFX(F(1)), featureFromW(F(1))]);
         if C.retroCueConsolid > 0
             if cTime(Focus) > 0 % if the cued item has not yet been consolidated
                 if E.context == 1, context = C.locationnoise + AfocusLoc * C.MappingC; end  %
@@ -121,7 +122,7 @@ end
 
 %%%%%%%%%%%% Embedded Function %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5555
 
-    function [Afocus, AfocusLoc] = Retrieve(wx, Map, Focus)
+    function [Afocus, AfocusLoc, featureFromFX, featureFromW] = Retrieve(wx, Map, Focus)
 
         % retrieve content at the cued context
         if E.context == 1
@@ -132,11 +133,12 @@ end
             cue = [C.stim(F(2,Focus),:) * C.Mapping + C.stimnoise, zeros(1, C.nCat)]; % the 2nd feature is the retrieval cue for the first (= target) feature.
             AfocusLoc = ones(1,C.nc)*mean(C.location(L(Focus),:)); % uniformly distributed spatial focus with overall activation strength matching a locally focused focus
         end
-        retrievedFX = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter for FX
+        featureFromFX = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter for FX
         retrievedBinding = cue * wx;
         retrievedVec = retrievedBinding * wx';
         retrievedFeature = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat));
-        Afocus = retrievedFX + retrievedFeature * C.Mapping'; % vector of drift rates (one for each of the 360 colors) is computed as the strength with which each color is bound to the location cue
+        featureFromW = retrievedFeature * C.Mapping';
+        Afocus = featureFromFX + featureFromW; % vector of drift rates (one for each of the 360 colors) is computed as the strength with which each color is bound to the location cue
 
     end
 
