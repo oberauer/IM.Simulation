@@ -1,4 +1,4 @@
-function [] = CueTargetInterval(Model, setsize, fitMM, fitIMSim)
+function D = CueTargetInterval(Model, setsize, fitMM, fitIMSim)
 % Simulation of retro-cue in continuous reproduction, varying cue-target
 % interval (Souza et al., 2016)
 
@@ -201,6 +201,7 @@ PreFigure;
 plotvector = squeeze(mean(Mdevobs,1))';
 plot(CTI, plotvector);
 PostFigure([0, max(CTI)+0.1, 0, 1.05*max(max(plotvector))], 'Cue Target Interval', 'Deviation (Deg)', [], legendtext);
+D.Mdevobs = Mdevobs;
 
 % Plot response distributions
 %meanDeviation = ResponseDistrib(Array, Target, Response);
@@ -230,6 +231,11 @@ if fitMM
     subplot(3,2,6);
     plot(CTI, squeeze(mean(MMcwattraction,1))');
     PostFigure([0, max(CTI)+0.1, 0, 1], 'Cue Target Interval', 'Mean P(wheel)', 'P(wheel attraction)');
+    D.MMPm = MMPm;
+    D.MMtranspos = MMtranspos;
+    D.MMguessing = MMguessing;
+    D.MMcwattraction = MMcwattraction;
+    D.MMSD = MMSD;
 end
 
 if fitIM
