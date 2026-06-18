@@ -47,6 +47,7 @@ if (ismember (cueing, [1:3, 5]))  % if the cueing condition is NOT "refreshing",
         Afocus = zeros(1,C.nc);   % ... drop content of the feature focus
         cRate = gamrnd(P.cRate^2/(P.cRate*P.cRateSD)^2, (P.cRate*P.cRateSD)^2/P.cRate);
         refocusDuration = -(log(1-P.cStrength)./cRate); % consolidation time determines the time for switching the focus to a new visual object
+        [Afocus, AfocusLoc] = Retrieve(W, Map, Focus); 
         [Map, W] = IMdecayFX(Map, W, refocusDuration, 0.005); % let FX decay with fine-grained time step (--> diminishes strength of the color wheel)
     end
 
@@ -156,7 +157,7 @@ end
         % cuestrength = 1-exp(-P.cuerate*E.CTI(cueing));
         % wx = wx + P.cueingStrength .* cuestrength * (inputVec' * retrievedBinding);
 
-        cuestrength = 1-exp(-P.cuerate*(E.CTI(cueing)-overTime);
+        cuestrength = 1-exp(-P.cuerate*(E.CTI(cueing)-overTime));
         strengthenVec = [AfocusLoc * C.MappingC, zeros(1, E.nfeat*C.nCat)]; % the content side should be 0 so that nothing is added to wx
         strengthLoc = repmat(strengthenVec', 1, P.nb);  % strength with which each location category is strengthened
         wx = wx + P.cueingStrength*cuestrength * (strengthLoc .* wx);  %strengthening of bindings in focused location
