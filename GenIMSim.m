@@ -62,7 +62,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 25;
+Exp = 5;
 
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 0;   % fit mixture model?
@@ -150,7 +150,7 @@ P.cBallistic = 0.5;  % probability of consolidation being ballistic
 P.filter = [0.1, 0.1, 0.1, 0.1]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
 P.rad1 = 0.7;        % proportion of radius of memory array to radius of color wheel (for computation of color-wheel interference as a function of distance between wheel and target location)
 P.outputinterference = 0; % proportion of reduction of W
-P.wnoise = 0.6;      % at at which noise variance added to W increases with time (in seconds) 
+P.wnoise = 0.3;      % at at which noise variance added to W increases with time (in seconds) 
 P.cueingStrength = 1;     % amount of strengthening by re-encoding in response to retro-cue (0 = none)
 P.removalThreshold = 0.3; % binding units with abs(strength) below the threshold are removed - now expressed as proportion of the maximal absolute retrieved binding strength
 P.removalTau = 0.8;  % threshold for the logistic translating cue validity into removal strength
@@ -186,7 +186,7 @@ if Exp == 1, D = SetsizeSPC(Model, 1, Setsize, 0); end  % sequential presentatio
 if Exp == 2, D = SetsizeSPC(Model, 2, Setsize, 0); end  % sequential presentation, continuous reproduction with serial-position effects
 if Exp == 3, D = SetsizeSerialRecall(Model, Setsize); end
 if Exp == 4, D = SimSeqAlphaCDA(Model, Setsize); end % sequential or simultaneous presentation, CDA and Alpha power suppression
-if Exp == 5, D = SetsizeRI(Model, 1, fitMM, fitIMSim); end  % set size and retention-interval variation
+if Exp == 5, D = SetsizeRI(Model, 1, [2,6], fitMM, fitIMSim); end  % set size and retention-interval variation (3rd argument: Setsizes)
 if Exp == 6, D = SimSeq(Model, fitMM); end % sequential/simultaneous encoding of 2 objects with 2 features
 if Exp == 7, D = SimSeqPresentationRate(Model, P.cRate, fitMM); end % simultaneous encoding vs. sequential encoding with varying presentation rates (2nd parameter: consolidation rate)
 if Exp == 8, P.cStrength = 0.6; D = SimSeqPresentationRate(Model, P.cRate, fitMM); end  % with P.cStrength for Prolific participants

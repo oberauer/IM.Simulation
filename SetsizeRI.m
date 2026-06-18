@@ -1,4 +1,4 @@
-function D = SetsizeRI(Model, PreRetro, fitMM, fitIMSim)
+function D = SetsizeRI(Model, PreRetro, Setsizes, fitMM, fitIMSim)
 % Simulation of Set-size and retention-interval effects in continuous
 % reproduction.
 
@@ -7,7 +7,7 @@ global E
 global C
 
 RI = [0.2, 0.5, 1, 2, 4]; 
-E.maxsetsize = 6; 
+E.maxsetsize = max(Setsizes); 
 E.PreRetro = PreRetro;
 E.cuevalidity = 1;
 option = optimset('Display','off','TolFun',1e-10, 'FunValCheck','on', 'MaxIter', 2000);
@@ -58,7 +58,7 @@ for id = 1:E.nsubj
     CreateStimuli;
     CreateMapping(E.calibrateAmp==2);
     
-    for setsize = 1:E.maxsetsize
+    for setsize = Setsizes
         
         % Initialize container vectors
         fdistance = zeros(1,E.ntrials);  % feature distance between response and target
@@ -112,7 +112,7 @@ for id = 1:E.nsubj
             ssD.ri = repmat(ri, length(Response), 1);
             ssD.preretro = E.PreRetro;
             
-            if setsize == 1
+            if setsize == min(Setsizes)
                 Data = ssData;
                 D = ssD;
             else   % concatenate the data structures
