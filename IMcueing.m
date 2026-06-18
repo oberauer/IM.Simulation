@@ -1,4 +1,4 @@
-function [Map, W, GateClosed, gWeight, Focus, Afocus, lastrefreshed, CuedIdx, Strength] = IMcueing(Map, W, GateClosed, gWeight, Strength, Focus, Afocus, L, F, setsize, cueing, refreshings)
+function [Map, W, GateClosed, gWeight, Focus, Afocus, lastrefreshed, CuedIdx, Strength, refocusDuration] = IMcueing(Map, W, GateClosed, gWeight, Strength, Focus, Afocus, L, F, setsize, cueing, refreshings, overTime)
 % Does all the pre- and retro-cueing, refreshing, etc.
 
 global P
@@ -7,6 +7,7 @@ global C
 
 lastrefreshed = 0;  %default
 CuedIdx = 0; % default
+refocusDuration = 0; % default
 
 if C.retroCueConsolid > 0
     % consolidation rate of the cued item
@@ -44,6 +45,9 @@ if (ismember (cueing, [1:3, 5]))  % if the cueing condition is NOT "refreshing",
     if CuedIdx > 0 && CuedIdx ~= Focus    % if a location was cued and forced the focus to shift during the RI...
         Focus = CuedIdx;          % ...update focus location, and ...
         Afocus = zeros(1,C.nc);   % ... drop content of the feature focus
+        cRate = gamrnd(P.cRate^2/(P.cRate*P.cRateSD)^2, (P.cRate*P.cRateSD)^2/P.cRate);
+        refocusDuration = -(log(1-P.cStrength)./cRate); % consolidation time determines the time for switching the focus to a new visual object
+        [Map, W] = IMdecayFX(Map, W, refocusDuration, 0.005); % let FX decay with fine-grained time step (--> diminishes strength of the color wheel)
     end
 
     if E.CTI(cueing) > 0
@@ -54,7 +58,7 @@ if (ismember (cueing, [1:3, 5]))  % if the cueing condition is NOT "refreshing",
                 if E.context == 1, context = C.locationnoise + AfocusLoc * C.MappingC; end  %
                 if E.context == 2, context = C.stimnoise + (AfocusLoc./sum(AfocusLoc) * Map(2).FX) * C.Mapping; end
                 content = C.stimnoise + Afocus * C.Mapping;
-                [W, GateClosed, gWeight, cIdx, bStrength] = IMencodeStim(W, context, content, GateClosed, gWeight, cRate(Focus), cTime(Focus), E.CTI(cueing));
+                [W, GateClosed, gWeight, cIdx, bStrength] = IMencodeStim(W, context, content, GateClosed, gWeight, cRate(Focus), cTime(Focus), E.CTI(cueing)-overTime);
             end
         end
         if P.cueingStrength > 0, W = Strengthen(W); end   % strengthening happens after retrieval, so it has no consequence for the cued item any more
@@ -75,13 +79,13 @@ if (cueing == 4)    % "refreshing" experiments guiding the focus to several item
             if E.context == 1, context = C.locationnoise + AfocusLoc * C.MappingC; end  %
             if E.context == 2, context = C.stimnoise + (AfocusLoc./sum(AfocusLoc) * Map(2).FX) * C.Mapping; end
             for ff = 1:E.nfeat, content(ff,:) = C.stimnoise + Afocus(ff,:) * C.Mapping; end
-            [W, GateClosed, gWeight, cIdx, bStrength] = IMencodeStim(W, context, content, GateClosed, gWeight, cRate(Focus), cTime(Focus), E.CTI(cueing));
+            [W, GateClosed, gWeight, cIdx, bStrength] = IMencodeStim(W, context, content, GateClosed, gWeight, cRate(Focus), cTime(Focus), E.CTI(cueing)-overTime);
             if C.retroCueConsolid == 1, cTime(Focus) = 0; end % now P.cStrength has certainly been reached, so no further consolidation is called for
         end
         if ref == length(refsequence), [Afocus, AfocusLoc] = Retrieve(W, Map, Focus); end  % no need to do that for pre-final refreshings because it has no consequence
         if P.cueingStrength > 0, W = Strengthen(W); end   % strengthening happens after retrieval, so it has no consequence for the last-cued item any more
         if P.removalThreshold > 0, [W, GateClosed] = Remove(W, GateClosed, setsize); end
-        if ref < length(refsequence), [Map, W] = IMdecayFX(Map, W, E.CTI(cueing)); end
+        if ref < length(refsequence), [Map, W] = IMdecayFX(Map, W, E.CTI(cueing)-overTime); end
     end
     if (refreshings>1), lastrefreshed = find(refsequence==1, 1, 'last'); end
 end
@@ -102,13 +106,13 @@ if (cueing == 6)    % multi-cueing (Rerko & Oberauer, 2013)
             if E.context == 1, context = C.locationnoise + AfocusLoc * C.MappingC; end  %
             if E.context == 2, context = C.stimnoise + (AfocusLoc./sum(AfocusLoc) * Map(2).FX) * C.Mapping; end
             for ff = 1:E.nfeat, content(ff,:) = C.stimnoise + Afocus(ff,:) * C.Mapping; end
-            [W, GateClosed, gWeight, cIdx, bStrength] = IMencodeStim(W, context, content, GateClosed, gWeight, cRate(Focus), cTime(Focus), E.CTI(cueing));
+            [W, GateClosed, gWeight, cIdx, bStrength] = IMencodeStim(W, context, content, GateClosed, gWeight, cRate(Focus), cTime(Focus), E.CTI(cueing)-overTime);
             if C.retroCueConsolid == 1, cTime(Focus) = 0; end % now P.cStrength has certainly been reached, so no further consolidation is called for
         end
         if cueNum == length(E.cuesequence), [Afocus, AfocusLoc] = Retrieve(W, Map, Focus); end  % no need to do that for pre-final refreshings because it has no consequence
         if P.cueingStrength > 0, W = Strengthen(W); end
         if P.removalThreshold > 0, [W, GateClosed] = Remove(W, GateClosed, setsize); end
-        if cueNum < length(E.cuesequence), [Map, W] = IMdecayFX(Map, W, E.CTI(cueing)); end
+        if cueNum < length(E.cuesequence), [Map, W] = IMdecayFX(Map, W, E.CTI(cueing)-overTime); end
     end
 
 end
@@ -152,7 +156,7 @@ end
         % cuestrength = 1-exp(-P.cuerate*E.CTI(cueing));
         % wx = wx + P.cueingStrength .* cuestrength * (inputVec' * retrievedBinding);
 
-        cuestrength = 1-exp(-P.cuerate*E.CTI(cueing));
+        cuestrength = 1-exp(-P.cuerate*(E.CTI(cueing)-overTime);
         strengthenVec = [AfocusLoc * C.MappingC, zeros(1, E.nfeat*C.nCat)]; % the content side should be 0 so that nothing is added to wx
         strengthLoc = repmat(strengthenVec', 1, P.nb);  % strength with which each location category is strengthened
         wx = wx + P.cueingStrength*cuestrength * (strengthLoc .* wx);  %strengthening of bindings in focused location

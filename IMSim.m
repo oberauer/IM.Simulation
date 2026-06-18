@@ -54,7 +54,7 @@ fx1 = Map(1).FX;
 %%%%%%%%%%%% Now do all the retro-cueing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 if cueing > 1 && E.PreRetro == 2
-    [Map, W, G, GW, Focus, Afocus, lastrefreshed, CuedIdx, Strength] = IMcueing(Map, W, G, GW, Strength, Focus, Afocus, L, F, setsize, cueing, refreshings);
+    [Map, W, G, GW, Focus, Afocus, lastrefreshed, CuedIdx, Strength, overTime] = IMcueing(Map, W, G, GW, Strength, Focus, Afocus, L, F, setsize, cueing, refreshings, overTime);
     %disp(max(abs(W(:))));
 else
     lastrefreshed = 0;
