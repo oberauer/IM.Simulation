@@ -8,8 +8,6 @@ global P
 global E
 global C
 
-%E.MaskSOA = 0.5; 
-
 E.PreRetro = PreRetro;
 E.cuevalidity = 2/3;
 option = optimset('Display','off','TolFun',1e-10, 'FunValCheck','on', 'MaxIter', 2000);
@@ -32,7 +30,7 @@ MMSD = NaN(E.nsubj, 3, E.maxsetsize);     % Mixture Model SD parameter
 MMguessing = NaN(E.nsubj, 3, E.maxsetsize);  % Mixture Model Guessing parameter
 MMtranspos = NaN(E.nsubj, 3, E.maxsetsize);  % Mixture Model Transposition parameter (swap error proportion)
 MMcwattraction = NaN(E.nsubj, 3, E.maxsetsize);  % Mixture Model colorwheel-attraction strength parameter
-Mwact = NaN(E.nsubj, 3, E.maxsetsize);       % mean activation in the binding weight matrix
+MCDA = NaN(E.nsubj, 3, E.maxsetsize);       % mean activation in the gating units for the binding layer
 
 IMparms = zeros(E.nsubj, 6);     % Parameters for Interference Mdel
 IMSimparms = zeros(E.nsubj, 6);   % Simulation parameters for IM
@@ -66,7 +64,7 @@ for id = 1:E.nsubj
         % Initialize container vectors
         fdistance = zeros(1,E.ntrials);  % feature distance between response and target
         rt = zeros(1,E.ntrials);         % response time
-        wact = zeros(1,E.ntrials);       % activation (summed strength of bindings) of binding weight matrix
+        cdag = zeros(1,E.ntrials);       % CDA from gating units
         Probedpos = zeros(E.ntrials,1);  % Number of the tested (probed) spatial position
         Pangle = zeros(E.ntrials,E.maxsetsize);  % spatial angles of item positions in the array
         Cangle = zeros(E.ntrials,E.maxsetsize+1); % color angles in the color wheel
@@ -85,7 +83,7 @@ for id = 1:E.nsubj
                 Response(tcount) = output.response;   % response feature
                 rt(trial) = output.rt;            % response time
                 fdistance(trial) = wrap(output.response-output.F(1), 180);   %calculate distance between response and true feature in feature space (degrees!)
-                wact(trial) = sum(sum(output.wx)); % sum of activation in weight matrix -> CDA?
+                cdag(trial) = sum(output.g); % sum of activation in weight matrix -> CDA?
                 tcount = tcount+1;   % trial counter is incremented
                 
                 %collect data for further modeling with Mixture Model or IM
@@ -101,7 +99,7 @@ for id = 1:E.nsubj
             
             Mdevobs(id, cueing, setsize) = mean(abs(fdistance));  %mean deviation (averaged over trials)
             Mrt(id, cueing, setsize) = mean(rt);
-            Mwact(id, cueing, setsize) = mean(wact);
+            MCDA(id, cueing, setsize) = mean(cdag);
             
             ssData = Dataprocessing(Probedpos, Pangle, Cangle, Targ, Resp, Setsize, Colorgrid);   %prepare data for model fitting
             ssData.cueing = repmat(cueing, length(Response), 1);
@@ -221,10 +219,10 @@ plotvector = squeeze(mean(Mrt,1))';
 plot(plotvector);
 PostFigure([0.8,E.maxsetsize+1, 0, 1.05*max(max(plotvector))], 'Setsize', 'RT(s)', 'Mean RT', legendtext);
 subplot(2,2,3);
-Mwact(:,3,1) = NaN;
-plotvector = squeeze(mean(Mwact,1))';
+MCDA(:,3,1) = NaN;
+plotvector = squeeze(mean(MCDA,1))';
 plot(plotvector);
-PostFigure([0.8, E.maxsetsize+1, 0, 1.05*max(max(plotvector))], 'Setsize', 'W.act', 'Weight Activity', legendtext);
+PostFigure([0.8, E.maxsetsize+1, 0, 1.05*max(max(plotvector))], 'Setsize', 'Gating Unit Activity', 'CDA', legendtext);
 
 % Plot response distributions
 meanDeviation = ResponseDistrib(Array, Target, Response);
