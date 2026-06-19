@@ -81,8 +81,8 @@ set (gca, 'box', 'on');
 
 % true vs. retrieved features
 PreFigure;
-x = ceil(sqrt(length(Conditions)));
-y = round(sqrt(length(Conditions))); 
+x = ceil(sqrt(length(unique(Conditions))));
+y = round(sqrt(length(unique(Conditions)))); 
 for cond = 1:max(Conditions)
     subplot(x,y,cond);
     scatter(Target(Conditions==cond), Response(Conditions==cond), 'o', 'MarkerEdgeAlpha', 0.1); 
