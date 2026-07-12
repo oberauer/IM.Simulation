@@ -3,7 +3,7 @@
 % Version using the KO/Manohar mediated-binding mechanism
 
 clear all
-close all
+%close all
 
 global E
 global C
@@ -16,7 +16,7 @@ model = 1;  % 1 = IMSim
 % 1: Continuous reproduction, sequential presentation in separate locations, cue by location, SPC, n responses (Oberauer & Lin, 2023)
 % 2: Continuous reproduction, sequential presentation in one location, cue by feature, SPC, 1 response (Gorgoraptis et al.)
 % 3: Continuous reproduction, forward serial recall
-% 4: Continuous reproduction, sequential vs. simultaneous presentation, set size (+ CDA and alpha power)
+% 4: Continuous reproduc%tion, sequential vs. simultaneous presentation, set size (+ CDA and alpha power)
 % 5: Continuous reproduction, setsize + RI (Pertzov)
 % 6: Continuous reproduction, seq. vs. sim. encoding of bindings between 2 features (Shepherdson et al., 2022)
 % 7: Continuous reproduction, sim. vs seq. with varying presentation rates: UZH students (Zepp & Oberauer, in prep)
@@ -62,7 +62,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 25;
+Exp = 22;
 
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 0;   % fit mixture model?
@@ -70,8 +70,8 @@ fitIMSim = 0; % fit IM?
 
 %%% Experimental Constants/Defaults
 
-E.ntrials = 20;     % number of trials to run per subject and condition
-E.nsubj = 2;        % number of subjects
+E.ntrials = 200;     % number of trials to run per subject and condition
+E.nsubj = 40;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -139,7 +139,7 @@ P.stimDrive = 0.05;    % stimulus drive into FX (only relevant for timestep-by-t
 P.SDstrengthFX = 0.1; % SD of encoding strength into FX
 P.selfactFX = 1;     % self-activation of FX
 P.inhibFX = 0.002;   % global inhibition in FX that causes decay
-P.IOR = 0.3;         % inhibition of return in FX
+P.IOR = 0.15;           % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
 P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
 P.rRate = 4;         % rate of release of BP units

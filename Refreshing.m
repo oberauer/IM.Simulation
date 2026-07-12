@@ -35,6 +35,8 @@ ParX = CreateIndDiff;
 
 Mdevobs = zeros(E.nsubj, 3); % 0, 1, or 2 refreshings
 MdevLastRef = NaN(E.nsubj, 2, 4); % for 1 or 2 refreshings: last refreshing in refreshing position
+MactFX = NaN(E.nsubj, 2, 4); % for 1 or 2 refreshings: last refreshing in refreshing position
+MactW = NaN(E.nsubj, 2, 4); % for 1 or 2 refreshings: last refreshing in refreshing position
 MMSD = zeros(E.nsubj, 3);     % SD parameter from Mixture Model
 MMguessing = zeros(E.nsubj, 3);  % P(guessing) parameter from Mixture Model
 MMtranspos = zeros(E.nsubj, 3);  % P(tranposition) parameter from Mixture Model
@@ -65,6 +67,8 @@ for id = 1:E.nsubj
     fdistance = zeros(1,E.ntrials);   % feature distance between target and response
     rt = zeros(1,E.ntrials);           % response times
     lastrefreshed = zeros(1,E.ntrials);   % last refreshed item
+    maxFX = zeros(1,E.ntrials);
+    maxW = zeros(1,E.ntrials);
     Probedpos = zeros(E.ntrials,1);       % number of probed item (= probed position in the array)
     Pangle = zeros(E.ntrials,setsize);    % angle of the items' location in their circular arrangement in the array
     Cangle = zeros(E.ntrials,setsize+1);   % angles of the items' colors in the color wheel
@@ -83,6 +87,8 @@ for id = 1:E.nsubj
             
             fdistance(trial) = wrap(output.response-output.F(1), 180);   %calculate distance between response and true feature in feature space (degrees!)
             rt(trial) = output.rt;
+            maxFX(trial) = output.maxFX;
+            maxW(trial) = output.maxW;
             lastrefreshed(trial) = output.lastrefreshed;
             Array(tcount,:) = [output.F(1:setsize), output.CWcolor];  %add the color in the color wheel closest to target location in column setsize+1                
             Target(tcount) = output.F(1);
@@ -106,6 +112,8 @@ for id = 1:E.nsubj
         if refreshings>2
             for lastref = 1:4
                 MdevLastRef(id, refreshings-2, lastref) = mean(abs(fdistance(lastrefreshed==lastref)));
+                MactFX(id, refreshings-2, lastref) = mean(maxFX(lastrefreshed==lastref));
+                MactW(id, refreshings-2, lastref) = mean(maxW(lastrefreshed==lastref));
             end
         end
         
@@ -185,7 +193,7 @@ end  % for ID
 % Plot Mean(Deviation) as functions of number of refreshings, and last
 % refreshing position
 
-PreFigure
+PreFigure;
 subplot(1,2,1);
 plotvector = mean(Mdevobs(:, 2:4),1);
 plot(0:2, plotvector);
@@ -199,6 +207,16 @@ hold on
 plot(1:4, repmat(mean(Mdevobs(:,2)), 1, 4), '-r');  % zero refreshings baseline as red line
 PostFigure([0.5, 4.5, 0, 80], 'Last Refreshing Position', 'Deviation', 'Red = 0 Refreshings', {'1 Ref', '2 Ref'});
 hold off
+
+PreFigure;
+subplot(1,2,1);
+plotvector = squeeze(mean(MactFX,1));
+plot(1:4, plotvector');
+PostFigure([0.5, 4.5, 0, 1.1*max(plotvector(:))], 'Last Refreshing Position', 'Activation from FX', [], {'1 Ref', '2 Ref'});
+subplot(1,2,2);
+plotvector = squeeze(mean(MactFX,1));
+plot(1:4, plotvector');
+PostFigure([0.5, 4.5, 0, 1.1*max(plotvector(:))], 'Last Refreshing Position', 'Activation from W', [], {'1 Ref', '2 Ref'});
 
 D.Mdevobs = Mdevobs;
 D.MdevLastRef = MdevLastRef;
