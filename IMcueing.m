@@ -87,7 +87,7 @@ if (cueing == 4)    % "refreshing" experiments guiding the focus to several item
         if ref == length(refsequence), [Afocus, AfocusLoc] = Retrieve(W, Map, Focus); end  % no need to do that for pre-final refreshings because it has no consequence
         if P.cueingStrength > 0, W = Strengthen(W); end   % strengthening happens after retrieval, so it has no consequence for the last-cued item any more
         if P.removalThreshold > 0, [W, GateClosed] = Remove(W, GateClosed, setsize); end
-        if ref < length(refsequence), [Map, W] = IMdecayFX(Map, W, E.CTI(cueing)-overTime); end
+        if ref < length(refsequence), [Map, W] = IMdecayFX(Map, W, max(0, E.CTI(cueing)-overTime)); end
     end
     if (refreshings>1), lastrefreshed = find(refsequence==1, 1, 'last'); end
 end
@@ -114,7 +114,7 @@ if (cueing == 6)    % multi-cueing (Rerko & Oberauer, 2013)
         if cueNum == length(E.cuesequence), [Afocus, AfocusLoc] = Retrieve(W, Map, Focus); end  % no need to do that for pre-final refreshings because it has no consequence
         if P.cueingStrength > 0, W = Strengthen(W); end
         if P.removalThreshold > 0, [W, GateClosed] = Remove(W, GateClosed, setsize); end
-        if cueNum < length(E.cuesequence), [Map, W] = IMdecayFX(Map, W, E.CTI(cueing)-overTime); end
+        if cueNum < length(E.cuesequence), [Map, W] = IMdecayFX(Map, W, max(0, E.CTI(cueing)-overTime)); end
     end
 
 end
@@ -159,10 +159,11 @@ end
         % cuestrength = 1-exp(-P.cuerate*E.CTI(cueing));
         % wx = wx + P.cueingStrength .* cuestrength * (inputVec' * retrievedBinding);
 
-        cuestrength = 1-exp(-P.cuerate*(E.CTI(cueing)-overTime));
+        cuestrength = 1-exp(-P.cuerate*(max(0, E.CTI(cueing)-overTime)));
         strengthenVec = [AfocusLoc * C.MappingC, zeros(1, E.nfeat*C.nCat)]; % the content side should be 0 so that nothing is added to wx
         strengthLoc = repmat(strengthenVec', 1, P.nb);  % strength with which each location category is strengthened
-        wx = wx + P.cueingStrength*cuestrength * (strengthLoc .* wx);  %strengthening of bindings in focused location
+        wxadded = P.cueingStrength*cuestrength * (strengthLoc .* wx);
+        wx = wx + wxadded;  %strengthening of bindings in focused location
 
     end
 
@@ -171,7 +172,7 @@ end
         % removal
         % re-activate the binding units bound to the cued location
         cue = [AfocusLoc * C.MappingC + C.locationnoise, zeros(1, C.nCat*E.nfeat)];
-        retrievedBinding = cue * W;
+        retrievedBinding = cue * wx;
         removalStrength = logist((E.cuevalidity-1/setsize)./(1-1/setsize), P.removalTau, P.removalGain);
         releasedBinding = abs(retrievedBinding) < (removalStrength .* P.removalThreshold .* max(abs(retrievedBinding)));
         GateClosed(releasedBinding) = 0;

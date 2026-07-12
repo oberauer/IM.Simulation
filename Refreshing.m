@@ -214,7 +214,7 @@ plotvector = squeeze(mean(MactFX,1));
 plot(1:4, plotvector');
 PostFigure([0.5, 4.5, 0, 1.1*max(plotvector(:))], 'Last Refreshing Position', 'Activation from FX', [], {'1 Ref', '2 Ref'});
 subplot(1,2,2);
-plotvector = squeeze(mean(MactFX,1));
+plotvector = squeeze(mean(MactW,1));
 plot(1:4, plotvector');
 PostFigure([0.5, 4.5, 0, 1.1*max(plotvector(:))], 'Last Refreshing Position', 'Activation from W', [], {'1 Ref', '2 Ref'});
 

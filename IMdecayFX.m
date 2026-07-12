@@ -27,7 +27,7 @@ for ff = 1:C.nfeatures
     end
 end
 
-W = W + randn(size(W)) * sqrt(delay*P.wnoise.^2); % variance is added at a constant rate over time --> sqrt takes the SD
+W = W + randn(size(W)) * sqrt(max(0, delay)*P.wnoise.^2); % variance is added at a constant rate over time --> sqrt takes the SD
 output = 1; 
 
 
