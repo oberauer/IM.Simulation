@@ -1,4 +1,4 @@
-function D = RetroCueFullDesign(Model, indVar, fitMM)
+function D = RetroCueFullDesign(Model, Tasks, indVar, fitMM)
 % Simulation of retro-cue effect varying task (continuous reproduction vs. change detection, cue validity, and the
 % presence/absence of the 3 mechanisms (strengthening, removal, and perceptual interference
 
@@ -19,7 +19,7 @@ cueingStrength = P.cueingStrength;
 filter = P.filter;
 removalThreshold = P.removalThreshold;
 
-for task = 1:2
+for task = Tasks
 
     E.test = task;
     E.material = task; % for change detection, use small set of highly distinct stimuli

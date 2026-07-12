@@ -62,7 +62,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 22;
+Exp = 41;
 
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 0;   % fit mixture model?
@@ -70,8 +70,8 @@ fitIMSim = 0; % fit IM?
 
 %%% Experimental Constants/Defaults
 
-E.ntrials = 200;     % number of trials to run per subject and condition
-E.nsubj = 40;        % number of subjects
+E.ntrials = 100;     % number of trials to run per subject and condition
+E.nsubj = 20;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -223,7 +223,7 @@ if Exp == 38, D = DiscreteWholeReport(Model); end    % Adam et al. (2017, APP)
 
 
 if Exp == 40, D = RetroCueSeparateMechanisms(Model, [6:7], 1, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
-if Exp == 41, D = RetroCueFullDesign(Model, C.indVar, fitMM); end
+if Exp == 41, D = RetroCueFullDesign(Model, 1, C.indVar, fitMM); end  % second argument = Tasks (1=CR, 2=CD)
 if Exp == 42, D = RetroCueStrength(Model, fitMM); end  % Retro-cue exploration
 if Exp == 43, D = SetsizeAlpha(@IMSimAlpha, 8); end
 if Exp == 44, NbindingCapacity(Model); end
