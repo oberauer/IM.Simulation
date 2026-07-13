@@ -7,7 +7,7 @@ if nargin < 4, tstep = C.tstep; end
 
 Decay = @(x) P.selfactFX.*x - P.inhibFX*sum(x(:));
 
-timesteps = round(delay/tstep);  % delay is in s
+timesteps = round(max(0,delay)/tstep);  % delay is in s
 for ff = 1:C.nfeatures
     for t = 1:timesteps  
 

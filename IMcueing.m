@@ -87,7 +87,7 @@ if (cueing == 4)    % "refreshing" experiments guiding the focus to several item
         if ref == length(refsequence), [Afocus, AfocusLoc] = Retrieve(W, Map, Focus); end  % no need to do that for pre-final refreshings because it has no consequence
         if P.cueingStrength > 0, W = Strengthen(W); end   % strengthening happens after retrieval, so it has no consequence for the last-cued item any more
         if P.removalThreshold > 0, [W, GateClosed] = Remove(W, GateClosed, setsize); end
-        if ref < length(refsequence), [Map, W] = IMdecayFX(Map, W, max(0, E.CTI(cueing)-overTime)); end
+        if ref < length(refsequence), [Map, W] = IMdecayFX(Map, W, E.CTI(cueing)); end
     end
     if (refreshings>1), lastrefreshed = find(refsequence==1, 1, 'last'); end
 end
@@ -114,7 +114,7 @@ if (cueing == 6)    % multi-cueing (Rerko & Oberauer, 2013)
         if cueNum == length(E.cuesequence), [Afocus, AfocusLoc] = Retrieve(W, Map, Focus); end  % no need to do that for pre-final refreshings because it has no consequence
         if P.cueingStrength > 0, W = Strengthen(W); end
         if P.removalThreshold > 0, [W, GateClosed] = Remove(W, GateClosed, setsize); end
-        if cueNum < length(E.cuesequence), [Map, W] = IMdecayFX(Map, W, max(0, E.CTI(cueing)-overTime)); end
+        if cueNum < length(E.cuesequence), [Map, W] = IMdecayFX(Map, W, E.CTI(cueing)); end
     end
 
 end

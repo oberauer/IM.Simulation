@@ -3,7 +3,7 @@
 % Version using the KO/Manohar mediated-binding mechanism
 
 clear all
-%close all
+close all
 
 global E
 global C
@@ -139,7 +139,7 @@ P.stimDrive = 0.05;    % stimulus drive into FX (only relevant for timestep-by-t
 P.SDstrengthFX = 0.1; % SD of encoding strength into FX
 P.selfactFX = 1;     % self-activation of FX
 P.inhibFX = 0.002;   % global inhibition in FX that causes decay
-P.IOR = 0.07;           % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
+P.IOR = 0.3;           % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
 P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
 P.rRate = 4;         % rate of release of BP units
@@ -157,7 +157,7 @@ P.removalTau = 0.8;  % threshold for the logistic translating cue validity into 
 P.removalGain = 10;  % gain for the logistic translating cue validity into removal strength
 P.inhib = 0;         % global inhibition of activation during retrieval
 P.cuerate = 5;       % rate of using the cue
-P.dnoise = 1.5;     % SD of noise added to each accumulator in recall/recollection of a feature
+P.dnoise = 2.5;     % SD of noise added to each accumulator in recall/recollection of a feature
 P.driftnoise = 1.0;  % SD of noise added to each accumulator for recognition decision
 P.boundary = [30, 10]; % boundary for retrieval of a feature / for recognition decision
 
