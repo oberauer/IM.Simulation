@@ -34,9 +34,11 @@ ParX = CreateIndDiff;
 % initialize parameters of mixture model, IM, observed mean Deviation
 
 Mdevobs = zeros(E.nsubj, 3); % 0, 1, or 2 refreshings
+MactFX = zeros(E.nsubj, 3);
+MactW = zeros(E.nsubj, 3);
 MdevLastRef = NaN(E.nsubj, 2, 4); % for 1 or 2 refreshings: last refreshing in refreshing position
-MactFX = NaN(E.nsubj, 2, 4); % for 1 or 2 refreshings: last refreshing in refreshing position
-MactW = NaN(E.nsubj, 2, 4); % for 1 or 2 refreshings: last refreshing in refreshing position
+MactFXLastRef = NaN(E.nsubj, 2, 4); % for 1 or 2 refreshings: last refreshing in refreshing position
+MactWLastRef = NaN(E.nsubj, 2, 4); % for 1 or 2 refreshings: last refreshing in refreshing position
 MMSD = zeros(E.nsubj, 3);     % SD parameter from Mixture Model
 MMguessing = zeros(E.nsubj, 3);  % P(guessing) parameter from Mixture Model
 MMtranspos = zeros(E.nsubj, 3);  % P(tranposition) parameter from Mixture Model
@@ -109,11 +111,13 @@ for id = 1:E.nsubj
         
         % aggregate data within each design cell (number of refreshings x position of last refreshing in the sequence) 
         Mdevobs(id, refreshings) = mean(abs(fdistance));  %mean deviation
+        MactFX(id, refreshings) = mean(maxFX);
+        MactW(id, refreshings) = mean(maxW);
         if refreshings>2
             for lastref = 1:4
                 MdevLastRef(id, refreshings-2, lastref) = mean(abs(fdistance(lastrefreshed==lastref)));
-                MactFX(id, refreshings-2, lastref) = mean(maxFX(lastrefreshed==lastref));
-                MactW(id, refreshings-2, lastref) = mean(maxW(lastrefreshed==lastref));
+                MactFXLastRef(id, refreshings-2, lastref) = mean(maxFX(lastrefreshed==lastref));
+                MactWLastRef(id, refreshings-2, lastref) = mean(maxW(lastrefreshed==lastref));
             end
         end
         
@@ -210,13 +214,17 @@ hold off
 
 PreFigure;
 subplot(1,2,1);
-plotvector = squeeze(mean(MactFX,1));
+plotvector = squeeze(mean(MactFXLastRef,1));
 plot(1:4, plotvector');
-PostFigure([0.5, 4.5, 0, 1.1*max(plotvector(:))], 'Last Refreshing Position', 'Activation from FX', [], {'1 Ref', '2 Ref'});
+hold on
+plot(1:4, repmat(mean(MactFX(:,2)), 1, 4), '-r');  % zero refreshings baseline as red line
+PostFigure([0.5, 4.5, 0, 1.1*max(plotvector(:))], 'Last Refreshing Position', 'Activation from FX', 'Red = 0 Refreshings', {'1 Ref', '2 Ref'});
 subplot(1,2,2);
-plotvector = squeeze(mean(MactW,1));
+plotvector = squeeze(mean(MactWLastRef,1));
 plot(1:4, plotvector');
-PostFigure([0.5, 4.5, 0, 1.1*max(plotvector(:))], 'Last Refreshing Position', 'Activation from W', [], {'1 Ref', '2 Ref'});
+hold on
+plot(1:4, repmat(mean(MactW(:,2)), 1, 4), '-r');  % zero refreshings baseline as red line
+PostFigure([0.5, 4.5, 0, 1.1*max(plotvector(:))], 'Last Refreshing Position', 'Activation from W', 'Red = 0 Refreshings', {'1 Ref', '2 Ref'});
 
 D.Mdevobs = Mdevobs;
 D.MdevLastRef = MdevLastRef;
