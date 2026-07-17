@@ -17,6 +17,7 @@ option = optimset('Display','off','TolFun',1e-10, 'FunValCheck','on', 'MaxIter',
 % initialize parameters of mixture model, IM, observed mean Deviation
 Mdevobs = NaN(E.nsubj, length(SOA));  % id, soa
 CircSD = NaN(E.nsubj, length(SOA));  % id, soa
+DevFromMask = NaN(E.nsubj, length(SOA));  % id, soa
 MMSD = NaN(E.nsubj, length(SOA));  % 
 MMguessing = NaN(E.nsubj, length(SOA));  %
 MMtranspos = NaN(E.nsubj, length(SOA));  % id, setsize, inpos, outpos
@@ -76,6 +77,8 @@ for id = 1:E.nsubj
 
          Mdevobs(id, soaIdx) = mean(abs(fdistance));  %mean deviation
          CircSD(id, soaIdx) = circ_std(deg2rad(fdistance));
+         devfrommask = abs(wrap(Cangle(:, 2:4) - Resp, 180));
+         DevFromMask(id, soaIdx) = mean(min(devfrommask, [], 2));
             
             % fit Mixture Model
             if fitMM
@@ -132,6 +135,11 @@ plotvector = mean(TransformedPerformance);  % average over subjects
 plot(SOA, plotvector);
 PostFigure([min(SOA), max(SOA), 0, 1], 'SOA', 'Transf. Perf.');
 
+subplot(2,2,2);
+plotvector = mean(DevFromMask);  % average over subjects
+plot(SOA, plotvector);
+PostFigure([min(SOA), max(SOA), 0, 90], 'SOA', 'Min. Dev. from Mask');
+
 subplot(2,2,3);
 plotvector = mean(MMguessing);  % average over subjects
 plot(SOA, plotvector);
@@ -145,3 +153,4 @@ PostFigure([min(SOA), max(SOA), 0, 1], 'SOA', 'P(Swap)');
 D.Mdevobs = Mdevobs;
 D.MMguessing = MMguessing;
 D.MMtranspos = MMtranspos;
+D.MMSD = MMSD;
