@@ -214,6 +214,20 @@ hold off
 
 PreFigure;
 subplot(1,2,1);
+plotvector = mean(MactFX(:, 2:4),1);
+plot(0:2, plotvector);
+hold on
+plot([-0.2, 2.2], repmat(mean(MactFX(:,1)), 1, 2), '-b');  % no-refreshing-cue condition as blue line
+PostFigure([-0.2, 2.2, 0, 1.1*max(plotvector(:))], 'N(Refreshings)', 'Activation from FX', 'Blue = No-Refreshing Cue');
+subplot(1,2,2);
+plotvector = mean(MactW(:, 2:4),1);
+plot(0:2, plotvector);
+hold on
+plot([-0.2, 2.2], repmat(mean(MactW(:,1)), 1, 2), '-b');  % no-refreshing-cue condition as blue line
+PostFigure([-0.2, 2.2, 0, 1.1*max(plotvector(:))], 'N(Refreshings)', 'Activation from W', 'Blue = No-Refreshing Cue');
+
+PreFigure;
+subplot(1,2,1);
 plotvector = squeeze(mean(MactFXLastRef,1));
 plot(1:4, plotvector');
 hold on

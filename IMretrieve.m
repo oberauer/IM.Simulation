@@ -48,7 +48,6 @@ if ismember(E.test, 1:3)
         refocusDuration = -(log(1-P.cStrength)./cRate); % consolidation time determines the time for switching the focus to a new visual object
         [Map, W] = IMdecayFX(Map, W, refocusDuration, 0.005); % let FX decay with fine-grained time step (--> diminishes strength of the color wheel)
         featureFromFX = AfocusLoc./sum(AfocusLoc) * Map(1).FX; % use location as (spatial) attentional filter for FX
-
         retrievedBinding = cue * W;
         retrievedVec = retrievedBinding * W';
         featureFromW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat)) * C.Mapping'; % the strength with which each color is bound to the location cue through W
@@ -56,8 +55,8 @@ if ismember(E.test, 1:3)
         maxW = featureFromW(F(Focus));
         Afocus = Afocus + featureFromFX + featureFromW;
         Adrift = Afocus;
-
     end
+
     % retrievedBinding = cue * W;
     % retrievedVec = retrievedBinding * W';
     % retrievedW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat)) * C.Mapping'; % the strength with which each color is bound to the location cue through W

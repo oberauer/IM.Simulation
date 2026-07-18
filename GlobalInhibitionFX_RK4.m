@@ -4,15 +4,15 @@
 clear variables
 %close all;
 
-nTrials = 3;
-maxSetsize = 12;
+nTrials = 30;
+maxSetsize = 6;
 tstep = 0.05;
-duration = 2; % in seconds
+duration = 5; % in seconds
 nSteps = round(duration./tstep); 
 shunting = 0; 
 
 if shunting == 0
-    selfAct = 1.0;
+    selfAct = 1;
     inhib = 0.002;
     asyFX = 4;
 end
