@@ -62,7 +62,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 22;
+Exp = 25;
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 1;   % fit mixture model?
 fitIMSim = 0; % fit IM?
@@ -138,7 +138,7 @@ P.stimDrive = 0.05;    % stimulus drive into FX (only relevant for timestep-by-t
 P.SDstrengthFX = 0.1; % SD of encoding strength into FX
 P.selfactFX = 1;     % self-activation of FX
 P.inhibFX = 0.002;   % global inhibition in FX that causes decay
-P.IOR = 0.5;           % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
+P.IOR = 0.3;           % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
 P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
 P.rRate = 4;         % rate of release of BP units
