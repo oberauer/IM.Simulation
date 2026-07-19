@@ -14,7 +14,7 @@ nonExistingItems = positionInd > repmat(Data.setsize, 1, maxSZ);  %index into it
 Data.D(nonExistingItems) = -1;
 
 cuedItem = Data.D == 0;  %cuedItem = logical index into column of colors to identify the cued (target) color
-transItem = Data.D >= .5;  %logical indices into non-target colors
+transItem = Data.D >= .3;  %logical indices into non-target colors
 
 transItem = transItem ./ repmat(sum(transItem, 2), 1, maxSZ);  %divide by number of non-targets (strictly, speaking, not necessary, because TP is normalized below anyway)
 transItem(isnan(transItem)) = 0;   %nans can occur from division by zero at setsize 1

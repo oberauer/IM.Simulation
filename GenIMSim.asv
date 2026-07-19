@@ -16,7 +16,7 @@ model = 1;  % 1 = IMSim
 % 1: Continuous reproduction, sequential presentation in separate locations, cue by location, SPC, n responses (Oberauer & Lin, 2023)
 % 2: Continuous reproduction, sequential presentation in one location, cue by feature, SPC, 1 response (Gorgoraptis et al.)
 % 3: Continuous reproduction, forward serial recall
-% 4: Continuous reproduction, sequential vs. simultaneous presentation, set size (+ CDA and alpha power)
+% 4: Continuous reproduc%tion, sequential vs. simultaneous presentation, set size (+ CDA and alpha power)
 % 5: Continuous reproduction, setsize + RI (Pertzov)
 % 6: Continuous reproduction, seq. vs. sim. encoding of bindings between 2 features (Shepherdson et al., 2022)
 % 7: Continuous reproduction, sim. vs seq. with varying presentation rates: UZH students (Zepp & Oberauer, in prep)
@@ -62,10 +62,9 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 4;
-
+Exp = 22;
 Setsize = 6;  % default value (can be overwritten later)
-fitMM = 0;   % fit mixture model?
+fitMM = 1;   % fit mixture model?
 fitIMSim = 0; % fit IM?
 
 %%% Experimental Constants/Defaults
@@ -122,8 +121,8 @@ P.kappaf_feat = 25;  % precision of original stimuli (in the sensory layer), whi
 P.kappa_feat = 25;   % mean precision of categories, for content features
 P.kappaf_ctx = 25;   % precision of original stimuli, and the focus of attention, for context (needs to be fairly high, otherwise CW intrusion becomes too big)
 P.kappa_ctx = 25;    % precision of categories for context
-P.kappaCatSD = 3;    % SD of precision values of categories (variability across categories)
-P.mCatSD = 5;        % SD of deviation of category center from equal spacing
+P.kappaCatSD = 3;    % 3 SD of precision values of categories (variability across categories)
+P.mCatSD = 5;        % 5 SD of deviation of category center from equal spacing
 P.delta = 0.8;       % proportion of committed binding units that remain committed, and weights that remain, upon encoding of each new item
 P.pMax = 1.0;        % the initial proportion of binding units recruited 
 P.pBase = 0.4;       % .30 minimal (base) strength of bindings (lower asymptote)
@@ -139,7 +138,7 @@ P.stimDrive = 0.05;    % stimulus drive into FX (only relevant for timestep-by-t
 P.SDstrengthFX = 0.1; % SD of encoding strength into FX
 P.selfactFX = 1;     % self-activation of FX
 P.inhibFX = 0.002;   % global inhibition in FX that causes decay
-P.IOR = 0.3;         % inhibition of return in FX
+P.IOR = 0.7;           % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
 P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
 P.rRate = 4;         % rate of release of BP units
@@ -150,20 +149,20 @@ P.cBallistic = 0.5;  % probability of consolidation being ballistic
 P.filter = [0.1, 0.1, 0.1, 0.1]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
 P.rad1 = 0.7;        % proportion of radius of memory array to radius of color wheel (for computation of color-wheel interference as a function of distance between wheel and target location)
 P.outputinterference = 0; % proportion of reduction of W
-P.wnoise = 0.03;     % noise added to W at each time step to implement decay
+P.wnoise = 0.15;      % at at which noise variance added to W increases with time (in seconds) 
 P.cueingStrength = 1;     % amount of strengthening by re-encoding in response to retro-cue (0 = none)
 P.removalThreshold = 0.3; % binding units with abs(strength) below the threshold are removed - now expressed as proportion of the maximal absolute retrieved binding strength
 P.removalTau = 0.8;  % threshold for the logistic translating cue validity into removal strength
 P.removalGain = 10;  % gain for the logistic translating cue validity into removal strength
 P.inhib = 0;         % global inhibition of activation during retrieval
 P.cuerate = 5;       % rate of using the cue
-P.dnoise = 1.5;     % SD of noise added to each accumulator in recall/recollection of a feature
+P.dnoise = 1.0;     % SD of noise added to each accumulator in recall/recollection of a feature
 P.driftnoise = 1.0;  % SD of noise added to each accumulator for recognition decision
 P.boundary = [30, 10]; % boundary for retrieval of a feature / for recognition decision
 
 
 %P.boundary = [70, 10]; 
-P.dnoise = 0.5; 
+%P.dnoise = 0.5; 
 
 P.sz = 0;             % starting point variability for yes/no accumulators for recognition
 P.kappacrit = 1;      % proportion of kappa_feat: meta-cognitive estimate of average precision -> used in Bayesian optimal decision rule for same-change decision in Change Detection
@@ -186,7 +185,7 @@ if Exp == 1, D = SetsizeSPC(Model, 1, Setsize, 0); end  % sequential presentatio
 if Exp == 2, D = SetsizeSPC(Model, 2, Setsize, 0); end  % sequential presentation, continuous reproduction with serial-position effects
 if Exp == 3, D = SetsizeSerialRecall(Model, Setsize); end
 if Exp == 4, D = SimSeqAlphaCDA(Model, Setsize); end % sequential or simultaneous presentation, CDA and Alpha power suppression
-if Exp == 5, D = SetsizeRI(Model, 1, fitMM, fitIMSim); end  % set size and retention-interval variation
+if Exp == 5, D = SetsizeRI(Model, 1, [2,6], fitMM, fitIMSim); end  % set size and retention-interval variation (3rd argument: Setsizes)
 if Exp == 6, D = SimSeq(Model, fitMM); end % sequential/simultaneous encoding of 2 objects with 2 features
 if Exp == 7, D = SimSeqPresentationRate(Model, P.cRate, fitMM); end % simultaneous encoding vs. sequential encoding with varying presentation rates (2nd parameter: consolidation rate)
 if Exp == 8, P.cStrength = 0.6; D = SimSeqPresentationRate(Model, P.cRate, fitMM); end  % with P.cStrength for Prolific participants
@@ -223,7 +222,7 @@ if Exp == 38, D = DiscreteWholeReport(Model); end    % Adam et al. (2017, APP)
 
 
 if Exp == 40, D = RetroCueSeparateMechanisms(Model, [6:7], 1, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
-if Exp == 41, D = RetroCueFullDesign(Model, C.indVar, fitMM); end
+if Exp == 41, D = RetroCueFullDesign(Model, 1, C.indVar, fitMM); end  % second argument = Tasks (1=CR, 2=CD)
 if Exp == 42, D = RetroCueStrength(Model, fitMM); end  % Retro-cue exploration
 if Exp == 43, D = SetsizeAlpha(@IMSimAlpha, 8); end
 if Exp == 44, NbindingCapacity(Model); end

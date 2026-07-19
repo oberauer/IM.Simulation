@@ -67,6 +67,7 @@ for id = 1:E.nsubj
             %collect data for further modeling - only the first item tested
             Probedpos(trial) = output.L(1);
             Pangle(trial,:) = output.L(1:1);
+            Pangle(trial,2:4) = Pangle(trial,2:4)-1; % ensure a minimal distance from the target so that they are treated as non-targets in fitting MM
             Cangle(trial,1) = output.F(1,1);
             Cangle(trial,2:4) = maskFeatures;
             Targ(trial) = output.F(1);
