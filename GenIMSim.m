@@ -62,7 +62,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 25;
+Exp = 15;
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 1;   % fit mixture model?
 fitIMSim = 0; % fit IM?
@@ -138,7 +138,7 @@ P.stimDrive = 0.05;    % stimulus drive into FX (only relevant for timestep-by-t
 P.SDstrengthFX = 0.1; % SD of encoding strength into FX
 P.selfactFX = 1;     % self-activation of FX
 P.inhibFX = 0.002;   % global inhibition in FX that causes decay
-P.IOR = 0.3;           % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
+P.IOR = 0.5;           % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
 P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
 P.rRate = 4;         % rate of release of BP units
@@ -149,7 +149,7 @@ P.cBallistic = 0.5;  % probability of consolidation being ballistic
 P.filter = [0.1, 0.1, 0.1, 0.1]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
 P.rad1 = 0.7;        % proportion of radius of memory array to radius of color wheel (for computation of color-wheel interference as a function of distance between wheel and target location)
 P.outputinterference = 0; % proportion of reduction of W
-P.wnoise = 0.1;      % at at which noise variance added to W increases with time (in seconds) 
+P.wnoise = 0.12;      % at at which noise variance added to W increases with time (in seconds) 
 P.cueingStrength = 1;     % amount of strengthening by re-encoding in response to retro-cue (0 = none)
 P.removalThreshold = 0.3; % binding units with abs(strength) below the threshold are removed - now expressed as proportion of the maximal absolute retrieved binding strength
 P.removalTau = 0.8;  % threshold for the logistic translating cue validity into removal strength
