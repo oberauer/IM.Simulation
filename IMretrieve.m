@@ -51,8 +51,8 @@ if ismember(E.test, 1:3)
         retrievedBinding = cue * W;
         retrievedVec = retrievedBinding * W';
         featureFromW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat)) * C.Mapping'; % the strength with which each color is bound to the location cue through W
-        maxFX = featureFromFX(F(Focus));
-        maxW = featureFromW(F(Focus));
+        maxFX = featureFromFX(C.feature(F(Focus)));
+        maxW = featureFromW(C.feature(F(Focus)));
         Afocus = Afocus + featureFromFX + featureFromW;
         Adrift = Afocus;
     end

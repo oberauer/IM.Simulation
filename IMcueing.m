@@ -121,8 +121,8 @@ if (cueing == 6)    % multi-cueing (Rerko & Oberauer, 2013)
 
 end
 
-maxFX = featureFromFX(F(1,1));
-maxW = featureFromW(F(1,1));
+maxFX = featureFromFX(C.feature(F(1,1)));
+maxW = featureFromW(C.feature(F(1,1)));
 
 %%%%%%%%%%%% Embedded Function %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5555
 
