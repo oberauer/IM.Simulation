@@ -69,8 +69,8 @@ fitIMSim = 0; % fit IM?
 
 %%% Experimental Constants/Defaults
 
-E.ntrials = 200;     % number of trials to run per subject and condition
-E.nsubj = 20;        % number of subjects
+E.ntrials = 20;     % number of trials to run per subject and condition
+E.nsubj = 10;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -130,14 +130,12 @@ P.keepFocus = 0.3;   % probability of keeping the last-presented item in the FoA
 P.a = 0.1;           % strength of item memory - implemented as "C.locationnoise" in CreateStimuli: all location cues receive some baseline activation
 P.nb = 100;          % number of units in the binding layer
 P.nbNorm = sqrt(P.nb); % normalization constant depends on mean P.nb, not on individual P.nb (and not on manipulation of P.nb in simulation 33)
-%P.spatinhib = 0.0;   % global inhibition of spatial attention distribution
-%P.TopDownSpatAttn = 0; % strength of top-down modulation of spatial attention from the FoA in WM (AfocusLoc)
 P.maskWindow = 0.05;  % mean of time window within which a mask or a cue is integrated with the current feature Map
 P.maskWindowSD = 0.75; % SD (as porportion of mean) of time window of integration
-P.stimDrive = 0.05;    % stimulus drive into FX (only relevant for timestep-by-timestep simulations)
+P.stimDrive = 3; 
 P.SDstrengthFX = 0.1; % SD of encoding strength into FX
 P.selfactFX = 1;     % self-activation of FX
-P.inhibFX = 0.002;   % global inhibition in FX that causes decay
+P.inhibFX = 0.002;   % 0.002 global inhibition in FX that causes decay
 P.IOR = 0.5;           % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
 P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)

@@ -1,11 +1,12 @@
-function [Map, W] = IMdecayFX(Map, W, delay, tstep)
+function [Map, W] = IMdecayFX(Map, W, delay, tstep, input)
 % decay of the feature map and the weight matrix
 global C
 global P
 
 if nargin < 4, tstep = C.tstep; end
+if nargin < 5, input = zeros(size(Map(1).FX)); end
 
-Decay = @(x) P.selfactFX.*x - P.inhibFX*sum(x(:));
+Decay = @(x) P.selfactFX.*x - P.inhibFX*sum(x(:)) + input;
 
 timesteps = round(max(0,delay)/tstep);  % delay is in s
 for ff = 1:C.nfeatures

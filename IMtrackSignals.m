@@ -27,6 +27,7 @@ nElectrodes = size(eW, 2);
 EEG_W = zeros(Timepoints, nElectrodes);
 EEG_FX = zeros(Timepoints, nElectrodes);
 context = rand(1, C.nCat)*0.1; % just to have a value at t=0
+MapInput = zeros(size(Map(1).FX));  % initialize
 
 % determine whether a stimulus is integrated with a mask
 maskWindow = ones(1, setsize) * P.maskWindow;
@@ -103,15 +104,18 @@ while t < E.RI  % continue until end of RI
             end
             if E.presentation == 1
                 % simultaneous presentation: parallel encoding into spatially organized feature maps;
+                MapInput = zeros(size(Map(1).FX));
                 for ff = 1:C.nfeatures
                     maxFX = max(Map(ff).FX(:));
                     for item = 1:setsize
-                        Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * strengthFX(item) * C.location(L(item),:)' * (C.stim(F(ff,item),:));
+                        %Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * strengthFX(item) * C.location(L(item),:)' * (C.stim(F(ff,item),:));
+                        MapInput = MapInput + (P.asyFX - maxFX) * P.stimDrive * strengthFX(item) * C.location(L(item),:)' * (C.stim(F(ff,item),:)); % to be added in IMdecayFX
                     end
                     % addition of mask if the mask falls within the replacement window
                     if masking(1) == 1  % masking is all-or-none for simultaneous array
                         for item = 1:setsize
-                            Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * C.location(L(item),:)' * C.maskStim;
+                            %Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * C.location(L(item),:)' * C.maskStim;
+                            MapInput = MaxInput + (P.asyFX - maxFX) * P.stimDrive * C.location(L(item),:)' * C.maskStim;
                         end
                     end
                 end
@@ -119,12 +123,16 @@ while t < E.RI  % continue until end of RI
             if E.presentation == 2
                 maxFX = max(Map(ff).FX(:));
                 item = inpos;
-                Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * strengthFX(item) * C.location(L(item),:)' * (C.stim(F(ff,item),:));
+                %Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * strengthFX(item) * C.location(L(item),:)' * (C.stim(F(ff,item),:));
+                MapInput = (P.asyFX - maxFX) * P.stimDrive * strengthFX(item) * C.location(L(item),:)' * (C.stim(F(ff,item),:));
                 % addition of mask if the mask falls within the replacement window
                 if masking(item) == 1
-                    Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * C.location(L(item),:)' * C.maskStim;
+                    %Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * C.location(L(item),:)' * C.maskStim;
+                    MapInput = MapInput + (P.asyFX - maxFX) * P.stimDrive * C.location(L(item),:)' * C.maskStim;
                 end
             end
+        else
+           MapInput = zeros(size(Map(1).FX)); % after stimulus offset, input must be reset to 0
         end
     end
 
@@ -172,7 +180,7 @@ while t < E.RI  % continue until end of RI
         W(:, decommitted) = 0;  % remove weights to the now free binding units
     end
 
-    [Map, W] = IMdecayFX(Map, W, C.tstep);   % decay of FX through one time step
+    [Map, W] = IMdecayFX(Map, W, C.tstep, C.tstep/2, MapInput);   % decay of FX through one time step
 
     EEG_W(tcount,:) = (((context * W(1:C.nLocCat, :)) * W((C.nLocCat+1):end, :)') * C.Mapping') * eW + randn(1,nElectrodes)*eNoise;  % feed last-used context into weight matrix -> reactivate content -> project onto electrodes
     EEG_FX(tcount,:) = SpatAttn' * eW + randn(1,nElectrodes)*eNoise;
