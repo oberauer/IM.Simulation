@@ -72,7 +72,11 @@ if E.test == 1 || E.test == 4, response = zeros(1, E.outsize); end
 if E.test == 2 || E.test == 3, response = zeros(2, E.outsize); end
 rt = zeros(1,E.outsize);
 for probed = 1:E.outsize
-    [response(:,probed), rt(probed), Map, W, G, Focus, CWcolor, maxFX, maxW] = IMretrieve(Map, W, G, Focus, Afocus, probed, cueing, L, F, probestim, probeIdx, overTime);
+    [response(:,probed), rt(probed), Map, W, G, Focus, CWcolor, maxFX2, maxW2] = IMretrieve(Map, W, G, Focus, Afocus, probed, cueing, L, F, probestim, probeIdx, overTime);
+    if probed == 1 && ~exist('maxW', 'var')
+        maxW = maxW2;
+        maxFX = maxFX2;
+    end
 end  % outpos
 
 %%%%%%%%%%%%%%% Wrap up %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

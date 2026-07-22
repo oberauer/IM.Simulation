@@ -36,6 +36,7 @@ Alpha = NaN(E.nsubj, length(Timepoints), E.maxsetsize);  % id, timepoint, setsiz
 BaseAlpha = NaN(E.nsubj, E.maxsetsize);
 cTime = struct('ctime', 0);
 CT = repmat(cTime, 1, E.maxsetsize);
+Mdevobs = zeros(E.nsubj, E.maxsetsize);
 
 % variables for IEM
 nElectrodes = 56;
@@ -73,7 +74,7 @@ for id = 1:E.nsubj
     for trial = 1:(nfactor*E.ntrials)
         %output = IMSim(P, setsize, 1);  % cueing = 1 (no cue)
         Map = preTrialActivity(Map, setsize);
-        [~, L, F, ~, ~, ~, ~, ~, ~, eegW, eegfx] = IMtrackSignals(setsize, Map, eW, eNoise);
+        [Map, W, L, F, ~, ~, ~, ~, ~, ~, eegW, eegfx] = IMtrackSignals(setsize, Map, eW, eNoise);
         EEG_WX(trial,:,:) = eegW;  % feed last-used context into weight matrix -> reactivate content -> project onto electrodes
         EEG_FX(trial,:,:) = eegfx; % read out locations (averaging over features) from feature map
         LocationMask(trial, round(C.Location(L(1:setsize)))) = 1; % stimulus mask: codes the stimulus location (set to 1 at presented location(s), and 0 everywhere else)
@@ -95,20 +96,23 @@ for id = 1:E.nsubj
         EEG_WX = zeros(E.ntrials, round(E.RI/C.tstep)+1, nElectrodes);
         EEG_FX = zeros(E.ntrials, round(E.RI/C.tstep)+1, nElectrodes);
         baseAlpha = zeros(1,E.ntrials);
+        fdistance = NaN(E.ntrials, 1);  % distance (target, response) 
         for trial = 1:E.ntrials
             if simSeq == 1, Map = preTrialActivity(Map, E.maxsetsize); end  % activity carrying over from previous trial with a random set size
             if simSeq == 2, Map = preTrialActivity(Map, 1); end  % activity carrying over from previous trial, last-presented single stimulus
             baseAlpha(trial) = sum(abs(mean(Map(1).FX,2)' * eW + randn(1,nElectrodes)*eNoise));
-            [Map, L, F, cda_g(trial,:), cda_w(trial,:), alpha(trial,:), ctime(trial), Pangle(trial,:), Cangle(trial,:), eegW, eegfx] = IMtrackSignals(setsize, Map, eW, eNoise);
+            [Map, W, L, F, cda_g(trial,:), cda_w(trial,:), alpha(trial,:), ctime(trial), Pangle(trial,:), Cangle(trial,:), eegW, eegfx, Focus, Afocus] = IMtrackSignals(setsize, Map, eW, eNoise);
             EEG_WX(trial,:,:) = eegW;
             EEG_FX(trial,:,:) = eegfx;
-            % IMdecayFX(Map, W, 0.5);  % decay for some time after the previous response, before measuring baseline alpha power
+            [response, rt, Map, W, GateClosed, Focus, CWcolor, maxFX, maxW] = IMretrieve(Map, W, 0, Focus, Afocus, 1, 1, L, F, [], [], 0); 
+            fdistance(trial, 1) = wrap(response(1)-F(1), 180);   %calculate distance between response and true feature in feature space (degrees!)
         end
         CDAg(id,:,setsize) = mean(cda_g);
         CDAw(id,:,setsize) = mean(cda_w);
         Alpha(id,:,setsize) = mean(alpha);
         BaseAlpha(id, setsize) = mean(baseAlpha);
         CT(setsize).ctime = [CT(setsize).ctime; ctime];
+        Mdevobs(id, setsize) = mean(abs(fdistance));  %mean deviation
 
         for t = 1:round(E.RI/C.tstep)
             CTF(id,setsize,t).meanCTF_W = ApplyIEM(IEM(t).Wb, squeeze(EEG_WX(:,t,:)), Cangle, channelCenters, ItemIdx);
@@ -245,6 +249,11 @@ if simSeq == 2
     plot(1:E.maxsetsize, AlphaWindow);
     PostFigure([0.8, E.maxsetsize+0.2, 0, ymax], 'Set Size', 'Alpha Power after last item');
 end
+
+% plot performance
+PreFigure;
+plot(1:E.maxsetsize, mean(Mdevobs));
+PostFigure([0.8, E.maxsetsize+0.2, 0, 90], 'Set Size', 'Error (deg)');
 
 % plot cumulative consolidation times
 PreFigure;

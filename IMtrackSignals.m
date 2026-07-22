@@ -1,4 +1,4 @@
-function [Map, L, F, CDAg, CDAw, Alpha, sumCtime, Pangle, Cangle, EEG_W, EEG_FX] = IMtrackSignals(setsize, Map, eW, eNoise)
+function [Map, W, L, F, CDAg, CDAw, Alpha, sumCtime, Pangle, Cangle, EEG_W, EEG_FX, Focus, Afocus] = IMtrackSignals(setsize, Map, eW, eNoise)
 % encodes a memory set simultaneously, simulates the proces time-step wise
 % to track CDA and alpha over time
 
@@ -83,7 +83,6 @@ if E.presentation == 2
     cTime = max(0, TConsolidEnd - TConsolidOnset); % actually available consolidation time after accounting for consolidation postponenemt by preceding items, and curtailing by the test
     FXupdated = [zeros(1, setsize), 1];  % each time a new item is presented, FXupdated for that item is initially 0, so FX is updated (add a 1 at the end for when inpos > setsize)
 end
-
 
 sumCtime = sum(cTime);
 consolStarted = zeros(1, setsize);
@@ -191,7 +190,7 @@ while t < E.RI  % continue until end of RI
     t = t + C.tstep;
 end
 
-Map = UpdateFX(Map);  % update Map during the test (which is not explicitly simulated here
+%Map = UpdateFX(Map);  % update Map during the test (which is not explicitly simulated here
 
 Pangle = L(1:setsize);
 Cangle = F(1:setsize);

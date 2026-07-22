@@ -135,7 +135,7 @@ P.maskWindowSD = 0.75; % SD (as porportion of mean) of time window of integratio
 P.stimDrive = 3; 
 P.SDstrengthFX = 0.1; % SD of encoding strength into FX
 P.selfactFX = 1;     % self-activation of FX
-P.inhibFX = 0.003;   % 0.002 global inhibition in FX that causes decay
+P.inhibFX = 0.004;   % 0.002 global inhibition in FX that causes decay
 P.IOR = 0.5;         % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
 P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
@@ -163,11 +163,11 @@ P.kappacrit = 1;      % proportion of kappa_feat: meta-cognitive estimate of ave
 C.indVar = {'nb', 'dnoise', 'delta', 'pBase', 'kappa_feat', 'kappaf_feat', 'kappa_ctx', 'kappaf_ctx',  ...
            'eraseFX', 'inhibFX', 'cRate', 'rRate', 'removalThreshold'};  % parameters to be varied in individual-differences simulation
        
-%             nb    dnoise delta pBase  k_f   kf_f  k_c   kf_c  eraseFX  inhibFX  cRate rRate remThr        
-C.maxIndVar = [500,   20,   1,   0.9,    30,   30,   30,   50,    1,     0.1,     20    20    10];   % max. value of parameters varied in individual-differences simulation
-C.SDfactor =  [0.25,  0.25, 0.25, 0.25,  0.25  0.25, 0.25, 0.25,  0.25,  0.25,    0.25  0.25  0.25]; % SD as fraction of mean
-C.logistVar = [0      0     1     1      0     0     0     0      1      0        0     0     0];    % whether or not the parameter's individual differences are normal or on a logit scale
-C.nullVar =   [NaN,   0,    1     0      0     0     0     0      0      0        NaN   NaN   0];    % value of the parameter that neutralizes an effect -> don't create individual differences because then the values depart from the null value!
+%             nb    dnoise delta pBase  k_f   kf_f  k_c   kf_c  eraseFX inhibFX cRate rRate remThr        
+C.maxIndVar = [500,   5,    1,   0.9,    30,   30,   30,   50,    1,     0.1,    20    20    10];   % max. value of parameters varied in individual-differences simulation
+C.SDfactor =  [0.25,  0.25, 0.25, 0.25,  0.25  0.25, 0.25, 0.25,  0.25,  0.25,   0.25  0.25  0.25]; % SD as fraction of mean
+C.logistVar = [0      0     1     1      0     0     0     0      1      0       0     0     0];    % whether or not the parameter's individual differences are normal or on a logit scale
+C.nullVar =   [NaN,   0,    1     0      0     0     0     0      0      0       NaN   NaN   0];    % value of the parameter that neutralizes an effect -> don't create individual differences because then the values depart from the null value!
 C.groupVar = ['none'];                                                                               % grouping of participants in individual-differences simulation - max. one parameter name as string variable!
 C.maxGroupVar = repmat(inf, 1, length(C.indVar)); 
 
@@ -206,7 +206,7 @@ if Exp == 29, D = SetsizeDeltaCD(Model); end  % CD for set-size and degree-of-ch
 if Exp == 30, D = Reloading(Model); end % CD for retro-cue and re-loading experiment
 if Exp == 31, D = DelayRS(Model); end  % CD for retro-cue and delay of response selection
 if Exp == 32, D = MultiCueIntrusion(Model); end  % 2-cues (last always valid), with intrusion probes sometimes matching the first-cued item
-if Exp == 33, D = MultiCueABA(Model, 2); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence; second argument: vector of tasks
+if Exp == 33, D = MultiCueABA(Model, 1:2); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence; second argument: vector of tasks
 if Exp == 34, D = SensoryMemoryCD(Model); end  % CD with varying SOA from array to probe
 if Exp == 35, D = ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
 if Exp == 36, D = DualTaskConsolidation(1); end  % Nieuwenstein & Wyble (2015); argument = feature overlap between memory and decision stimuli
