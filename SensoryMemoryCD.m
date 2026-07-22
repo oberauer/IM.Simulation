@@ -11,6 +11,7 @@ E.test = 2;      % change detection
 E.PreRetro = 2;  % this is all retro-cue
 E.CTI(2) = 0.5;  % cue-probe interval in Pratte & Greene (2023)
 E.cuevalidity = 1;
+P.cBallistic = 0; % it makes no sense for consolidation to proceed ballistically after a cue, because that's just wasted time during which FX decays
 E.maxsetsize = 8;
 C.nstim = 10;  % 10 highly discriminable stimuli were used in Pratte & Greene
 IMprepareRecog;
@@ -33,7 +34,9 @@ nTrials = round(E.ntrials./2);
 Pyes = zeros(E.nsubj, 2, length(SOA));  % Probability of saying "Yes" (="Same") for each subject, probe type, and array-cue interval
 PC = zeros(E.nsubj, 2, length(SOA));    % Proportion correct
 RT = zeros(E.nsubj, 2, length(SOA));    % Response time
-Strength = zeros(E.nsubj, 2, length(SOA));    % Strength of Content read out of FX
+Strength = zeros(E.nsubj, 2, length(SOA)); % Strength of Consolidation
+MaxFX = zeros(E.nsubj, 2, length(SOA));    % Strength of Content read out of FX
+MaxW = zeros(E.nsubj, 2, length(SOA));     % Strength of Content read out of W
 
 Ptype = [1, 2];   % levels of the probetype variable 1x positive, 1x new (intrusion trials were not presented in Pratte & Greene)
 Design = fullfact(2);   % probetype
@@ -59,6 +62,8 @@ for id = 1:E.nsubj
         response = zeros(nTrials, nCells);
         rt = zeros(nTrials, nCells);
         strength = zeros(nTrials, nCells);
+        maxFX = zeros(nTrials, nCells);
+        maxW = zeros(nTrials, nCells);
 
         % running counter of trials in each condition
         for trial = 1:(nTrials*nCells)
@@ -70,6 +75,8 @@ for id = 1:E.nsubj
             %disp([cueing, E.ptype, output.response(1,:)]);
             rt(ConditionCount(condition), condition) = output.rt;    % response time
             strength(ConditionCount(condition), condition) = max(output.Strength);  % the maximal strength is the cued item = the target
+            maxFX(ConditionCount(condition), condition) = output.maxFX;  % the strength of FX at the target feature
+            maxW(ConditionCount(condition), condition) = output.maxW;  % the strength of retrieved vector from W at the target feature
         end
 
         % now loop over the 2 design cells to read out the summary
@@ -84,6 +91,8 @@ for id = 1:E.nsubj
             end
             RT(id, ptype, soa) = mean(rt(:,condition))./1000;
             Strength(id, ptype, soa) = mean(strength(:, condition)); 
+            MaxFX(id, ptype, soa) = mean(maxFX(:, condition)); 
+            MaxW(id, ptype, soa) = mean(maxW(:, condition)); 
         end
 
         disp(['ID = ', mat2str(id), '; SOA = ', mat2str(SOA(soa))]);
@@ -110,9 +119,15 @@ plot(SOA, K);
 PostFigure([0, 1, 0, setsize], 'SOA', 'K');
 
 PreFigure;
+subplot(1,2,1);
 plotvector = squeeze(mean(mean(Strength)));
 plot(SOA, plotvector);
-PostFigure([0, 1, 0, max(0.01, 1.1*max(plotvector))], 'SOA', 'Strength of Target');
+PostFigure([0, 1, 0, max(0.01, 1.1*max(plotvector))], 'SOA', 'Strength of Consolid. of Target');
+subplot(1,2,2);
+plotvector = squeeze(mean(mean(maxFX)));
+plotvector = [plotvector, squeeze(mean(mean(maxW)))];
+plot(SOA, plotvector);
+PostFigure([0, 1, 0, max(0.01, 1.1*max(plotvector(:)))], 'SOA', 'Strength', [], {'FX', 'W'});
 
 D.PC = PC;
 D.Pyes = Pyes;
