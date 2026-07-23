@@ -6,7 +6,7 @@ global P
 if nargin < 4, tstep = C.tstep; end
 if nargin < 5, input = zeros(size(Map(1).FX)); end
 
-Decay = @(x) P.selfactFX.*x - P.inhibFX*sum(x(:)) + input;
+Decay = @(x) P.selfactFX.*x - P.inhibFX*sum(x(:)) + P.stimDrive*(P.asyFX-max(x(:)))*input;
 
 timesteps = round(max(0,delay)/tstep);  % delay is in s
 for ff = 1:C.nfeatures

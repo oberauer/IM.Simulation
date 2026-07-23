@@ -35,9 +35,11 @@ threshold = 0.1;
 xrad = deg2rad(1:360);
 NumAlive = zeros(nSteps, maxSetsize);
 MaxAct = zeros(nSteps, maxSetsize);
+MeanPeakAct = zeros(nSteps, maxSetsize);
 MeanAct = zeros(nSteps, maxSetsize);
-SumAct = zeros(nSteps, maxSetsize);
-SpatAttn = zeros(nSteps, 360);
+Alpha = zeros(nSteps, maxSetsize);
+eW = 0.3 + randn(360, 52);
+eNoise = 0.25;
 
 tic
 for setsize = 1:maxSetsize
@@ -45,7 +47,8 @@ for setsize = 1:maxSetsize
     numberAlive = zeros(nTrials, nSteps);
     maxAct = zeros(nTrials, nSteps);
     meanPeakAct = zeros(nTrials, nSteps);
-    sumAct = zeros(nTrials, nSteps);
+    sAttn = zeros(nTrials, nSteps);
+    alpha = zeros(nTrials, nSteps);
 
     for trial = 1:nTrials
         FX = zeros(360);
@@ -80,7 +83,9 @@ for setsize = 1:maxSetsize
                 alive = alive + round(FX(loc(item), stim(item)) > threshold);
             end
             meanPeakAct(trial, t) = sumPeakact./setsize;
-            sumAct(trial,t) = sum(FX(:));
+            spatAttn = mean(FX,2);
+            sAttn(trial,t) = sum(spatAttn);
+            alpha(trial,t) = sum(abs(spatAttn' * eW + randn(1,52)*eNoise));
 
             % RK4
             k1 = GI(FX,t);
@@ -101,8 +106,9 @@ for setsize = 1:maxSetsize
     end
     NumAlive(:, setsize) = mean(numberAlive, 1)';
     MaxAct(:, setsize) = mean(maxAct, 1)';
-    MeanAct(:, setsize) = mean(meanPeakAct, 1)';
-    SumAct(:, setsize) = mean(sumAct, 1)';
+    MeanPeakAct(:, setsize) = mean(meanPeakAct, 1)';
+    MeanAct(:, setsize) = mean(sAttn, 1)';
+    Alpha(:, setsize) = mean(alpha, 1)';
     
 end
 toc
@@ -116,12 +122,12 @@ subplot(2,2,3);
 plot(Time, MaxAct);
 PostFigure([0, max(Time), 0, max(0.1, max(MaxAct(:)))], 'Time (s)', 'Max. Peak Act.');
 subplot(2,2,4);
-plot(Time, MeanAct);
-PostFigure([0, max(Time), 0, max(0.1, max(MeanAct(:)))], 'Time (s)', 'Mean Peak Act.');
+plot(Time, MeanPeakAct);
+PostFigure([0, max(Time), 0, max(0.1, max(MeanPeakAct(:)))], 'Time (s)', 'Mean Peak Act.');
 
 subplot(2,2,2);
-plot(Time, SumAct);
-PostFigure([0, max(Time), 0, max(0.1, max(SumAct(:)))], 'Time (s)', 'Sum Act.');
+plot(Time, MeanAct);
+PostFigure([0, max(Time), 0, max(0.1, max(MeanAct(:)))], 'Time (s)', 'Mean Act.');
 
 % SumAct1 = SumAct(round(nSteps/2), :);
 % subplot(2,2,2);
@@ -129,7 +135,13 @@ PostFigure([0, max(Time), 0, max(0.1, max(SumAct(:)))], 'Time (s)', 'Sum Act.');
 % PostFigure([0, maxSetsize+1, 0, 1.2*max(SumAct1(:))], 'Set Size', 'Summed Act.');
 
 
-Alpha = mean(SumAct(20:50,:));  % 400 to 1000 ms
-PreFigure;
-plot(1:setsize, Alpha);
+Alpha400 = mean(Alpha(round(0.4/tstep):round(1/tstep),:));  % 400 to 1000 ms
+PreFigure([], [], 2);
+subplot(1,2,1);
+plot(Time, Alpha);
+PostFigure([0, max(Time), 0, max(0.1, max(Alpha(:)))], 'Time (s)', 'Alpha');
+subplot(1,2,2);
+plot(1:setsize, Alpha400);
+PostFigure([0, maxSetsize+1, 0, max(0.1, 0.3*max(Alpha(:)))], 'Set Size', 'Alpha(400-1000)');
+
 

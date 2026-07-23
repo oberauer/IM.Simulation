@@ -106,29 +106,27 @@ while t < E.RI  % continue until end of RI
                 % simultaneous presentation: parallel encoding into spatially organized feature maps;
                 MapInput = zeros(size(Map(1).FX));
                 for ff = 1:C.nfeatures
-                    maxFX = max(Map(ff).FX(:));
                     for item = 1:setsize
                         %Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * strengthFX(item) * C.location(L(item),:)' * (C.stim(F(ff,item),:));
-                        MapInput = MapInput + (P.asyFX - maxFX) * P.stimDrive * strengthFX(item) * C.location(L(item),:)' * (C.stim(F(ff,item),:)); % to be added in IMdecayFX
+                        MapInput = MapInput + strengthFX(item) * C.location(L(item),:)' * C.stim(F(ff,item),:); % to be added in IMdecayFX
                     end
                     % addition of mask if the mask falls within the replacement window
                     if masking(1) == 1  % masking is all-or-none for simultaneous array
                         for item = 1:setsize
                             %Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * C.location(L(item),:)' * C.maskStim;
-                            MapInput = MaxInput + (P.asyFX - maxFX) * P.stimDrive * C.location(L(item),:)' * C.maskStim;
+                            MapInput = MaxInput + C.location(L(item),:)' * C.maskStim;
                         end
                     end
                 end
             end
             if E.presentation == 2
-                maxFX = max(Map(ff).FX(:));
                 item = inpos;
                 %Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * strengthFX(item) * C.location(L(item),:)' * (C.stim(F(ff,item),:));
-                MapInput = (P.asyFX - maxFX) * P.stimDrive * strengthFX(item) * C.location(L(item),:)' * (C.stim(F(ff,item),:));
+                MapInput = strengthFX(item) * C.location(L(item),:)' * C.stim(F(ff,item),:);
                 % addition of mask if the mask falls within the replacement window
                 if masking(item) == 1
                     %Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * C.location(L(item),:)' * C.maskStim;
-                    MapInput = MapInput + (P.asyFX - maxFX) * P.stimDrive * C.location(L(item),:)' * C.maskStim;
+                    MapInput = MapInput + C.location(L(item),:)' * C.maskStim;
                 end
             end
         else
@@ -175,7 +173,7 @@ while t < E.RI  % continue until end of RI
             consolStarted(inpos) = 1;  % set this to 1 so that the set-up of consolidation occurs only once per item
         end
     end
-    
+
     % release of binding units during an ongoing consolidation event
     if t > TConsolidOnset(1) % after consolidation of the first item has started, and some binding units have been committed ...
         % continuing release of binding units
