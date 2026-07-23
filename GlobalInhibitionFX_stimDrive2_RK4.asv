@@ -7,7 +7,7 @@ close all;
 
 nTrials = 30;
 maxSetsize = 12;
-stimDrive = 3;
+stimDrive = 5;
 encTime = 0.15;
 tstep = 0.02;
 duration = 1; % in seconds
@@ -81,6 +81,7 @@ for setsize = 1:maxSetsize
             end
             meanPeakAct(trial, t) = sumPeakact./setsize;
             sumAct(trial,t) = sum(FX(:));
+            SpatAttn(trial,t,:) = mean(FX,2);
 
             % RK4
             k1 = GI(FX,t);
@@ -103,7 +104,6 @@ for setsize = 1:maxSetsize
     MaxAct(:, setsize) = mean(maxAct, 1)';
     MeanAct(:, setsize) = mean(meanPeakAct, 1)';
     SumAct(:, setsize) = mean(sumAct, 1)';
-    
 end
 toc
 
@@ -129,7 +129,9 @@ PostFigure([0, max(Time), 0, max(0.1, max(SumAct(:)))], 'Time (s)', 'Sum Act.');
 % PostFigure([0, maxSetsize+1, 0, 1.2*max(SumAct1(:))], 'Set Size', 'Summed Act.');
 
 
-Alpha = mean(SumAct(20:50,:));  % 400 to 1000 ms
+MeanAttn = squeeze(mean(SpatAttn));
+PeakAttn = 
+Alpha = mean(MeanAttn())
 PreFigure;
-plot(1:setsize, Alpha);
+
 

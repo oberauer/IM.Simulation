@@ -123,9 +123,11 @@ subplot(1,2,1);
 plotvector = squeeze(mean(mean(Strength)));
 plot(SOA, plotvector);
 PostFigure([0, 1, 0, max(0.01, 1.1*max(plotvector))], 'SOA', 'Strength of Consolid. of Target');
-plotvector(1,:) = squeeze(mean(mean(maxFX)));
+subplot(1,2,2);
+plotvector = squeeze(mean(mean(MaxFX)));
+plotvector = [plotvector, squeeze(mean(mean(MaxW)))];
 plot(SOA, plotvector);
-PostFigure([0, 1, 0, max(0.01, 1.1*max(plotvector))], 'SOA', 'Strength of Consolid. of Target');
+PostFigure([0, 1, 0, max(0.01, 1.1*max(plotvector(:)))], 'SOA', 'Strength', [], {'FX', 'W'});
 
 D.PC = PC;
 D.Pyes = Pyes;

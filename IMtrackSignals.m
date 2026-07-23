@@ -60,7 +60,7 @@ if E.presentation == 2
     TattentionWindowEnd = TStim(1:setsize) + attentionWindows;
     TConsolidOnset = zeros(1, setsize);
     TConsolidEnd = zeros(1, setsize);
-    TConsolidOnset(1) = TattentionWindowEnd(1);  % first consolidation ends after attention window of first stimulus
+    TConsolidOnset(1) = TattentionWindowEnd(1);  % first consolidation starts after attention window of first stimulus
     TConsolidEnd(1) = TConsolidOnset(1) + cTime(1);
     if ballistic(1) == 0, TConsolidEnd(1) = min(TConsolidOnset(1) + cTime(1), E.prestime + E.ISI); end  % if not ballistic, cTime is cut short by next stimulus
     TestTime = setsize * (E.prestime + E.ISI) + E.RI;
@@ -94,7 +94,8 @@ tcount = 1;
 %%%%%%%%% Start Simulation Timestep by Timestep %%%%%%%%%%%%%%%%%%%555
 
 while t < E.RI  % continue until end of RI
-    % presentation of stimuli: encode into feature map
+
+    % presentation of stimuli: prepare input into feature map
     if inpos <= setsize
         if t > OnsetTimes(inpos) && t <= (OnsetTimes(inpos) + E.prestime)  % in first iteration, t=0, so all measures pick up the pre-trial baseline
             if FXupdated(inpos) == 0
@@ -135,10 +136,7 @@ while t < E.RI  % continue until end of RI
         end
     end
 
-    SpatAttn = mean(Map(1).FX,2);
-    %SpatAttn = max( 0, SpatAttn + C.tstep * (mean(Map(1).FX,2) + P.TopDownSpatAttn.*AfocusLoc' - P.spatinhib*SpatAttn*sum(SpatAttn)) );  % attraction of spatial attention to locations in feature maps, top-down guidance by FoA, and global inhibition on spatial attention
-    %Map(1).FX = Map(1).FX + C.tstep * (-Map(1).FX + Map(1).FX .* repmat(SpatAttn, 1, C.nc)); % spatial attention modulates feature maps
-
+    % end of a consolidation event: IOR
     if t >= TConsolidEnd(inpos)
         if inpos <= setsize
             % remove just-consolidated feature, so that anther one is the highest peak next (a form of inhibition of return)
@@ -153,8 +151,16 @@ while t < E.RI  % continue until end of RI
         inpos = inpos + 1; % move on to consolidation of next item
     end
 
+    % input to FX and decay of FX (and W)
+    if t < 0.5, stepsize = C.tstep/5; else, stepsize = C.tstep/2; end
+    [Map, W] = IMdecayFX(Map, W, C.tstep, stepsize, MapInput);   % change of FX and W through one time step (decay, stimulus drive)
+    SpatAttn = mean(Map(1).FX,2);
+    %SpatAttn = max( 0, SpatAttn + C.tstep * (mean(Map(1).FX,2) + P.TopDownSpatAttn.*AfocusLoc' - P.spatinhib*SpatAttn*sum(SpatAttn)) );  % attraction of spatial attention to locations in feature maps, top-down guidance by FoA, and global inhibition on spatial attention
+    %Map(1).FX = Map(1).FX + C.tstep * (-Map(1).FX + Map(1).FX .* repmat(SpatAttn, 1, C.nc)); % spatial attention modulates feature maps
+
+    % start of a new consolidation event
     if t >= TConsolidOnset(inpos) && inpos <= setsize  % if the consolidation of item inpos starts, ...
-        SpatAttn = mean(Map(1).FX,2);
+        %SpatAttn = mean(Map(1).FX,2);
         if consolStarted(inpos) == 0
             spatPeak = find(SpatAttn==max(SpatAttn), 1);    % find the peak of spatial attention ...
             AfocusLoc = C.ContextFun(C.x, deg2rad(spatPeak), P.kappaf_ctx);  % ... and move the FoA to that location
@@ -169,6 +175,8 @@ while t < E.RI  % continue until end of RI
             consolStarted(inpos) = 1;  % set this to 1 so that the set-up of consolidation occurs only once per item
         end
     end
+    
+    % release of binding units during an ongoing consolidation event
     if t > TConsolidOnset(1) % after consolidation of the first item has started, and some binding units have been committed ...
         % continuing release of binding units
         pLoss = 1 - 1/exp(P.rRate*C.tstep);  % see StepByStepEncoding.m
@@ -178,8 +186,6 @@ while t < E.RI  % continue until end of RI
         G(decommitted) = 0;
         W(:, decommitted) = 0;  % remove weights to the now free binding units
     end
-
-    [Map, W] = IMdecayFX(Map, W, C.tstep, C.tstep/2, MapInput);   % decay of FX through one time step
 
     EEG_W(tcount,:) = (((context * W(1:C.nLocCat, :)) * W((C.nLocCat+1):end, :)') * C.Mapping') * eW + randn(1,nElectrodes)*eNoise;  % feed last-used context into weight matrix -> reactivate content -> project onto electrodes
     EEG_FX(tcount,:) = SpatAttn' * eW + randn(1,nElectrodes)*eNoise;

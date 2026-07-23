@@ -124,8 +124,8 @@ plotvector = squeeze(mean(mean(Strength)));
 plot(SOA, plotvector);
 PostFigure([0, 1, 0, max(0.01, 1.1*max(plotvector))], 'SOA', 'Strength of Consolid. of Target');
 subplot(1,2,2);
-plotvector = squeeze(mean(mean(maxFX)));
-plotvector = [plotvector, squeeze(mean(mean(maxW)))];
+plotvector = squeeze(mean(mean(MaxFX)));
+plotvector = [plotvector, squeeze(mean(mean(MaxW)))];
 plot(SOA, plotvector);
 PostFigure([0, 1, 0, max(0.01, 1.1*max(plotvector(:)))], 'SOA', 'Strength', [], {'FX', 'W'});
 

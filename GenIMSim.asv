@@ -62,7 +62,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 22;
+Exp = 15;
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 1;   % fit mixture model?
 fitIMSim = 0; % fit IM?
@@ -130,15 +130,13 @@ P.keepFocus = 0.3;   % probability of keeping the last-presented item in the FoA
 P.a = 0.1;           % strength of item memory - implemented as "C.locationnoise" in CreateStimuli: all location cues receive some baseline activation
 P.nb = 100;          % number of units in the binding layer
 P.nbNorm = sqrt(P.nb); % normalization constant depends on mean P.nb, not on individual P.nb (and not on manipulation of P.nb in simulation 33)
-%P.spatinhib = 0.0;   % global inhibition of spatial attention distribution
-%P.TopDownSpatAttn = 0; % strength of top-down modulation of spatial attention from the FoA in WM (AfocusLoc)
 P.maskWindow = 0.05;  % mean of time window within which a mask or a cue is integrated with the current feature Map
 P.maskWindowSD = 0.75; % SD (as porportion of mean) of time window of integration
-P.stimDrive = 0.05;    % stimulus drive into FX (only relevant for timestep-by-timestep simulations)
+P.stimDrive = 3; 
 P.SDstrengthFX = 0.1; % SD of encoding strength into FX
 P.selfactFX = 1;     % self-activation of FX
-P.inhibFX = 0.002;   % global inhibition in FX that causes decay
-P.IOR = 0.7;           % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
+P.inhibFX = 0.002;   % 0.002 global inhibition in FX that causes decay
+P.IOR = 0.5;         % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
 P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
 P.rRate = 4;         % rate of release of BP units
@@ -149,32 +147,27 @@ P.cBallistic = 0.5;  % probability of consolidation being ballistic
 P.filter = [0.1, 0.1, 0.1, 0.1]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
 P.rad1 = 0.7;        % proportion of radius of memory array to radius of color wheel (for computation of color-wheel interference as a function of distance between wheel and target location)
 P.outputinterference = 0; % proportion of reduction of W
-P.wnoise = 0.15;      % at at which noise variance added to W increases with time (in seconds) 
+P.wnoise = 0.12;      % at at which noise variance added to W increases with time (in seconds) 
 P.cueingStrength = 1;     % amount of strengthening by re-encoding in response to retro-cue (0 = none)
 P.removalThreshold = 0.3; % binding units with abs(strength) below the threshold are removed - now expressed as proportion of the maximal absolute retrieved binding strength
 P.removalTau = 0.8;  % threshold for the logistic translating cue validity into removal strength
 P.removalGain = 10;  % gain for the logistic translating cue validity into removal strength
 P.inhib = 0;         % global inhibition of activation during retrieval
 P.cuerate = 5;       % rate of using the cue
-P.dnoise = 1.0;     % SD of noise added to each accumulator in recall/recollection of a feature
+P.dnoise = 1;        % SD of noise added to each accumulator in recall/recollection of a feature
 P.driftnoise = 1.0;  % SD of noise added to each accumulator for recognition decision
 P.boundary = [30, 10]; % boundary for retrieval of a feature / for recognition decision
-
-
-%P.boundary = [70, 10]; 
-%P.dnoise = 0.5; 
-
 P.sz = 0;             % starting point variability for yes/no accumulators for recognition
 P.kappacrit = 1;      % proportion of kappa_feat: meta-cognitive estimate of average precision -> used in Bayesian optimal decision rule for same-change decision in Change Detection
 
 C.indVar = {'nb', 'dnoise', 'delta', 'pBase', 'kappa_feat', 'kappaf_feat', 'kappa_ctx', 'kappaf_ctx',  ...
            'eraseFX', 'inhibFX', 'cRate', 'rRate', 'removalThreshold'};  % parameters to be varied in individual-differences simulation
        
-%             nb    dnoise delta pBase  k_f   kf_f  k_c   kf_c  eraseFX  inhibFX  cRate rRate remThr        
-C.maxIndVar = [500,   20,   1,   0.9,    30,   30,   30,   50,    1,     0.1,     20    20    10];   % max. value of parameters varied in individual-differences simulation
-C.SDfactor =  [0.25,  0.25, 0.25, 0.25,  0.25  0.25, 0.25, 0.25,  0.25,  0.25,    0.25  0.25  0.25]; % SD as fraction of mean
-C.logistVar = [0      0     1     1      0     0     0     0      1      0        0     0     0];    % whether or not the parameter's individual differences are normal or on a logit scale
-C.nullVar =   [NaN,   0,    1     0      0     0     0     0      0      0        NaN   NaN   0];    % value of the parameter that neutralizes an effect -> don't create individual differences because then the values depart from the null value!
+%             nb    dnoise delta pBase  k_f   kf_f  k_c   kf_c  eraseFX inhibFX cRate rRate remThr        
+C.maxIndVar = [500,   5,    1,   0.9,    30,   30,   30,   50,    1,     0.1,    20    20    10];   % max. value of parameters varied in individual-differences simulation
+C.SDfactor =  [0.25,  0.25, 0.25, 0.25,  0.25  0.25, 0.25, 0.25,  0.25,  0.25,   0.25  0.25  0.25]; % SD as fraction of mean
+C.logistVar = [0      0     1     1      0     0     0     0      1      0       0     0     0];    % whether or not the parameter's individual differences are normal or on a logit scale
+C.nullVar =   [NaN,   0,    1     0      0     0     0     0      0      0       NaN   NaN   0];    % value of the parameter that neutralizes an effect -> don't create individual differences because then the values depart from the null value!
 C.groupVar = ['none'];                                                                               % grouping of participants in individual-differences simulation - max. one parameter name as string variable!
 C.maxGroupVar = repmat(inf, 1, length(C.indVar)); 
 
@@ -213,7 +206,7 @@ if Exp == 29, D = SetsizeDeltaCD(Model); end  % CD for set-size and degree-of-ch
 if Exp == 30, D = Reloading(Model); end % CD for retro-cue and re-loading experiment
 if Exp == 31, D = DelayRS(Model); end  % CD for retro-cue and delay of response selection
 if Exp == 32, D = MultiCueIntrusion(Model); end  % 2-cues (last always valid), with intrusion probes sometimes matching the first-cued item
-if Exp == 33, D = MultiCueABA(Model, 2); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence; second argument: vector of tasks
+if Exp == 33, D = MultiCueABA(Model, 1:2); end  % 3-cues (last always valid), with CBA vs. ABA cueing sequence; second argument: vector of tasks
 if Exp == 34, D = SensoryMemoryCD(Model); end  % CD with varying SOA from array to probe
 if Exp == 35, D = ROC(Model, 3); end  % reconstruction of ROC curves from change localization with variable response set size. Second parameter = probe type of change
 if Exp == 36, D = DualTaskConsolidation(1); end  % Nieuwenstein & Wyble (2015); argument = feature overlap between memory and decision stimuli
