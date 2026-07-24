@@ -1,33 +1,37 @@
 %%% Try out self-activation and global inhibition in FX to implement decay
 % Variant including the stimulus drive in the differential equation
 % This is using Runge-Kutta 4
+% Here we omit the asymptote. With larges stimDrive, this creates FX representations that are
+% much stronger than the original input, and therefore neutralize the IOR
+% because it removes only a small proportion of the peaks in FX. 
 
 clear variables
 close all;
 
 nTrials = 30;
 maxSetsize = 12;
-stimDrive = 3;
+stimDrive = 8;   %stimDrive around 8 produces max(peak) around 5, which is in line with direct encoding into FX
 encTime = 0.15;
 tstep = 0.02;
 duration = 1; % in seconds
+ior = 0.5;    % inhibition of return
+
+ior = 0; 
+
 nSteps = round(duration./tstep);
 shunting = 0;
 
 if shunting == 0
     selfAct = 1;
     inhib = 0.002;
-    asyFX = 5;
 end
 if shunting == 0.5
     selfAct = 1;
     inhib = 0.002;
-    asyFX = 5;
 end
 if shunting == 1
     selfAct = 5;   % hand-set
     inhib = 0.0003;   % hand-set
-    asyFX = 5;
 end
 kappa = 25;
 strengthSD = 0.2;
@@ -69,9 +73,9 @@ for setsize = 1:maxSetsize
         %     plotIdx = 1;
         % end
 
-        if shunting == 0.0, GI = @(x,t) selfAct.*x + (t <= encTime/tstep)*stimDrive*(asyFX-max(x(:)))*Input - inhib*sum(x(:)); end % non-shunting version
-        if shunting == 0.5, GI = @(x,t) selfAct.*x.*(asyFX-x) - inhib*sum(x(:)); end % half-shunting version
-        if shunting == 1.0, GI = @(x,t) selfAct.*x.*(asyFX-x) - x.*inhib*sum(x(:)); end  %shunting version
+        if shunting == 0.0, GI = @(x,t) selfAct.*x + (t <= encTime/tstep)*stimDrive*Input - inhib*sum(x(:)); end % non-shunting version
+        if shunting == 0.5, GI = @(x,t) selfAct.*x - inhib*sum(x(:)); end % half-shunting version
+        if shunting == 1.0, GI = @(x,t) selfAct.*x - x.*inhib*sum(x(:)); end  %shunting version
 
         for t = 1:nSteps
 
@@ -85,14 +89,14 @@ for setsize = 1:maxSetsize
             meanPeakAct(trial, t) = sumPeakact./setsize;
             spatAttn = mean(FX,2);
             sAttn(trial,t) = sum(spatAttn);
-            alpha(trial,t) = mean(abs(spatAttn' * eW + randn(1,52)*eNoise));
+            alpha(trial,t) = sum(abs(spatAttn' * eW + randn(1,52)*eNoise));
 
             % RK4
             k1 = GI(FX,t);
-            k2 = GI(max(0, min(asyFX, FX + 0.5*tstep*k1)),t);
-            k3 = GI(max(0, min(asyFX, FX + 0.5*tstep*k2)),t);
-            k4 = GI(max(0, min(asyFX, FX + tstep*k3)),t);
-            FX = max(0, min(asyFX, FX + (tstep/6) * (k1 + 2*k2 + 2*k3 + k4)));
+            k2 = GI(max(0, FX + 0.5*tstep*k1),t);
+            k3 = GI(max(0, FX + 0.5*tstep*k2),t);
+            k4 = GI(max(0, FX + tstep*k3),t);
+            FX = max(0, FX + (tstep/6) * (k1 + 2*k2 + 2*k3 + k4));
 
             numberAlive(trial, t) = alive;
             % if setsize == maxSetsize
@@ -102,6 +106,14 @@ for setsize = 1:maxSetsize
             %         plotIdx = plotIdx + 1;
             %     end
             % end
+
+            % inhibition of return: one item every 300 ms, in order of presentation
+            for item = 1:setsize
+                if t == round((item*0.3)/tstep)
+                    FX = FX - ior * (VonMises(xrad, deg2rad(loc(item)), kappa)' * VonMises(xrad, deg2rad(stim(item)), kappa)); 
+                end
+            end
+
         end
     end
     NumAlive(:, setsize) = mean(numberAlive, 1)';
@@ -136,12 +148,12 @@ PostFigure([0, max(Time), 0, max(0.1, max(MeanAct(:)))], 'Time (s)', 'Mean Act.'
 
 
 Alpha400 = mean(Alpha(round(0.4/tstep):round(1/tstep),:));  % 400 to 1000 ms
-PreFigure;
+PreFigure([], [], 2);
 subplot(1,2,1);
 plot(Time, Alpha);
 PostFigure([0, max(Time), 0, max(0.1, max(Alpha(:)))], 'Time (s)', 'Alpha');
 subplot(1,2,2);
 plot(1:setsize, Alpha400);
-PostFigure([0, maxSetsize+1, 0, max(0.1, max(Alpha(:)))], 'Set Size', 'Alpha');
+PostFigure([0, maxSetsize+1, 0, max(0.1, 0.3*max(Alpha(:)))], 'Set Size', 'Alpha(400-1000)');
 
 
