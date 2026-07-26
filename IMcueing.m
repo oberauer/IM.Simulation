@@ -8,8 +8,8 @@ global C
 lastrefreshed = 0;  %default
 CuedIdx = 0; % default
 refocusDuration = 0; % default
-featureFromFX = zeros(1, 360);  % default
-featureFromW = zeros(1, 360);   % default
+maxFX = NA;  % default
+maxW = NA;   % default
 
 if C.retroCueConsolid > 0
     % consolidation rate of the cued item
@@ -55,7 +55,11 @@ if (ismember (cueing, [1:3, 5]))  % if the cueing condition is NOT "refreshing",
 
     if E.CTI(cueing) > 0
         if C.eraseFXbyCue == 1, Map(1).FX = 0*Map(1).FX; end
-        [Afocus, AfocusLoc, featureFromFX, featureFromW] = Retrieve(W, Map, Focus); 
+        if Focus==1
+            [Afocus, AfocusLoc, featureFromFX, featureFromW] = Retrieve(W, Map, Focus); 
+            maxFX = featureFromFX(C.feature(F(1,1)));
+            maxW = featureFromW(C.feature(F(1,1)));
+        end
         %disp([featureFromFX(F(1)), featureFromW(F(1))]);
         if C.retroCueConsolid > 0
             if cTime(Focus) > 0 % if the cued item has not yet been consolidated
@@ -86,10 +90,19 @@ if (cueing == 4)    % "refreshing" experiments guiding the focus to several item
             [W, GateClosed, gWeight, cIdx, bStrength] = IMencodeStim(W, context, content, GateClosed, gWeight, cRate(Focus), cTime(Focus), E.CTI(cueing)-overTime);
             if C.retroCueConsolid == 1, cTime(Focus) = 0; end % now P.cStrength has certainly been reached, so no further consolidation is called for
         end
-        if ref == length(refsequence), [Afocus, AfocusLoc, featureFromFX, featureFromW] = Retrieve(W, Map, Focus); end  % no need to do that for pre-final refreshings because it has no consequence
+        if ref == length(refsequence) && Focus==1
+            [Afocus, AfocusLoc, featureFromFX, featureFromW] = Retrieve(W, Map, Focus); 
+            maxFX = featureFromFX(C.feature(F(1,1)));
+            maxW = featureFromW(C.feature(F(1,1)));
+        end  % no need to do that for pre-final refreshings or when Focus is not 1, because it has no consequence (there will be a further retrieval later)
         if P.cueingStrength > 0, W = Strengthen(W); end   % strengthening happens after retrieval, so it has no consequence for the last-cued item any more
         if P.removalThreshold > 0, [W, GateClosed] = Remove(W, GateClosed, setsize); end
         if ref < length(refsequence), [Map, W] = IMdecayFX(Map, W, E.CTI(cueing)); end
+        
+        % [Afocus, AfocusLoc, featureFromFX, featureFromW] = Retrieve(W, Map, 1); % for diagnostic purposes only
+        % maxFX = featureFromFX(C.feature(F(1,1)));
+        % maxW = featureFromW(C.feature(F(1,1)));
+
     end
     if (refreshings>1), lastrefreshed = find(refsequence==1, 1, 'last'); end
 end
@@ -113,16 +126,17 @@ if (cueing == 6)    % multi-cueing (Rerko & Oberauer, 2013)
             [W, GateClosed, gWeight, cIdx, bStrength] = IMencodeStim(W, context, content, GateClosed, gWeight, cRate(Focus), cTime(Focus), E.CTI(cueing)-overTime);
             if C.retroCueConsolid == 1, cTime(Focus) = 0; end % now P.cStrength has certainly been reached, so no further consolidation is called for
         end
-        if cueNum == length(E.cuesequence), [Afocus, AfocusLoc, featureFromFX, featureFromW] = Retrieve(W, Map, Focus); end  % no need to do that for pre-final refreshings because it has no consequence
+        if cueNum == length(E.cuesequence) && Focus==1
+            [Afocus, AfocusLoc, featureFromFX, featureFromW] = Retrieve(W, Map, Focus); 
+            maxFX = featureFromFX(C.feature(F(1,1)));
+            maxW = featureFromW(C.feature(F(1,1)));
+        end  % no need to do that for pre-final refreshings because it has no consequence
         if P.cueingStrength > 0, W = Strengthen(W); end
         if P.removalThreshold > 0, [W, GateClosed] = Remove(W, GateClosed, setsize); end
         if cueNum < length(E.cuesequence), [Map, W] = IMdecayFX(Map, W, E.CTI(cueing)); end
     end
 
 end
-
-maxFX = featureFromFX(C.feature(F(1,1)));
-maxW = featureFromW(C.feature(F(1,1)));
 
 %%%%%%%%%%%% Embedded Function %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5555
 
@@ -164,10 +178,10 @@ maxW = featureFromW(C.feature(F(1,1)));
         % wx = wx + P.cueingStrength .* cuestrength * (inputVec' * retrievedBinding);
 
         cuestrength = 1-exp(-P.cuerate*(max(0, E.CTI(cueing)-overTime)));
-        strengthenVec = [AfocusLoc * C.MappingC, zeros(1, E.nfeat*C.nCat)]; % the content side should be 0 so that nothing is added to wx
+        strengthenVec = [AfocusLoc * C.MappingC, zeros(1, E.nfeat*C.nCat)]; % vector of cued location in W; the content side should be 0 so that nothing is added to wx
         strengthLoc = repmat(strengthenVec', 1, P.nb);  % strength with which each location category is strengthened
         wxadded = P.cueingStrength*cuestrength * (strengthLoc .* wx);
-        wx = wx + wxadded;  %strengthening of bindings in focused location
+        wx = wx + wxadded;  %strengthening of bindings in focused location: they are multiplied by 1+PcueingStrength*cuestrength
 
     end
 

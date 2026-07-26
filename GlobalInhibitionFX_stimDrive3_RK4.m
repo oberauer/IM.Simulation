@@ -13,12 +13,15 @@ encTime = 0.15;
 tstep = 0.02;
 duration = 1; % in seconds
 ior = 0.5;    % inhibition of return
+
+%ior = 0; 
+
 nSteps = round(duration./tstep);
 shunting = 0;
 
 if shunting == 0
-    selfAct = 1;
-    inhib = 0.002;
+    selfAct = 2;
+    inhib = 0.004;
     asyFX = 5;
 end
 if shunting == 0.5
@@ -42,6 +45,12 @@ MeanAct = zeros(nSteps, maxSetsize);
 Alpha = zeros(nSteps, maxSetsize);
 eW = 0.3 + randn(360, 52);
 eNoise = 0.25;
+
+
+% 
+% selfAct = selfAct*4;
+% inhib = inhib * 4;
+% stimDrive = stimDrive*4;
 
 tic
 for setsize = 1:maxSetsize

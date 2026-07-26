@@ -55,7 +55,9 @@ fx1 = Map(1).FX;
 
 if cueing > 1 && E.PreRetro == 2
     [Map, W, G, GW, Focus, Afocus, lastrefreshed, CuedIdx, Strength, overTime, maxFX, maxW] = IMcueing(Map, W, G, GW, Strength, Focus, Afocus, L, F, setsize, cueing, refreshings, overTime);
-    %disp(max(abs(W(:))));
+    if isnan(maxW)
+        clear maxW maxFX
+    end
 else
     lastrefreshed = 0;
 end
