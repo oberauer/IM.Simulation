@@ -27,7 +27,7 @@ for group = 1:E.ngroups
         else
             if C.logistVar(ii)==1
                 maxVar = logit(C.maxIndVar(ii)); meanVar = logit(meanIndVar(ii));
-                logitPar = min( maxVar, randn(1, E.nsubj)*C.SDfactor(ii)*meanVar + meanVar );
+                logitPar = min( maxVar, randn(1, E.nsubj)*C.SDfactor(ii)*3 + meanVar);  % here, multiplying with the mean makes no sense (it just shrinks SD when the mean is close to 0.5, which is 0 on the logit scale)
                 ParX(((group-1)*E.nsubj+1):group*E.nsubj, ii) = logist(logitPar);
             else
                 minIndVar = meanIndVar(ii) - 0.99*abs(meanIndVar(ii));

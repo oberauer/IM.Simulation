@@ -20,8 +20,8 @@ nSteps = round(duration./tstep);
 shunting = 0;
 
 if shunting == 0
-    selfAct = 2;
-    inhib = 0.002;
+    selfAct = 1;
+    inhib = 0.004;
     asyFX = 5;
 end
 if shunting == 0.5

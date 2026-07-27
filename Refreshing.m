@@ -123,10 +123,12 @@ for id = 1:E.nsubj
             end
         end
         
-        refFreqEffect(id, 1:2) = MdevLastRef(id, 2, 3:4) - MdevLastRef(id, 1, 3:4);  % refreshing-2 == 1 is 1x refreshed, refreshing-2 == 2 is 2x refreshed
+        if refreshings==4
+            refFreqEffect(id, 1:2) = MdevLastRef(id, 2, 3:4) - MdevLastRef(id, 1, 3:4);  % refreshing-2 == 1 is 1x refreshed, refreshing-2 == 2 is 2x refreshed
+        end
 
-        disp('    ID       RefCond  Trial      Error   Ref12(Pos3) Ref12(Pos4');
-        disp([id, refreshings, trial, Mdevobs(id, refreshings), refFreqEffect(id,1), refFreqEffect(id,2)]);
+        disp('    ID       RefCond  Error   Ref12(Pos3) Ref12(Pos4)');
+        disp([id, refreshings, Mdevobs(id, refreshings), refFreqEffect(id,1), refFreqEffect(id,2)]);
         
         condData = Dataprocessing(Probedpos, Pangle, Cangle, Targ, Resp, Setsize, Colorgrid);   %prepare data for mixture-model fitting: separate data structures for each condition
         condData.cueing = refreshings>2;
@@ -170,7 +172,7 @@ for id = 1:E.nsubj
             if npar == 3, MMtranspos(id, refreshings) = MMparms(3); end
         end
         
-    end % for cueing
+    end % for refreshings (1:4)
     
     
     %fit IMSim
