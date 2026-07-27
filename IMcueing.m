@@ -8,8 +8,8 @@ global C
 lastrefreshed = 0;  %default
 CuedIdx = 0; % default
 refocusDuration = 0; % default
-maxFX = NA;  % default
-maxW = NA;   % default
+maxFX = NaN;  % default
+maxW = NaN;   % default
 
 if C.retroCueConsolid > 0
     % consolidation rate of the cued item

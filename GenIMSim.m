@@ -70,7 +70,7 @@ fitIMSim = 0; % fit IM?
 %%% Experimental Constants/Defaults
 
 E.ntrials = 200;     % number of trials to run per subject and condition
-E.nsubj = 30;        % number of subjects
+E.nsubj = 200;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -136,7 +136,7 @@ P.SDstrengthFX = 0.1; % SD of encoding strength into FX
 P.stimDrive = 3; 
 P.selfactFX = 1;     % self-activation of FX
 P.inhibFX = 0.002;   % 0.002 global inhibition in FX that causes decay
-P.IOR = 0.3;        % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
+P.IOR = 0.5;        % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
 P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
 P.rRate = 4;         % rate of release of BP units
@@ -161,13 +161,13 @@ P.sz = 0;             % starting point variability for yes/no accumulators for r
 P.kappacrit = 1;      % proportion of kappa_feat: meta-cognitive estimate of average precision -> used in Bayesian optimal decision rule for same-change decision in Change Detection
 
 C.indVar = {'nb', 'dnoise', 'delta', 'pBase', 'kappa_feat', 'kappaf_feat', 'kappa_ctx', 'kappaf_ctx',  ...
-           'eraseFX', 'inhibFX', 'cRate', 'rRate', 'removalThreshold'};  % parameters to be varied in individual-differences simulation
+           'eraseFX', 'inhibFX', 'cRate', 'rRate', 'removalThreshold', 'wnoise', 'IOR', 'filter(1)'};  % parameters to be varied in individual-differences simulation
        
-%             nb    dnoise delta pBase  k_f   kf_f  k_c   kf_c  eraseFX inhibFX cRate rRate remThr        
-C.maxIndVar = [500,   5,    1,   0.9,    30,   30,   30,   50,    1,     0.1,    20    20    10];   % max. value of parameters varied in individual-differences simulation
-C.SDfactor =  [0.25,  0.25, 0.25, 0.25,  0.25  0.25, 0.25, 0.25,  0.25,  0.25,   0.25  0.25  0.25]; % SD as fraction of mean
-C.logistVar = [0      0     1     1      0     0     0     0      1      0       0     0     0];    % whether or not the parameter's individual differences are normal or on a logit scale
-C.nullVar =   [NaN,   0,    1     0      0     0     0     0      0      0       NaN   NaN   0];    % value of the parameter that neutralizes an effect -> don't create individual differences because then the values depart from the null value!
+%             nb    dnoise delta pBase  k_f   kf_f  k_c   kf_c  eraseFX inhibFX cRate rRate remThr wnoise IOR f(1)     
+C.maxIndVar = [500,   5,    1,   0.9,    30,   30,   30,   50,    1,     0.1,    20    20    10    1      1   1];   % max. value of parameters varied in individual-differences simulation
+C.SDfactor =  [0.25,  0.25, 0.25, 0.25,  0.25  0.25, 0.25, 0.25,  0.25,  0.25,   0.25  0.25  0.25 0.25  0.25 0.25]; % SD as fraction of mean
+C.logistVar = [0      0     1     1      0     0     0     0      1      0       0     0     0    0      1    1];    % whether or not the parameter's individual differences are normal or on a logit scale
+C.nullVar =   [NaN,   0,    1     0      0     0     0     0      0      0       NaN   NaN   0    0      0    0];    % value of the parameter that neutralizes an effect -> don't create individual differences because then the values depart from the null value!
 C.groupVar = ['none'];                                                                               % grouping of participants in individual-differences simulation - max. one parameter name as string variable!
 C.maxGroupVar = repmat(inf, 1, length(C.indVar)); 
 

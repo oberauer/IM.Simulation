@@ -12,7 +12,7 @@ stimDrive = 3;
 encTime = 0.15;
 tstep = 0.02;
 duration = 1; % in seconds
-ior = 0.5;    % inhibition of return
+ior = 0.3;    % inhibition of return
 
 %ior = 0; 
 
@@ -21,7 +21,7 @@ shunting = 0;
 
 if shunting == 0
     selfAct = 2;
-    inhib = 0.004;
+    inhib = 0.002;
     asyFX = 5;
 end
 if shunting == 0.5
@@ -48,9 +48,9 @@ eNoise = 0.25;
 
 
 % 
-% selfAct = selfAct*4;
-% inhib = inhib * 4;
-% stimDrive = stimDrive*4;
+ selfAct = selfAct*2;
+% inhib = inhib * 3;
+%stimDrive = stimDrive*3;
 
 tic
 for setsize = 1:maxSetsize
@@ -175,7 +175,7 @@ plot(Time, Alpha);
 PostFigure([0, max(Time), 0, max(0.1, max(Alpha(:)))], 'Time (s)', 'Alpha');
 subplot(1,2,2);
 plot(1:setsize, Alpha400);
-PostFigure([0, maxSetsize+1, 0, max(0.1, 0.3*max(Alpha(:)))], 'Set Size', 'Alpha(400-1000)');
+PostFigure([0, maxSetsize+1, 0, max(0.1, max(Alpha(:)))], 'Set Size', 'Alpha(400-1000)');
 
 PreFigure([], [], 2);
 plot(Time, Peaks');

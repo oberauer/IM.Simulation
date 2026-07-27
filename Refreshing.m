@@ -39,6 +39,7 @@ MactW = zeros(E.nsubj, 3);
 MdevLastRef = NaN(E.nsubj, 2, 4); % for 1 or 2 refreshings: last refreshing in refreshing position
 MactFXLastRef = NaN(E.nsubj, 2, 4); % for 1 or 2 refreshings: last refreshing in refreshing position
 MactWLastRef = NaN(E.nsubj, 2, 4); % for 1 or 2 refreshings: last refreshing in refreshing position
+refFreqEffect = zeros(E.nsubj, 2);
 MMSD = zeros(E.nsubj, 3);     % SD parameter from Mixture Model
 MMguessing = zeros(E.nsubj, 3);  % P(guessing) parameter from Mixture Model
 MMtranspos = zeros(E.nsubj, 3);  % P(tranposition) parameter from Mixture Model
@@ -49,7 +50,8 @@ Conditions = zeros(E.nsubj*3*E.ntrials, 1);   % matrix of conditions to be run
 Array = zeros(E.nsubj*3*E.ntrials, setsize+1);  % arrays simulated
 Target = zeros(1,E.nsubj*3*E.ntrials);          % Targets
 Response = zeros(1,E.nsubj*3*E.ntrials);        % Responses
-%Apred = zeros(E.nsubj*3*E.ntrials,360);        
+%Apred = zeros(E.nsubj*3*E.ntrials,360);  
+
 
 [aa, bb, Colorgrid] = ndgrid(ones(1,E.ntrials), ones(1, setsize), 1:360);  %Colors = E.ntrials x setsize x [1:360]
 
@@ -121,8 +123,10 @@ for id = 1:E.nsubj
             end
         end
         
-        disp('    ID       RefCond  Trial      Error ');
-        disp([id, refreshings, trial, Mdevobs(id, refreshings)]);
+        refFreqEffect(id, 1:2) = MdevLastRef(id, 2, 3:4) - MdevLastRef(id, 1, 3:4);  % refreshing-2 == 1 is 1x refreshed, refreshing-2 == 2 is 2x refreshed
+
+        disp('    ID       RefCond  Trial      Error   Ref12(Pos3) Ref12(Pos4');
+        disp([id, refreshings, trial, Mdevobs(id, refreshings), refFreqEffect(id,1), refFreqEffect(id,2)]);
         
         condData = Dataprocessing(Probedpos, Pangle, Cangle, Targ, Resp, Setsize, Colorgrid);   %prepare data for mixture-model fitting: separate data structures for each condition
         condData.cueing = refreshings>2;
@@ -283,6 +287,15 @@ if fitIMSim
     disp('      X       Y          s       kappa      kappaf      r');
     disp(std(IMSimparms, 1));
 end
+
+% Correlation matrix
+
+ParmsPlus = [ParX, refFreqEffect];
+corrX = corrcoef(ParmsPlus);
+varnames = [C.indVar, {'RefFreq12(Pos3)', 'RefFreq12(Pos4)'}];
+corrXT = array2table(round(corrX, 2), 'VariableNames', varnames, ...
+    'RowNames', varnames);
+disp(corrXT);
 
 
 %%% Save results
