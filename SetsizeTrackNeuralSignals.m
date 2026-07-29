@@ -266,7 +266,7 @@ end
 % Analysis
 
 
-alphaSetsize = mean(Alpha(:, 6:22, :), 2); % average in the 300-1100 ms window, alpha power across set sizes for each subject
+alphaSetsize = squeeze(mean(Alpha(:, 6:22, :), 2)); % average in the 300-1100 ms window, alpha power across set sizes for each subject
 alphaSlope300 = mean(Alpha(:, 6:22, 6),2) - mean(Alpha(:, 6:22, 1), 2); % averaging in the 300-1100 ms window, take the difference between setsize 6 and setsize 1 to estimate the slope for each subject
 
 ParmsPlus1 = [ParX, alphaSlope300, alphaSetsize];
@@ -288,11 +288,11 @@ meanAlphaSlope = aggVar(:,2);
 PreFigure;
 plot(meanIOR, meanAlphaSlope, '-o');
 text(meanIOR, 8*ones(1,length(Ncases)), vec2legend(Ncases));
-PostFigure([0, 1, -10, 10], 'IOR', 'Alpha Power Slope'); 
+PostFigure([0, 1, -20, 20], 'IOR', 'Alpha Power Slope'); 
 
-GoodParms = ParmsPlus1(alphaslope300 < -2, :); 
+GoodParms = ParmsPlus1(alphaSlope300 < -2, :); 
 GoodParmsXT = array2table(round(GoodParms,3), 'VariableNames', varnames1); 
-AllParmsXT = array2table(round(ParmsPlus,3), 'VariableNames', varnames1); 
+AllParmsXT = array2table(round(ParmsPlus1,3), 'VariableNames', varnames1); 
 disp('Mean of subset of best parameters');
 disp(mean(GoodParmsXT));
 disp('Mean of all parameters');

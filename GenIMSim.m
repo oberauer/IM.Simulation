@@ -70,7 +70,7 @@ fitIMSim = 0; % fit IM?
 %%% Experimental Constants/Defaults
 
 E.ntrials = 100;     % number of trials to run per subject and condition
-E.nsubj = 50;        % number of subjects
+E.nsubj = 100;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -121,6 +121,13 @@ P.kappaf_feat = 25;  % precision of original stimuli (in the sensory layer), whi
 P.kappa_feat = 25;   % mean precision of categories, for content features
 P.kappaf_ctx = 25;   % precision of original stimuli, and the focus of attention, for context (needs to be fairly high, otherwise CW intrusion becomes too big)
 P.kappa_ctx = 25;    % precision of categories for context
+
+P.kappaf_feat = 20;  % precision of original stimuli (in the sensory layer), which is also the feature precision in the focus of attention, for content features
+P.kappa_feat = 20;   % mean precision of categories, for content features
+P.kappaf_ctx = 20;   % precision of original stimuli, and the focus of attention, for context (needs to be fairly high, otherwise CW intrusion becomes too big)
+P.kappa_ctx = 20;    % precision of categories for context
+
+
 P.kappaCatSD = 3;    % 3 SD of precision values of categories (variability across categories)
 P.mCatSD = 5;        % 5 SD of deviation of category center from equal spacing
 P.delta = 0.8;       % proportion of committed binding units that remain committed, and weights that remain, upon encoding of each new item
