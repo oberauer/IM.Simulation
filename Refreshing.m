@@ -299,6 +299,33 @@ corrXT = array2table(round(corrX, 2), 'VariableNames', varnames, ...
     'RowNames', varnames);
 disp(corrXT);
 
+maxRefFreqEffect = max(refFreqEffect, [], 2); 
+GoodParms = ParmsPlus(maxRefFreqEffect < -0.05, :); 
+GoodParmsXT = array2table(round(GoodParms,3), 'VariableNames', varnames); 
+AllParmsXT = array2table(round(ParmsPlus,3), 'VariableNames', varnames); 
+disp(GoodParmsXT);
+disp('Mean of subset of best parameters');
+disp(mean(GoodParmsXT));
+disp('Mean of all parameters');
+disp(mean(AllParmsXT)); 
+
+SmallIOR = AllParmsXT(table2array(AllParmsXT(:,15)<=0.3), :);
+disp(mean(SmallIOR));
+
+IORbin = zeros(size(ParX,1), 1);
+for bin = 1:10
+    IORbin((ParX(:,15) > 0.1*(bin-1)) & (ParX(:,15) <= 0.1*bin)) = bin;
+end
+[aggVar, breakVar, Ncases] = aggregate(IORbin, ParmsPlus(:, [15, 17:18])); 
+meanIOR = aggVar(:,1);
+meanRefFreqEffect = mean(aggVar(:,2:3),2);
+
+PreFigure;
+plot(meanIOR, meanRefFreqEffect, '-o');
+text(meanIOR, 8*ones(1,length(Ncases)), vec2legend(Ncases));
+PostFigure([0, 1, -10, 10], 'IOR', 'RefFreq(1,2)'); 
+
+D.ParmsPlus = ParmsPlus;
 
 %%% Save results
 fid = fopen('IMSim.Refreshing.dat', 'w');

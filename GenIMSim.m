@@ -70,7 +70,7 @@ fitIMSim = 0; % fit IM?
 %%% Experimental Constants/Defaults
 
 E.ntrials = 500;     % number of trials to run per subject and condition
-E.nsubj = 10;        % number of subjects
+E.nsubj = 200;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -135,7 +135,7 @@ P.maskWindowSD = 0.75; % SD (as porportion of mean) of time window of integratio
 P.SDstrengthFX = 0.1; % SD of encoding strength into FX
 P.stimDrive = 3; 
 P.selfactFX = 1;     % self-activation of FX
-P.inhibFX = 0.004;   % 0.002 global inhibition in FX that causes decay
+P.inhibFX = 0.002;   % 0.002 global inhibition in FX that causes decay
 P.IOR = 0.5;        % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
 P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
