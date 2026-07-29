@@ -263,6 +263,44 @@ for setsize = 1:E.maxsetsize
     PostFigure([], 'Consolidation Times', '', ['Setsize = ', mat2str(setsize)]);
 end
 
+% Analysis
+
+
+alphaSetsize = mean(Alpha(:, 6:22, :), 2); % average in the 300-1100 ms window, alpha power across set sizes for each subject
+alphaSlope300 = mean(Alpha(:, 6:22, 6),2) - mean(Alpha(:, 6:22, 1), 2); % averaging in the 300-1100 ms window, take the difference between setsize 6 and setsize 1 to estimate the slope for each subject
+
+ParmsPlus1 = [ParX, alphaSlope300, alphaSetsize];
+ParmsPlus2 = [ParX, alphaSlope300];
+corrX = corrcoef(ParmsPlus2);
+varnames1 = [C.indVar, {'AlphaSlope', 'Alpha1', 'Alpha2', 'Alpha3', 'Alpha4', 'Alpha5', 'Alpha6'}];
+varnames2 = [C.indVar, {'AlphaSlope'}];
+corrXT = array2table(round(corrX, 2), 'VariableNames', varnames2, 'RowNames', varnames2);
+disp(corrXT);
+D.ParmsPlus = ParmsPlus1; 
+
+IORbin = zeros(size(ParX,1), 1);
+for bin = 1:10
+    IORbin((ParX(:,15) > 0.1*(bin-1)) & (ParX(:,15) <= 0.1*bin)) = bin;
+end
+[aggVar, breakVar, Ncases] = aggregate(IORbin, ParmsPlus2(:, [15, 17])); 
+meanIOR = aggVar(:,1);
+meanAlphaSlope = aggVar(:,2);
+PreFigure;
+plot(meanIOR, meanAlphaSlope, '-o');
+text(meanIOR, 8*ones(1,length(Ncases)), vec2legend(Ncases));
+PostFigure([0, 1, -10, 10], 'IOR', 'Alpha Power Slope'); 
+
+GoodParms = ParmsPlus1(alphaslope300 < -2, :); 
+GoodParmsXT = array2table(round(GoodParms,3), 'VariableNames', varnames1); 
+AllParmsXT = array2table(round(ParmsPlus,3), 'VariableNames', varnames1); 
+disp('Mean of subset of best parameters');
+disp(mean(GoodParmsXT));
+disp('Mean of all parameters');
+disp(mean(AllParmsXT)); 
+
+halt = 1; 
+
+
     function Map = preTrialActivity(Map, maxSetsize)
         nStim = randperm(maxSetsize,1);
         F = randperm(C.nstim);
