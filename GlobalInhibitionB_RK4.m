@@ -1,0 +1,92 @@
+%%% Simulate self-activation and global inhibition in B (binding layer) to%%% implement k-WTA
+% This is using Runge-Kutta 4
+
+clear variables
+close all;
+
+nTrials = 30;
+NB = 10:10:100;
+tstep = 0.05;
+duration = 5; % in seconds
+nSteps = round(duration./tstep); 
+shunting = 0; 
+
+if shunting == 0
+    selfAct = 1;
+    inhib = 0.02;
+    asyB = 0.1;
+end
+if shunting == 0.5
+    selfAct = 1;
+    inhib = 0.002;
+    asyB = 5;
+end
+if shunting == 1
+    selfAct = 5;   % hand-set
+    inhib = 0.0003;   % hand-set
+    asyB = 5;
+end
+kappa = 25;
+strengthSD = 0.2;
+threshold = 0.1;
+xrad = deg2rad(1:360);
+NumAlive = zeros(nSteps, length(NB));
+MaxAct = zeros(nSteps, length(NB));
+MeanAct = zeros(nSteps, length(NB));
+SumAct = zeros(nSteps, length(NB));
+
+ColorX = [0,0,0; 1,0,0; 0,1,0]; 
+
+tic
+for nbIdx = 1:length(NB)
+
+    nb = NB(nbIdx);
+    numberAlive = zeros(nTrials, nSteps);
+    maxAct = zeros(nTrials, nSteps);
+    meanAct = zeros(nTrials, nSteps);
+    sumAct = zeros(nTrials, nSteps); 
+
+    for trial = 1:nTrials
+        B = min(asyB, exp(randn(1, nb))./100);
+
+        if shunting == 0.0, GI = @(x) selfAct.*x - inhib*sum(x(:)); end % non-shunting version
+        if shunting == 0.5, GI = @(x) selfAct.*x.*(asyB-x) - inhib*sum(x(:)); end % half-shunting version
+        if shunting == 1.0, GI = @(x) selfAct.*x.*(asyB-x) - x.*inhib*sum(x(:)); end  %shunting version
+
+        for t = 1:nSteps
+            % RK4
+            k1 = GI(B);
+            k2 = GI(max(0, min(asyB, B + 0.5*tstep*k1)));
+            k3 = GI(max(0, min(asyB, B + 0.5*tstep*k2)));
+            k4 = GI(max(0, min(asyB, B + tstep*k3)));
+            B = max(0, min(asyB, B + (tstep/6) * (k1 + 2*k2 + 2*k3 + k4)));
+            numberAlive(trial, t) = sum(B>0.0);
+            maxAct(trial, t) = max(B);
+            meanAct(trial, t) = mean(B(B>0.0));
+            sumAct(trial, t) = sum(B);
+        end
+    end
+    NumAlive(:, nbIdx) = mean(numberAlive, 1)';
+    MaxAct(:, nbIdx) = mean(maxAct, 1)';
+    MeanAct(:, nbIdx) = mean(meanAct, 1)';
+    SumAct(:, nbIdx) = mean(sumAct, 1)';
+
+end
+toc
+
+Time = tstep*(1:nSteps);
+PreFigure([], [], 2, ColorX);
+subplot(2,2,1);
+plot(Time, NumAlive);
+PostFigure([0, max(Time), 0, nb+1], 'Time (s)', 'Number of Units Alive', [], vec2legend(NB));
+subplot(2,2,2);
+plot(Time, SumAct);
+PostFigure([0, max(Time), 0, max(SumAct(:))], 'Time (s)', 'Sum Act.');
+subplot(2,2,3);
+plot(Time, MaxAct);
+PostFigure([0, max(Time), 0, max(MaxAct(:))], 'Time (s)', 'Max. Act.');
+subplot(2,2,4);
+plot(Time, MeanAct);
+PostFigure([0, max(Time), 0, max(MeanAct(:))], 'Time (s)', 'Mean Act.');
+
+
