@@ -49,7 +49,7 @@ if calibrate
             W = CreateConnections(1);
             GateClosed = zeros(1, P.nb);  % gate-closing units
             GateWeight = zeros(1, P.nb); % gate-closing weights
-            [W, ~, ~, ~, ~] = IMencodeStim(W, context, content, GateClosed, GateWeight, 1, 10, 10);
+            [W, ~, ~, ~, ~] = IMencodeStim(W, context, content, GateClosed, GateWeight, P.cRate, 1, 1);
 
             % retrieval
             cue = [context, zeros(1, C.nCat)];

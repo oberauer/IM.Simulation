@@ -62,7 +62,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 15;
+Exp = 10;
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 1;   % fit mixture model?
 fitIMSim = 0; % fit IM?
@@ -70,7 +70,7 @@ fitIMSim = 0; % fit IM?
 %%% Experimental Constants/Defaults
 
 E.ntrials = 100;     % number of trials to run per subject and condition
-E.nsubj = 100;        % number of subjects
+E.nsubj = 20;        % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -121,21 +121,12 @@ P.kappaf_feat = 25;  % precision of original stimuli (in the sensory layer), whi
 P.kappa_feat = 25;   % mean precision of categories, for content features
 P.kappaf_ctx = 25;   % precision of original stimuli, and the focus of attention, for context (needs to be fairly high, otherwise CW intrusion becomes too big)
 P.kappa_ctx = 25;    % precision of categories for context
-
-P.kappaf_feat = 20;  % precision of original stimuli (in the sensory layer), which is also the feature precision in the focus of attention, for content features
-P.kappa_feat = 20;   % mean precision of categories, for content features
-P.kappaf_ctx = 20;   % precision of original stimuli, and the focus of attention, for context (needs to be fairly high, otherwise CW intrusion becomes too big)
-P.kappa_ctx = 20;    % precision of categories for context
-
-
 P.kappaCatSD = 3;    % 3 SD of precision values of categories (variability across categories)
 P.mCatSD = 5;        % 5 SD of deviation of category center from equal spacing
 P.delta = 0.8;       % proportion of committed binding units that remain committed, and weights that remain, upon encoding of each new item
-P.pMax = 1.0;        % the initial proportion of binding units recruited 
-P.pBase = 0.4;       % .30 minimal (base) strength of bindings (lower asymptote)
 P.keepFocus = 0.3;   % probability of keeping the last-presented item in the FoA until test
 P.a = 0.1;           % strength of item memory - implemented as "C.locationnoise" in CreateStimuli: all location cues receive some baseline activation
-P.nb = 100;          % number of units in the binding layer
+P.nb = 200;       % number of units in the binding layer
 P.nbNorm = sqrt(P.nb); % normalization constant depends on mean P.nb, not on individual P.nb (and not on manipulation of P.nb in simulation 33)
 P.maskWindow = 0.05;  % mean of time window within which a mask or a cue is integrated with the current feature Map
 P.maskWindowSD = 0.75; % SD (as porportion of mean) of time window of integration
@@ -146,11 +137,12 @@ P.inhibFX = 0.002;   % 0.002 global inhibition in FX that causes decay
 P.IOR = 0.5;        % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
 P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
-P.rRate = 4;         % rate of release of BP units
-P.cRateFactor = 1;   % proportional reduction of cRate for Ricker's dots on a ring
 P.cRateSD = 0.5;     % SD of consolidation rates (as proportion of mean)
 P.cStrength = 0.9;   % proportion of maximal strength that consolidation aims for - when that strength is reached, consolidation stops
 P.cBallistic = 0.5;  % probability of consolidation being ballistic
+P.selfActB = 5;      % self-activation parameter for k-WTA in the binding layer
+P.inhibB = 0.02;     % global inhibition parameter for k-WTA in the binding layer
+P.asyB = 1;        % asymptotic activation in the binding layer
 P.filter = [0.1, 0.1, 0.1, 0.1]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
 P.rad1 = 0.7;        % proportion of radius of memory array to radius of color wheel (for computation of color-wheel interference as a function of distance between wheel and target location)
 P.outputinterference = 0; % proportion of reduction of W
@@ -167,13 +159,13 @@ P.boundary = [30, 10]; % boundary for retrieval of a feature / for recognition d
 P.sz = 0;             % starting point variability for yes/no accumulators for recognition
 P.kappacrit = 1;      % proportion of kappa_feat: meta-cognitive estimate of average precision -> used in Bayesian optimal decision rule for same-change decision in Change Detection
 
-C.indVar = {'nb', 'dnoise', 'delta', 'pBase', 'kappa_feat', 'kappaf_feat', 'kappa_ctx', 'kappaf_ctx',  ...
-           'eraseFX', 'inhibFX', 'cRate', 'rRate', 'removalThreshold', 'wnoise', 'IOR', 'filter(1)'};  % parameters to be varied in individual-differences simulation
+C.indVar = {'nb', 'dnoise', 'delta', 'inhibB', 'kappa_feat', 'kappaf_feat', 'kappa_ctx', 'kappaf_ctx',  ...
+           'eraseFX', 'inhibFX', 'cRate', 'boundary(1)', 'removalThreshold', 'wnoise', 'IOR', 'filter(1)'};  % parameters to be varied in individual-differences simulation
        
-%             nb    dnoise delta pBase  k_f   kf_f  k_c   kf_c  eraseFX inhibFX cRate rRate remThr wnoise IOR f(1)     
-C.maxIndVar = [500,   5,    1,   0.9,    30,   30,   30,   50,    1,     0.1,    20    20    10    1      1   1];   % max. value of parameters varied in individual-differences simulation
+%             nb    dnoise delta inhibB  k_f   kf_f  k_c   kf_c  eraseFX inhFX cRate bound remThr wnoise IOR f(1)     
+C.maxIndVar = [500,   5,    1,   0.2,    30,   30,   30,   50,    1,     0.1,    20    50    10    1      1   1];   % max. value of parameters varied in individual-differences simulation
 C.SDfactor =  [0.25,  0.25, 0.25, 0.25,  0.25  0.25, 0.25, 0.25,  0.25,  0.25,   0.25  0.25  0.25 0.25  0.25 0.25]; % SD as fraction of mean
-C.logistVar = [0      0     1     1      0     0     0     0      1      0       0     0     0    0      1    1];    % whether or not the parameter's individual differences are normal or on a logit scale
+C.logistVar = [0      0     1     0      0     0     0     0      1      0       0     0     0    0      1    1];    % whether or not the parameter's individual differences are normal or on a logit scale
 C.nullVar =   [NaN,   0,    1     0      0     0     0     0      0      0       NaN   NaN   0    0      0    0];    % value of the parameter that neutralizes an effect -> don't create individual differences because then the values depart from the null value!
 C.groupVar = ['none'];                                                                               % grouping of participants in individual-differences simulation - max. one parameter name as string variable!
 C.maxGroupVar = repmat(inf, 1, length(C.indVar)); 

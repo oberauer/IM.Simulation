@@ -14,10 +14,6 @@ E.presentation = 2;   % sequential presentation
 E.outsize = setsize;  % test all items!
 E.forwardrecall = 1;  % forward order of recall
 E.RI = 0;  % no additional retention interval after the last presentation interval
-%if ~ismember('cRate', C.indVar), P.cRate = P.cRate * P.cRateFactor; end
-P.cRate = P.cRate * P.cRateFactor; 
-%P.encrate = P.encrate * P.encrateFactor; 
-%P.closeFXrate = P.closeFXrate * P.closeFXrateFactor; 
 Ptime = [0.2, 0.3, 0.4, 0.5, 0.7, 1.0];  % presentation + consolidation time (= SOA between items), including the 0.067 s of actual on-time in Ricker & Sandry (2018)
 MaskSOA = [0.08, 0.17, 10];    % 10 for the no-mask condition in Ricker & Sandry.
 
@@ -52,13 +48,12 @@ Conditions = zeros(E.nsubj*length(Ptime)*length(MaskSOA)*E.ntrials, 1);
 tcount = 1; %trial count
 
 for id = 1:E.nsubj
+    tic
 
     % extract parameter values for each subject - for those parameters that vary between subjects
     for ii = 1:length(C.indVar)
         eval(['P.', C.indVar{ii}, ' = ParX(id, ii);']);
     end
-
-    if ismember('cRate', C.indVar), P.cRate = P.cRate * P.cRateFactor; end
 
     % for each subject, create stimuli, and an individual set of feature categories, and the corresponding mappings
     CreateStimuli;   % 8 dots on a ring created the mask
@@ -142,7 +137,7 @@ for id = 1:E.nsubj
 
         end  % for ptime
     end %for mtime
-
+    toc
 end  % for ID
 
 % Plot Mean(Deviation) as function of serial position, consolidation time, and mask SOA

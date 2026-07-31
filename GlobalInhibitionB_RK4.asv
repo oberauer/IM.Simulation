@@ -9,16 +9,16 @@ NB = 20:20:200;
 tstep = 0.05;
 duration = 5; % in seconds
 nSteps = round(duration./tstep); 
-shunting = 0.5; 
+shunting = 0; 
 
 if shunting == 0
-    selfAct = 5;
-    inhib = 0.02;
+    selfAct = 1;
+    inhib = 0.007;
     asyB = 1;
 end
 if shunting == 0.5
-    selfAct = 5.0;
-    inhib = 0.02;
+    selfAct = 1;
+    inhib = 0.01;
     asyB = 1;
 end
 if shunting == 1
@@ -48,7 +48,7 @@ for nbIdx = 1:length(NB)
 
     for trial = 1:nTrials
         B = min(asyB, exp(randn(1, nb))./sqrt(200));
-        %B = min(asyB, exp(randn(1, nb))./200);
+
         if shunting == 0.0, GI = @(x) selfAct.*x - inhib*sum(x(:)); end % non-shunting version
         if shunting == 0.5, GI = @(x) selfAct.*x.*(asyB-x) - inhib*sum(x(:)); end % half-shunting version
         if shunting == 1.0, GI = @(x) selfAct.*x.*(asyB-x) - x.*inhib*sum(x(:)); end  %shunting version
@@ -75,7 +75,7 @@ end
 toc
 
 % For comparison:
-nb2 = 200;
+nb2 = 100;
 pMax = 1;
 pBase = 0.3;
 rRate = 4;
@@ -87,28 +87,23 @@ Binding = Binding .* initRecruited;
 for t = Time
     ncommit = round( sum(initRecruited) * (pBase + (1-pBase) * exp(-rRate*t) ) );  % number of binding units that will remain committed -> gate will be closed
     committedNew = sortIdx(1:ncommit);
-    nCommitted(round(t/tstep)) = ncommit;
-    bStrength(round(t/tstep)) = sum(abs(Binding(committedNew))); 
+    BindingsNow = zeros(1, nb);
+    bStrength(round(t/tstep)) = sum(abs(Binding(committedNew); )); 
 end
 
 Time = tstep*(1:nSteps);
 PreFigure([], [], 2, ColorX);
 subplot(2,2,1);
 plot(Time, NumAlive);
-hold on
-plot(Time, nCommitted, '-r', 'LineWidth', 1);
 PostFigure([0, max(Time), 0, nb+1], 'Time (s)', 'Number of Units Alive', [], vec2legend(NB));
 subplot(2,2,2);
 plot(Time, SumAct);
 PostFigure([0, max(Time), 0, max(SumAct(:))], 'Time (s)', 'Sum Act.');
-hold on
-plot(Time, bStrength, '-r', 'LineWidth', 1);
 subplot(2,2,3);
 plot(Time, MaxAct);
 PostFigure([0, max(Time), 0, max(MaxAct(:))], 'Time (s)', 'Max. Act.');
 subplot(2,2,4);
 plot(Time, MeanAct);
 PostFigure([0, max(Time), 0, max(MeanAct(:))], 'Time (s)', 'Mean Act.');
-
 
 

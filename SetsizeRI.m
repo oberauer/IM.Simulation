@@ -264,7 +264,7 @@ if fitMM
     PostFigure([0.8,E.maxsetsize+1, 0, 1], 'Setsize', 'Mean P(wheel)', 'P(wheel attraction)');
 
     D.MMSD = MMSD;
-    D.MMpm = MMpm;
+    D.MMpm = MMPm;
     D.MMguessing = MMguessing;
     D.MMtranspos = MMtranspos;
     D.MMcwattraction = MMcwattraction;
