@@ -52,6 +52,7 @@ Conditions = zeros(E.nsubj*length(Ptime)*length(MaskSOA)*E.ntrials, 1);
 tcount = 1; %trial count
 
 for id = 1:E.nsubj
+    tic
 
     % extract parameter values for each subject - for those parameters that vary between subjects
     for ii = 1:length(C.indVar)
@@ -142,7 +143,7 @@ for id = 1:E.nsubj
 
         end  % for ptime
     end %for mtime
-
+toc
 end  % for ID
 
 % Plot Mean(Deviation) as function of serial position, consolidation time, and mask SOA

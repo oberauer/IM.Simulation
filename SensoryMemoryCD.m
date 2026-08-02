@@ -110,12 +110,14 @@ PreFigure;
 plotvector = zeros(length(SOA), 2); 
 plotvector(:,1) = squeeze(mean(PC(:,1,:), 1));  % positive probes
 plotvector(:,2) = squeeze(mean(PC(:,2,:), 1));  % new probes
-K = setsize.*(squeeze(mean(Pyes(:,1,:), 1))-squeeze(mean(Pyes(:,2,:), 1)));
+K = setsize.*(squeeze(Pyes(:,1,:))-squeeze(Pyes(:,2,:)));
+meanK = mean(K, 1); 
+
 subplot(1,2,1);
 plot(SOA, plotvector);
 PostFigure([0, 1, 0, 1], 'SOA', 'P(correct)', [], {'Positive', 'New'});
 subplot(1,2,2);
-plot(SOA, K);
+plot(SOA, meanK);
 PostFigure([0, 1, 0, setsize], 'SOA', 'K');
 
 PreFigure;
@@ -129,9 +131,31 @@ plotvector = [plotvector, squeeze(mean(mean(MaxW)))];
 plot(SOA, plotvector);
 PostFigure([0, 1, 0, max(0.01, 1.1*max(plotvector(:)))], 'SOA', 'Strength', [], {'FX', 'W'});
 
+% Correlation matrix
+
+Kmax = K(:,1); 
+Kslope = K(:,1) - K(:,end);
+
+ParmsPlus = [ParX, Kmax, Kslope];
+corrX = corrcoef(ParmsPlus);
+varnames = [C.indVar, {'K(max)', 'K-slope'}];
+corrXT = array2table(round(corrX, 2), 'VariableNames', varnames, ...
+    'RowNames', varnames);
+disp(corrXT);
+
+GoodParms = ParmsPlus(Kmax > 4 & Kslope > 2, :); 
+GoodParmsXT = array2table(round(GoodParms,3), 'VariableNames', varnames); 
+AllParmsXT = array2table(round(ParmsPlus,3), 'VariableNames', varnames); 
+disp(GoodParmsXT);
+disp('Mean of subset of best parameters');
+disp(mean(GoodParmsXT));
+disp('Mean of all parameters');
+disp(mean(AllParmsXT)); 
+
 D.PC = PC;
 D.Pyes = Pyes;
 D.Strength = Strength;
+D.ParmsPlus = ParmsPlus;
 
 %%% Save results
 if E.saveResults == 1

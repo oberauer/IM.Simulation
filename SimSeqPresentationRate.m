@@ -283,7 +283,7 @@ if fitMM
     PostFigure([0-0.1, max(InterItemInterval)+0.1, 0, 0.7], 'Inter-Item Interval', 'Mean P(trans)', 'Sequential');
 
     D.MMSD = MMSD;
-    D.MMpm = MMpm;
+    D.MMpm = MMPm;
     D.MMguessing = MMguessing;
     D.MMtranspos = MMtranspos;
 
