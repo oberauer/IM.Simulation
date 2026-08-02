@@ -62,15 +62,15 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 34;
+Exp = 33;
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 1;   % fit mixture model?
 fitIMSim = 0; % fit IM?
 
 %%% Experimental Constants/Defaults
 
-E.ntrials = 100;     % number of trials to run per subject and condition
-E.nsubj = 20;        % number of subjects
+E.ntrials = 200;     % number of trials to run per subject and condition
+E.nsubj = 50;       % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -121,11 +121,11 @@ P.kappaf_feat = 25;  % precision of original stimuli (in the sensory layer), whi
 P.kappa_feat = 25;   % mean precision of categories, for content features
 P.kappaf_ctx = 25;   % precision of original stimuli, and the focus of attention, for context (needs to be fairly high, otherwise CW intrusion becomes too big)
 P.kappa_ctx = 25;    % precision of categories for context
-
-P.kappaf_feat = 10;  % precision of original stimuli (in the sensory layer), which is also the feature precision in the focus of attention, for content features
-P.kappa_feat = 20;   % mean precision of categories, for content features
-P.kappaf_ctx = 10;   % precision of original stimuli, and the focus of attention, for context (needs to be fairly high, otherwise CW intrusion becomes too big)
-P.kappa_ctx = 20;    % precision of categories for context
+% 
+% P.kappaf_feat = 10;  % precision of original stimuli (in the sensory layer), which is also the feature precision in the focus of attention, for content features
+% P.kappa_feat = 20;   % mean precision of categories, for content features
+% P.kappaf_ctx = 10;   % precision of original stimuli, and the focus of attention, for context (needs to be fairly high, otherwise CW intrusion becomes too big)
+% P.kappa_ctx = 20;    % precision of categories for context
 
 P.kappaCatSD = 3;    % 3 SD of precision values of categories (variability across categories)
 P.mCatSD = 5;        % 5 SD of deviation of category center from equal spacing
@@ -143,6 +143,10 @@ P.stimDrive = 3;
 P.selfactFX = 1;     % self-activation of FX
 P.inhibFX = 0.002;   % 0.002 global inhibition in FX that causes decay
 P.IOR = 0.5;        % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
+
+P.IOR = 0.3; 
+
+
 P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
 P.rRate = 4;         % rate of release of BP units
@@ -161,11 +165,8 @@ P.removalGain = 10;  % gain for the logistic translating cue validity into remov
 P.inhib = 0;         % global inhibition of activation during retrieval
 P.cuerate = 5;       % rate of using the cue
 P.dnoise = 1;        % SD of noise added to each accumulator in recall/recollection of a feature
-
-P.dnoise = 0.5; 
-
-P.driftnoise = 1.0;  % SD of noise added to each accumulator for recognition decision
-P.boundary = [30, 10]; % boundary for retrieval of a feature / for recognition decision
+P.driftnoise = 1;    % SD of noise added to each accumulator for recognition decision
+P.boundary = [30, 20]; % boundary for retrieval of a feature / for recognition decision
 P.sz = 0;             % starting point variability for yes/no accumulators for recognition
 P.kappacrit = 1;      % proportion of kappa_feat: meta-cognitive estimate of average precision -> used in Bayesian optimal decision rule for same-change decision in Change Detection
 

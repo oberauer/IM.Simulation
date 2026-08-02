@@ -1,0 +1,139 @@
+%%% Try out self-activation and global inhibition in W$
+
+% reducing encTime tilts the SPC strongly towards primacy. It impairs
+% performance primarily at set size 2
+
+%%% Reference: encTime = 0.3; inputDrive = 1; selfAct = 1; inhib = 0.5; asyW = 5; kappa = 15; dnoise = 0.01
+% (this produces decent SPCs)
+% Increasing inputDrive to 1.5: More recency, better performance at
+% set-size 2 --> more linear set-size function
+% Increasing selfAct to 1.5: No noticeable change
+% Increasing inhib to 0.8: Makes decline to recency occur earlier (at SP2),
+% reduces accuracy at higher set size by raising the primacy portion
+% Increasing asyW to 10: Flattens primacy, pulls down recency part, thereby increasing
+% accuracy at higher set sizes
+
+% 
+clear variables
+%close all;
+
+nTrials = 3000;
+maxSetsize = 6;
+inputDrive = 1;
+encTime = 0.3;
+tstep = 0.02;
+duration = 1; % ISI from one item to the next (in seconds)
+nSteps = round(duration./tstep);
+shunting = 1;
+
+if shunting == 0
+    selfAct = 1;
+    inhib = 0.5;
+    asyW = 3;
+end
+if shunting == 0.5
+    selfAct = 1;
+    inhib = 0.5;
+    asyW = 3;
+end
+if shunting == 1
+    selfAct = 1.0;   
+    inhib = 0.5;   
+    asyW = 5;
+end
+kappa = 15;
+kappaCat = 10; 
+strengthSD = 0.1;
+dnoise = 0.01; 
+nCat = 8;
+stepSize = round(360/nCat);
+xradCat = deg2rad(stepSize:stepSize:360);
+xrad = deg2rad(1:360);
+
+WCat = zeros(360, nCat);
+for cat = 1:nCat
+    WCat(:,cat) = VonMisesN(xrad, deg2rad(cat*stepSize), kappaCat)';
+end
+
+SPC = NaN(maxSetsize);
+meanError = NaN(1, maxSetsize);
+
+% PreFigure([], [], 2);
+
+for setsize = 1:maxSetsize
+
+    Error = zeros(nTrials, setsize);
+    maxW = zeros(nTrials, nSteps);
+
+    for trial = 1:nTrials
+        W = zeros(nCat);
+        InputW = zeros(nCat);
+        stim = randperm(360, setsize);
+        loc = randperm(360, setsize);
+        strength = max(0, randn(1, setsize) * strengthSD + 1);
+
+        if shunting == 0.0, GI = @(x,t,Input) selfAct.*x + (t <= encTime/tstep)*inputDrive*(asyW-max(x(:)))*Input - inhib*sum(x(:)); end % non-shunting version
+        if shunting == 0.5, GI = @(x,t,Input) selfAct.*x.*(asyW-x) + (t <= encTime/tstep)*inputDrive*(asyW-max(x(:)))*Input - inhib*sum(x(:)); end % half-shunting version
+        if shunting == 1.0, GI = @(x,t,Input) selfAct.*x.*(asyW-x) + (t <= encTime/tstep)*inputDrive*(asyW-max(x(:)))*Input - x.*inhib*sum(x(:)); end  %shunting version
+
+        %  Encoding
+        for item = 1:setsize
+
+            Stim = VonMises(xrad, deg2rad(stim(item)), kappa) * WCat; 
+            Loc = VonMises(xrad, deg2rad(loc(item)), kappa) * WCat;
+            InputW = strength(item) * Loc' * Stim;
+
+            for t = 1:nSteps
+
+                % RK4
+                k1 = GI(W,t,InputW);
+                k2 = GI(max(0, min(asyW, W + 0.5*tstep*k1)),t,InputW);
+                k3 = GI(max(0, min(asyW, W + 0.5*tstep*k2)),t,InputW);
+                k4 = GI(max(0, min(asyW, W + tstep*k3)),t,InputW);
+                W = max(0, min(asyW, W + (tstep/6) * (k1 + 2*k2 + 2*k3 + k4)));
+                maxW(trial, t) = max(W(:));
+
+            end
+
+        end
+
+        % Retrieval
+        for item = 1:setsize
+            
+            cue = VonMises(xrad, deg2rad(loc(item)), kappa) * WCat;
+            reAct = cue*W * WCat';
+            reActN = reAct + randn(1,360)*dnoise;
+            retrieved = find(reActN == max(reActN));
+            Error(trial, item) = abs(wrap(retrieved - stim(item), 180));
+                
+        end
+
+    end
+
+    SPC(setsize, 1:setsize) = mean(Error);
+    meanError(setsize) = mean(Error(:));
+
+    % MaxW = mean(maxW);
+    % Time = tstep*(1:nSteps);
+    % subplot(2,3,setsize);
+    % plot(Time, MaxW);
+    % PostFigure([0, duration, 0, max(0.1, max(MaxW))], 'Time (s)', 'max(W)', num2str(setsize) );
+
+end
+
+PreFigure;
+subplot(1,2,1);
+plot(1:setsize, SPC');
+PostFigure([0.5, maxSetsize+0.5, 0, 90], 'Input Position', 'Error', [], vec2legend(1:maxSetsize));
+subplot(1,2,2);
+plot(1:maxSetsize, meanError);
+PostFigure([0, maxSetsize+0.1, 0, 90], 'Setsize', 'Error');
+
+halt = 0; 
+
+
+
+
+
+
+
