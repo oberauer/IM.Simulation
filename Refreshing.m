@@ -309,14 +309,16 @@ disp(mean(GoodParmsXT));
 disp('Mean of all parameters');
 disp(mean(AllParmsXT)); 
 
-SmallIOR = AllParmsXT(table2array(AllParmsXT(:,15)<=0.3), :);
+IORidx = find(contains(varnames, 'IOR')); 
+RefFreqIdx = find(contains(varnames, 'RefFreq'));
+SmallIOR = AllParmsXT(table2array(AllParmsXT(:,IORidx)<=0.3), :);
 disp(mean(SmallIOR));
 
 IORbin = zeros(size(ParX,1), 1);
 for bin = 1:10
-    IORbin((ParX(:,15) > 0.1*(bin-1)) & (ParX(:,15) <= 0.1*bin)) = bin;
+    IORbin((ParX(:,IORidx) > 0.1*(bin-1)) & (ParX(:,IORidx) <= 0.1*bin)) = bin;
 end
-[aggVar, breakVar, Ncases] = aggregate(IORbin, ParmsPlus(:, [15, 17:18])); 
+[aggVar, breakVar, Ncases] = aggregate(IORbin, ParmsPlus(:, [IORidx, RefFreqIdx])); 
 meanIOR = aggVar(:,1);
 meanRefFreqEffect = mean(aggVar(:,2:3),2);
 
