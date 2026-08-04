@@ -62,15 +62,15 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 33;
+Exp = 34;
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 1;   % fit mixture model?
 fitIMSim = 0; % fit IM?
 
 %%% Experimental Constants/Defaults
 
-E.ntrials = 200;     % number of trials to run per subject and condition
-E.nsubj = 50;       % number of subjects
+E.ntrials = 100;     % number of trials to run per subject and condition
+E.nsubj = 10;       % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -141,12 +141,8 @@ P.maskWindowSD = 0.75; % SD (as porportion of mean) of time window of integratio
 P.SDstrengthFX = 0.1; % SD of encoding strength into FX
 P.stimDrive = 3; 
 P.selfactFX = 1;     % self-activation of FX
-P.inhibFX = 0.002;   % 0.002 global inhibition in FX that causes decay
-P.IOR = 0.5;        % inhibition of return in FX (0.3 works well except it messes up guided refreshing)
-
+P.inhibFX = 0.0025;   % 0.002 global inhibition in FX that causes decay
 P.IOR = 0.3; 
-
-
 P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)
 P.rRate = 4;         % rate of release of BP units
@@ -166,7 +162,7 @@ P.inhib = 0;         % global inhibition of activation during retrieval
 P.cuerate = 5;       % rate of using the cue
 P.dnoise = 1;        % SD of noise added to each accumulator in recall/recollection of a feature
 P.driftnoise = 1;    % SD of noise added to each accumulator for recognition decision
-P.boundary = [30, 20]; % boundary for retrieval of a feature / for recognition decision
+P.boundary = [30, 30]; % boundary for retrieval of a feature / for recognition decision
 P.sz = 0;             % starting point variability for yes/no accumulators for recognition
 P.kappacrit = 1;      % proportion of kappa_feat: meta-cognitive estimate of average precision -> used in Bayesian optimal decision rule for same-change decision in Change Detection
 

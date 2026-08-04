@@ -180,21 +180,22 @@ end
         % wx = wx + P.cueingStrength .* cuestrength * (inputVec' * retrievedBinding);
 
         % Strengthen by multiplying W at the cued location
-        % cuestrength = 1-exp(-P.cuerate*(max(0, E.CTI(cueing)-overTime)));
-        % strengthenVec = [AfocusLoc * C.MappingC, zeros(1, E.nfeat*C.nCat)]; % vector of cued location in W; the content side should be 0 so that nothing is added to wx
-        % strengthLoc = repmat(strengthenVec', 1, P.nb);  % strength with which each location category is strengthened
-        % wxadded = P.cueingStrength*cuestrength * (strengthLoc .* wx);
-        % wx = wx + wxadded;  %strengthening of bindings in focused location: they are multiplied by 1+PcueingStrength*cuestrength
+        cuestrength = 1-exp(-P.cuerate*(max(0, E.CTI(cueing)-overTime)));
+        strengthenVec = [AfocusLoc * C.MappingC, zeros(1, E.nfeat*C.nCat)]; % vector of cued location in W; the content side should be 0 so that nothing is added to wx
+        strengthLoc = repmat(strengthenVec', 1, P.nb);  % strength with which each location category is strengthened
+        wxadded = cuestrength * (strengthLoc .* wx);
+        wx = wx + P.cueingStrength*wxadded;  %strengthening of bindings in focused location: they are multiplied by 1+PcueingStrength*cuestrength
+        %wx = (1-P.cueingStrength) * wx + P.cueingStrength*wxadded; 
 
         % Strengthen by second consolidation (read-out from FX) using a new set of binding units
-        for ff = 1:E.nfeat, Afocus(ff,:) = AfocusLoc./sum(AfocusLoc) * Map(ff).FX; end % use location as (spatial) attentional filter to pull out the target feature from its feature map
-        if E.context == 1, context = C.locationnoise + AfocusLoc * C.MappingC; end  %
-        if E.context == 2, context = C.stimnoise + (AfocusLoc./sum(AfocusLoc) * Map(2).FX) * C.Mapping; end
-        content = C.stimnoise + Afocus * C.Mapping;
-        cRate = gamrnd(P.cRate^2/(P.cRate*P.cRateSD)^2, (P.cRate*P.cRateSD)^2/P.cRate);
-        cTime = max(0, min(E.CTI(cueing)-overTime, -(log(1-(P.cStrength))./cRate)));
-        [wx, GateClosed, gWeight, cIdx, bStrength] = IMencodeStim(wx, context, content, GateClosed, gWeight, cRate, cTime, max(0, E.CTI(cueing)-overTime));
-        overTime = 0; 
+        % for ff = 1:E.nfeat, Afocus(ff,:) = AfocusLoc./sum(AfocusLoc) * Map(ff).FX; end % use location as (spatial) attentional filter to pull out the target feature from its feature map
+        % if E.context == 1, context = C.locationnoise + AfocusLoc * C.MappingC; end  %
+        % if E.context == 2, context = C.stimnoise + (AfocusLoc./sum(AfocusLoc) * Map(2).FX) * C.Mapping; end
+        % content = C.stimnoise + Afocus * C.Mapping;
+        % cRate = gamrnd(P.cRate^2/(P.cRate*P.cRateSD)^2, (P.cRate*P.cRateSD)^2/P.cRate);
+        % cTime = max(0, min(E.CTI(cueing)-overTime, -(log(1-(P.cStrength))./cRate)));
+        % [wx, GateClosed, gWeight, cIdx, bStrength] = IMencodeStim(wx, context, content, GateClosed, gWeight, cRate, cTime, max(0, E.CTI(cueing)-overTime));
+        % overTime = 0; 
 
     end
 
