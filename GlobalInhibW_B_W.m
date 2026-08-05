@@ -1,40 +1,29 @@
 %%% Self-activation and global inhibition in W;
-% Explore effects of encTime and duration on SPC
-% With a second W2 that gradually learns the first
+% with a binding layer B
 
-% Reducing inhibition --> more primacy, better performance
-% Increasing enctime = duration: less primacy, more recency
-% Increasing input drive: At short encTime it slightly improves recency w/o
-% hurting primacy. At long encTime it hurts primacy with little effect on
-% recency
-% Increasing selfAct does little (slightly decreases performance)
-% Increasing inhibition reduces primacy, improves recency, especially at
-% longer encTimes
-% Higher asymptote tilts SPCs towards more recency, especially at longer
-% encTimes
-% Lower encRate decreases recency
 
 clear variables
 %close all;
 
 nTrials = 5000;
 setsize = 6;
-EncTime = 0.5;
+EncTime = 0.1;
 Duration = [0.1, 0.2, 0.3, 0.4, 0.8];
 tstep = 0.02;
 shunting = 1;
 
-inputDrive = 1.5;
+inputDrive = 3;
 kappa = 25;
+kappaB = 25; 
 kappaCat = 10;
 strengthSD = 0.1;
 dnoise = 0.01;
 nCat = 8;
-encRate = 100;
-lrate = 0.0;
-primacy = 0.2; 
-commit = 0;   % strength of commitment --> how much inhibition of the committed units is dampened
-cThreshold = 0.01;
+nb = 90; 
+encRate = 10;
+primacy = 0.01;  % rate of exponential decline of encoding strength (smaller -> flatter)
+commit = 0.75;   % strength of commitment --> how much inhibition of the committed units is dampened
+cThreshold = 0.1;  %threshold of activation in W: Only units above the threshold are committed
 
 if shunting == 0
     selfAct = 1;
@@ -47,16 +36,18 @@ if shunting == 0.5
     asyW = 3;
 end
 if shunting == 1
-    selfAct = 1.0;   % hand-set
-    inhib = 0.7;   % hand-set
+    selfAct = 1.0;   
+    inhib = 1;  
     asyW = 4;
 end
 
 stepSize = round(360/nCat);
 xradCat = deg2rad(stepSize:stepSize:360);
 xrad = deg2rad(1:360);
-
+stepSizeB = round(360/nb);
+xradB = deg2rad(stepSizeB:stepSizeB:360);
 WCat = zeros(360, nCat);
+
 for cat = 1:nCat
     WCat(:,cat) = VonMisesN(xrad, deg2rad(cat*stepSize), kappaCat)';
 end
@@ -73,10 +64,9 @@ for dIdx = 1:length(Duration)
     maxW = zeros(nTrials, nSteps);
 
     for trial = 1:nTrials
-        W = zeros(nCat);
-        W2 = zeros(nCat);
-        Committed = zeros(nCat);
-        InputW = zeros(nCat);
+        W = zeros(2*nCat, nb);
+        InputW = zeros(2*nCat, nb);
+        Committed = zeros(2*nCat, nb);
         stim = randperm(360, setsize);
         loc = randperm(360, setsize);
         strength = max(0, exp(-primacy*(0:(setsize-1))) + randn(1, setsize) * strengthSD);
@@ -86,7 +76,8 @@ for dIdx = 1:length(Duration)
 
             Stim = VonMises(xrad, deg2rad(stim(item)), kappa) * WCat;
             Loc = VonMises(xrad, deg2rad(loc(item)), kappa) * WCat;
-            InputW = strength(item) * Loc' * Stim;
+            B = VonMises(xradB, randperm(360,1), kappaB);
+            InputW = strength(item) * [Loc, Stim]' * B;
 
             if shunting == 0.0, GI = @(x,t,Input,C) selfAct.*x + (t <= encTime/tstep)*inputDrive*(asyW-max(x(:)))*Input - (1-C)*inhib*sum(x(:)); end % non-shunting version
             if shunting == 0.5, GI = @(x,t,Input,C) selfAct.*x.*(asyW-x) + (t <= encTime/tstep)*inputDrive*(asyW-max(x(:)))*Input - (1-C)*inhib*sum(x(:)); end % half-shunting version
@@ -96,13 +87,12 @@ for dIdx = 1:length(Duration)
                 InW = (1 - exp(-encRate*t*tstep)) * InputW;
 
                 % RK4
-                k1 = GI(W,t,InputW,Committed);
-                k2 = GI(max(0, min(asyW, W + 0.5*tstep*k1)),t,InputW,Committed);
-                k3 = GI(max(0, min(asyW, W + 0.5*tstep*k2)),t,InputW,Committed);
-                k4 = GI(max(0, min(asyW, W + tstep*k3)),t,InputW,Committed);
+                k1 = GI(W,t,InW,Committed);
+                k2 = GI(max(0, min(asyW, W + 0.5*tstep*k1)),t,InW,Committed);
+                k3 = GI(max(0, min(asyW, W + 0.5*tstep*k2)),t,InW,Committed);
+                k4 = GI(max(0, min(asyW, W + tstep*k3)),t,InW,Committed);
                 W = max(0, min(asyW, W + (tstep/6) * (k1 + 2*k2 + 2*k3 + k4)));
                 maxW(trial, t) = max(W(:));
-                W2 = W2 + lrate*W;
             end
 
             Committed(W > cThreshold) = commit;
@@ -112,8 +102,11 @@ for dIdx = 1:length(Duration)
         % Retrieval
         for item = 1:setsize
 
-            cue = VonMises(xrad, deg2rad(loc(item)), kappa) * WCat;
-            reAct = cue * (W+W2) * WCat';
+            cueLoc = VonMises(xrad, deg2rad(loc(item)), kappa) * WCat;
+            cue = [cueLoc, zeros(1, nCat)];
+            retrievedB = cue*W;
+            retrievedVec = retrievedB*W';
+            reAct = retrievedVec((nCat+1):end) * WCat';
             reActN = reAct + randn(1,360)*dnoise;
             retrieved = find(reActN == max(reActN));
             Error(trial, item) = abs(wrap(retrieved - stim(item), 180));

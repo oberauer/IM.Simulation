@@ -16,6 +16,8 @@ kappa = 25;
 kappaCat = 10;
 strengthSD = 0.1;
 dnoise = 0.01;
+commit = 0.5;   % strength of commitment --> how much inhibition of the committed units is dampened
+cThreshold = 0.01; 
 nCat = 8;
 
 if shunting == 0
@@ -29,8 +31,8 @@ if shunting == 0.5
     asyW = 3;
 end
 if shunting == 1
-    selfAct = 1.0;   % hand-set
-    inhib = 0.5;   % hand-set
+    selfAct = 1.0;   
+    inhib = 1;   
     asyW = 5;
 end
 
@@ -59,33 +61,34 @@ for eIdx = 1:length(EncTime)
 
         for trial = 1:nTrials
             W = zeros(nCat);
+            Committed = zeros(nCat); 
             InputW = zeros(nCat);
             stim = randperm(360, setsize);
             loc = randperm(360, setsize);
             strength = max(0, randn(1, setsize) * strengthSD + 1);
 
-            if shunting == 0.0, GI = @(x,t,Input) selfAct.*x + (t <= encTime/tstep)*inputDrive*(asyW-max(x(:)))*Input - inhib*sum(x(:)); end % non-shunting version
-            if shunting == 0.5, GI = @(x,t,Input) selfAct.*x.*(asyW-x) + (t <= encTime/tstep)*inputDrive*(asyW-max(x(:)))*Input - inhib*sum(x(:)); end % half-shunting version
-            if shunting == 1.0, GI = @(x,t,Input) selfAct.*x.*(asyW-x) + (t <= encTime/tstep)*inputDrive*(asyW-max(x(:)))*Input - x.*inhib*sum(x(:)); end  %shunting version
 
             %  Encoding
             for item = 1:setsize
+
+                if shunting == 0.0, GI = @(x,t,Input,C) selfAct.*x + (t <= encTime/tstep)*inputDrive*(asyW-max(x(:)))*Input - (1-C)*inhib*sum(x(:)); end % non-shunting version
+                if shunting == 0.5, GI = @(x,t,Input,C) selfAct.*x.*(asyW-x) + (t <= encTime/tstep)*inputDrive*(asyW-max(x(:)))*Input - (1-C)*inhib*sum(x(:)); end % half-shunting version
+                if shunting == 1.0, GI = @(x,t,Input,C) selfAct.*x.*(asyW-x) + (t <= encTime/tstep)*inputDrive*(asyW-max(x(:)))*Input - x.*(1-C)*inhib*sum(x(:)); end  %shunting version
 
                 Stim = VonMises(xrad, deg2rad(stim(item)), kappa) * WCat;
                 Loc = VonMises(xrad, deg2rad(loc(item)), kappa) * WCat;
                 InputW = strength(item) * Loc' * Stim;
 
                 for t = 1:nSteps
-
                     % RK4
-                    k1 = GI(W,t,InputW);
-                    k2 = GI(max(0, min(asyW, W + 0.5*tstep*k1)),t,InputW);
-                    k3 = GI(max(0, min(asyW, W + 0.5*tstep*k2)),t,InputW);
-                    k4 = GI(max(0, min(asyW, W + tstep*k3)),t,InputW);
+                    k1 = GI(W,t,InputW,Committed);
+                    k2 = GI(max(0, min(asyW, W + 0.5*tstep*k1)),t,InputW,Committed);
+                    k3 = GI(max(0, min(asyW, W + 0.5*tstep*k2)),t,InputW,Committed);
+                    k4 = GI(max(0, min(asyW, W + tstep*k3)),t,InputW,Committed);
                     W = max(0, min(asyW, W + (tstep/6) * (k1 + 2*k2 + 2*k3 + k4)));
                     maxW(trial, t) = max(W(:));
-
                 end
+                Committed(W > cThreshold) = commit; 
 
             end
 
