@@ -204,6 +204,16 @@ plot(RI, plotvector);
 PostFigure([0.8, max(RI)+0.2, 0, 1.05*max(max(plotvector))], 'RI', 'Activation from W', 'Mean Deviation', legendtext);
 
 
+% Correlation matrix
+CueingRI3 = Mdevobs(:,2,2) - Mdevobs(:,1,2); % last argument is RI level (2 = 3 sec)
+Forgetting13 = Mdevobs(:,1,2) - Mdevobs(:,1,1); % forgetting over early RI: error at RI=3 minus error at RI=1
+ParmsPlus = [ParX, Forgetting13; CueingRI3];
+corrX = corrcoef(ParmsPlus);
+varnames = [C.indVar, {'Forgetting 1 vs. 3s', 'Cueing Effect at 3s'}];
+corrXT = array2table(round(corrX, 2), 'VariableNames', varnames, ...
+    'RowNames', varnames);
+disp(corrXT);
+
 
 %%% Save results
 if E.saveResults == 1
