@@ -57,8 +57,8 @@ if (ismember (cueing, [1:3, 5]))  % if the cueing condition is NOT "refreshing",
     end
 
     if E.CTI(cueing) > 0
+        [Afocus, AfocusLoc, featureFromFX, featureFromW] = Retrieve(W, Map, Focus); 
         if Focus==1
-            [Afocus, AfocusLoc, featureFromFX, featureFromW] = Retrieve(W, Map, Focus); 
             maxFX = featureFromFX(C.feature(F(1,1)));
             maxW = featureFromW(C.feature(F(1,1)));
         end

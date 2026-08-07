@@ -190,7 +190,7 @@ plot(ISICat(1:length(ISICat)-1), plotvector);
 PostFigure([-0.05, 1, 0, 1.05*max(max(plotvector))], 'ISI', 'Deviation (Deg)', [], legendtext);
 
 D.Mdevobs = Mdevobs;
-D.MDevISI = MDevISI;
+D.MDevISI = MdevISI;
 D.ISICatCount = ISICatCount;
 
 % Plot Mixture Model Parameters over Setsize
