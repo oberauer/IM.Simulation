@@ -164,7 +164,7 @@ for id = 1:E.nsubj
 end  % for ID
 
 % Plot Mean(Deviation) as function of III 
-% Stand-alone figures of errors, averaged over oputut positions 
+% Stand-alone figures of errors, averaged over output positions 
 PreFigure;
 subplot(1,2,1);
 plotvector = squeeze(mean(MdevobsIn(:,1,:,:),1));
@@ -288,6 +288,35 @@ if fitMM
     D.MMtranspos = MMtranspos;
 
 end
+
+% Correlation matrix
+
+MdevobsIn = NaN(E.nsubj, 2, length(InterItemInterval), setsize);  % id, sim-seq, III, inpos
+
+meanDevSim = squeeze(mean(MdevobsIn(:,1,:,:), 4));  % select simultaneous, average over inpos
+RIvarSim = zeros(E.nsubj, 1);  % variance in the individual mean error over RI
+for id = 1:E.nsubj
+    RIvarSim = var(meanDevSim(id,:));
+end
+meanDevSeq1 = squeeze(MdevobsIn(:,2,:,1));  % select sequential, select first input position
+RIslopeSeq1 = meanDevSeq1(:,end) - meanDevSeq1(:,1);  % longest minus shortest presentation rate
+
+ParmsPlus = [ParX, RIvarSim, RIslopeSeq1];
+corrX = corrcoef(ParmsPlus);
+varnames = [C.indVar, {'Sim: Var. over RI', 'Seq: Slope at 1'}];
+corrXT = array2table(round(corrX, 2), 'VariableNames', varnames, ...
+    'RowNames', varnames);
+disp(corrXT);
+
+AverageDevSim = mean(meanDevSim);
+GoodParms = ParmsPlus(meanDevSim < AverageDevSim && RIslopeSeq1 < 10, :); 
+GoodParmsXT = array2table(round(GoodParms,3), 'VariableNames', varnames); 
+AllParmsXT = array2table(round(ParmsPlus,3), 'VariableNames', varnames); 
+disp(GoodParmsXT);
+disp('Mean of subset of best parameters');
+disp(mean(GoodParmsXT));
+disp('Mean of all parameters');
+disp(mean(AllParmsXT)); 
 
 
 %%% Save results
