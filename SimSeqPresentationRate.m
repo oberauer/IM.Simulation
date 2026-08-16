@@ -291,12 +291,10 @@ end
 
 % Correlation matrix
 
-MdevobsIn = NaN(E.nsubj, 2, length(InterItemInterval), setsize);  % id, sim-seq, III, inpos
-
 meanDevSim = squeeze(mean(MdevobsIn(:,1,:,:), 4));  % select simultaneous, average over inpos
 RIvarSim = zeros(E.nsubj, 1);  % variance in the individual mean error over RI
 for id = 1:E.nsubj
-    RIvarSim = var(meanDevSim(id,:));
+    RIvarSim(id,:) = var(meanDevSim(id,:));
 end
 meanDevSeq1 = squeeze(MdevobsIn(:,2,:,1));  % select sequential, select first input position
 RIslopeSeq1 = meanDevSeq1(:,end) - meanDevSeq1(:,1);  % longest minus shortest presentation rate

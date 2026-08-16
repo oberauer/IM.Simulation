@@ -62,7 +62,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 15;
+Exp = 11;
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 1;   % fit mixture model?
 fitIMSim = 0; % fit IM?
@@ -70,7 +70,7 @@ fitIMSim = 0; % fit IM?
 %%% Experimental Constants/Defaults
 
 E.ntrials = 200;     % number of trials to run per subject and condition
-E.nsubj = 50;       % number of subjects
+E.nsubj = 100;       % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -178,7 +178,7 @@ if Exp == 1, D = SetsizeSPC(Model, 1, Setsize, 0); end  % sequential presentatio
 if Exp == 2, D = SetsizeSPC(Model, 2, Setsize, 0); end  % sequential presentation, continuous reproduction with serial-position effects
 if Exp == 3, D = SetsizeSerialRecall(Model, Setsize); end
 if Exp == 4, D = SimSeqAlphaCDA(Model, Setsize); end % sequential or simultaneous presentation, CDA and Alpha power suppression
-if Exp == 5, D = SetsizeRI(Model, 1, [2,6], fitMM, fitIMSim); end  % set size and retention-interval variation (3rd argument: Setsizes)
+if Exp == 5, D = SetsizeRI(Model, 1, [1:6], fitMM, fitIMSim); end  % set size and retention-interval variation (3rd argument: Setsizes)
 if Exp == 6, D = SimSeq(Model, fitMM); end % sequential/simultaneous encoding of 2 objects with 2 features
 if Exp == 7, D = SimSeqPresentationRate(Model, P.cRate, fitMM); end % simultaneous encoding vs. sequential encoding with varying presentation rates (2nd parameter: consolidation rate)
 if Exp == 8, P.cStrength = 0.6; D = SimSeqPresentationRate(Model, P.cRate, fitMM); end  % with P.cStrength for Prolific participants

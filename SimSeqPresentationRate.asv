@@ -291,23 +291,23 @@ end
 
 % Correlation matrix
 
-MdevobsIn = NaN(E.nsubj, 2, length(InterItemInterval), setsize);  % id, sim-seq, III, inpos
-
 meanDevSim = squeeze(mean(MdevobsIn(:,1,:,:), 4));  % select simultaneous, average over inpos
-RIvarSim = zeros(E.nsubj, 1);  % variance in the individual err
+RIvarSim = zeros(E.nsubj, 1);  % variance in the individual mean error over RI
 for id = 1:E.nsubj
-    RIvarSim = var(meanDevSim(id,:));
+    RIvarSim(id,:) = var(meanDevSim(id,:));
 end
+meanDevSeq1 = squeeze(MdevobsIn(:,2,:,1));  % select sequential, select first input position
+RIslopeSeq1 = meanDevSeq1(:,end) - meanDevSeq1(:,1);  % longest minus shortest presentation rate
 
 ParmsPlus = [ParX, RIvarSim, RIslopeSeq1];
 corrX = corrcoef(ParmsPlus);
-varnames = [C.indVar, {'RefFreq12(Pos3)', 'RefFreq12(Pos4)'}];
+varnames = [C.indVar, {'Sim: Var. over RI', 'Seq: Slope at 1'}];
 corrXT = array2table(round(corrX, 2), 'VariableNames', varnames, ...
     'RowNames', varnames);
 disp(corrXT);
 
-maxRefFreqEffect = max(refFreqEffect, [], 2); 
-GoodParms = ParmsPlus(maxRefFreqEffect < -0.05, :); 
+AverageDevSim = mean(meanDevSim);
+GoodParms = ParmsPlus(meanDevSim < AverageDevSim && RIslopeSeq1 < 10, :); 
 GoodParmsXT = array2table(round(GoodParms,3), 'VariableNames', varnames); 
 AllParmsXT = array2table(round(ParmsPlus,3), 'VariableNames', varnames); 
 disp(GoodParmsXT);
