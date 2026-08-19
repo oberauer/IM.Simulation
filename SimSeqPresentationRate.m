@@ -306,8 +306,8 @@ corrXT = array2table(round(corrX, 2), 'VariableNames', varnames, ...
     'RowNames', varnames);
 disp(corrXT);
 
-AverageDevSim = mean(meanDevSim);
-GoodParms = ParmsPlus(meanDevSim < AverageDevSim && RIslopeSeq1 < 10, :); 
+AverageVarSim = mean(RIvarSim);
+GoodParms = ParmsPlus((RIvarSim < AverageVarSim) .* (RIslopeSeq1 < 10) == 1, :); 
 GoodParmsXT = array2table(round(GoodParms,3), 'VariableNames', varnames); 
 AllParmsXT = array2table(round(ParmsPlus,3), 'VariableNames', varnames); 
 disp(GoodParmsXT);
