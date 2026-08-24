@@ -62,7 +62,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 16;
+Exp = 29;
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 1;   % fit mixture model?
 fitIMSim = 0; % fit IM?
@@ -144,9 +144,6 @@ P.cRateFactor = 1;   % proportional reduction of cRate for Ricker's dots on a ri
 P.cRateSD = 0.5;     % SD of consolidation rates (as proportion of mean)
 P.cStrength = 0.9;   % proportion of maximal strength that consolidation aims for - when that strength is reached, consolidation stops
 P.cBallistic = 0.5;  % probability of consolidation being ballistic
-
-%P.cBallistic = 0.3; 
-
 P.filter = [0.1, 0.1, 0.1, 0.1]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
 P.rad1 = 0.7;        % proportion of radius of memory array to radius of color wheel (for computation of color-wheel interference as a function of distance between wheel and target location)
 P.outputinterference = 0; % proportion of reduction of W

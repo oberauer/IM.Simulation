@@ -28,8 +28,8 @@ ParX = CreateIndDiff;
 % Set up the design
 cueing = 1;
 Ptype = [1, 1, 2, 3];   % levels of the probetype variable 2 x positive, 1 x new, 1 x intrusion
-Design = fullfact(4);   % probetype x cueing
-nCells = size(Design, 1);      % number of design cells (crossing cueing with probetype)
+Design = fullfact(4);   % probetype 
+nCells = size(Design, 1);      % number of design cells 
 
 % Initializing some container matrices
 Pyes = zeros(E.nsubj, E.maxsetsize, 3);  % Probability of saying "Yes" (="Same") for each subject, setsize, probe type
@@ -75,7 +75,7 @@ for id = 1:E.nsubj
             condition = Conditionvector(trial);         % pick the condition of this trial
             ConditionCount(condition) = ConditionCount(condition) + 1;  % increment trial count for the current trial's condition
             E.ptype = Ptype(Design(condition, 1));             % determine the probetype from the design matrix
-            if (setsize == 1 && Design(condition, 1) == 3), E.ptype = 2; end % for set size 1, there are no intrusion probes
+            if (setsize == 1), E.ptype = 2; end % for set size 1, there are no intrusion probes
             output = Model(P, setsize, cueing);   % run model on 1 trial, returns predictions (output is a structure with lots of variables in it)
             response(ConditionCount(condition), condition) = output.response(1,:);  % the first entry of response is the actual response
             rt(ConditionCount(condition), condition) = output.rt;    % response time
