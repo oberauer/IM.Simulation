@@ -99,8 +99,7 @@ for id = 1:E.nsubj
         
         % now loop over the 4 design cells to read out the summary statistics of simulated data in each cell
         for condition = 1:4
-            ptype = Ptype(Design(condition,2));
-            cueing = Design(condition,1);
+            ptype = Ptype(condition);
             Pyes(id, setsize, ptype) = Pyes(id, setsize, ptype) + mean(2-response(:,condition));  % Yes/No: response = 1/2
             if (ptype == 1)
                 PC(id, setsize, ptype) = PC(id, setsize, ptype) + Pyes(id, setsize, ptype)./2;  % divide by 2 because there are 2 conditions for positive probes
