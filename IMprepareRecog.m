@@ -21,4 +21,6 @@ else
     E.SameRange = (likSame > likChange1) .* (likSame > likChange2);  % range of retrieved feature values that are similar enough to the probe to say "same"
 end
 
+halt = 1; 
+
 
