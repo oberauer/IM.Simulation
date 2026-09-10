@@ -10,11 +10,12 @@ global E
 E.test = 2;      % change detection
 E.PreRetro = 2;  % this is all retro-cue
 E.maxsetsize = 6; 
-
-likSame = VonMisesN(C.x, pi, P.kappacrit);  % estimated likelihood of "same" trials using the meta-cognitive estimate of feature precision
-likChange = 1./360;  % estimated likelihood of "change" trials: all 360 values equally likely as change probes
-E.SameRange = likSame > likChange;  % range of retrieved feature values that are similar enough to the probe to say "same"
-
+% 
+% likSame = VonMisesN(C.x, pi, P.kappacrit);  % estimated likelihood of "same" trials using the meta-cognitive estimate of feature precision
+% likChange = 1./360;  % estimated likelihood of "change" trials: all 360 values equally likely as change probes
+% E.SameRange = likSame > likChange;  % range of retrieved feature values that are similar enough to the probe to say "same"
+C.nstim = 360; 
+IMprepareRecog; % set up criterion for expected size of change 
 
 % Calibrate amplification factor on population level, if desired
 if E.calibrateAmp == 1
@@ -75,7 +76,7 @@ for id = 1:E.nsubj
             condition = Conditionvector(trial);         % pick the condition of this trial
             ConditionCount(condition) = ConditionCount(condition) + 1;  % increment trial count for the current trial's condition
             E.ptype = Ptype(Design(condition, 1));             % determine the probetype from the design matrix
-            if (setsize == 1), E.ptype = 2; end % for set size 1, there are no intrusion probes
+            if (setsize == 1 && E.ptype == 3), E.ptype = 2; end % for set size 1, there are no intrusion probes
             output = Model(P, setsize, cueing);   % run model on 1 trial, returns predictions (output is a structure with lots of variables in it)
             response(ConditionCount(condition), condition) = output.response(1,:);  % the first entry of response is the actual response
             rt(ConditionCount(condition), condition) = output.rt;    % response time
@@ -102,7 +103,7 @@ for id = 1:E.nsubj
             ptype = Ptype(condition);
             Pyes(id, setsize, ptype) = Pyes(id, setsize, ptype) + mean(2-response(:,condition));  % Yes/No: response = 1/2
             if (ptype == 1)
-                PC(id, setsize, ptype) = PC(id, setsize, ptype) + Pyes(id, setsize, ptype)./2;  % divide by 2 because there are 2 conditions for positive probes
+                PC(id, setsize, ptype) = PC(id, setsize, ptype) + mean(2-response(:,condition))./2;  % divide by 2 because there are 2 conditions for positive probes
             else
                 PC(id, setsize, ptype) = 1-Pyes(id, setsize, ptype);
             end

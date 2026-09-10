@@ -62,7 +62,7 @@ model = 1;  % 1 = IMSim
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
 saveResults = 0;
-Exp = 29;
+Exp = 6;
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 1;   % fit mixture model?
 fitIMSim = 0; % fit IM?
@@ -156,7 +156,7 @@ P.inhib = 0;         % global inhibition of activation during retrieval
 P.cuerate = 5;       % rate of using the cue
 P.dnoise = 1;        % SD of noise added to each accumulator in recall/recollection of a feature
 P.driftnoise = 1;    % SD of noise added to each accumulator for recognition decision
-P.boundary = [30, 30]; % boundary for retrieval of a feature / for recognition decision
+P.boundary = [30, 10]; % boundary for retrieval of a feature / for recognition decision
 P.sz = 0;             % starting point variability for yes/no accumulators for recognition
 P.kappacrit = 1;      % proportion of kappa_feat: meta-cognitive estimate of average precision -> used in Bayesian optimal decision rule for same-change decision in Change Detection
 
