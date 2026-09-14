@@ -3,7 +3,7 @@
 % Version using the KO/Manohar mediated-binding mechanism
 
 clear all
-close all
+%close all
 
 global E
 global C
@@ -61,16 +61,18 @@ model = 1;  % 1 = IMSim
 % 46 = Generic Parameter-Sensitivity simulation for continuous reproduction (simultaneous, set size 6, fit MM and SDM)
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
+% 50 = SetsizeCD from Archive 2026.3.rapidConsolidation
+
 saveResults = 0;
-Exp = 6;
+Exp = 29;
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 1;   % fit mixture model?
 fitIMSim = 0; % fit IM?
 
 %%% Experimental Constants/Defaults
 
-E.ntrials = 200;     % number of trials to run per subject and condition
-E.nsubj = 100;       % number of subjects
+E.ntrials = 100;     % number of trials to run per subject and condition
+E.nsubj = 20;       % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -128,6 +130,10 @@ P.pMax = 1.0;        % the initial proportion of binding units recruited
 P.pBase = 0.4;       % .30 minimal (base) strength of bindings (lower asymptote)
 P.keepFocus = 0.3;   % probability of keeping the last-presented item in the FoA until test
 P.a = 0.1;           % strength of item memory - implemented as "C.locationnoise" in CreateStimuli: all location cues receive some baseline activation
+
+P.a = 0.3; 
+
+
 P.nb = 100;          % number of units in the binding layer
 P.nbNorm = sqrt(P.nb); % normalization constant depends on mean P.nb, not on individual P.nb (and not on manipulation of P.nb in simulation 33)
 P.maskWindow = 0.05;  % mean of time window within which a mask or a cue is integrated with the current feature Map
@@ -223,3 +229,4 @@ if Exp == 45, D = ParameterSensitivity(Model, 'dnoise', [1:5]); end
 if Exp == 46, D = ParameterSensitivity2(Model, 'a', [0, 0.05, 0.1, 0.2, 0.3, 0.4]); end
 if Exp == 47, D = ParameterSensitivityCD(Model, 'nCat', [8, 12, 16, 20, 28]); end
 
+if Exp == 50, E.test = 2; E.wheel = 0; SetsizeCD(Model); end  % CD for retro-cue and set-size manipulation

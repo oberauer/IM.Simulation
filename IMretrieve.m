@@ -94,6 +94,7 @@ if ismember(E.test, 1:3)
         response(1) = find(YesNo(t2,:)==max(YesNo(t2,:)), 1);
         rt = (t + t2).*C.tstep + (E.CTI(cueing)==0)*overTime;
         response(2) = retrieved1;
+        delta = abs(wrap(C.feature(F(1))-C.feature(probeIdx), 180)); % record the size of change of the probe relative to the target feature
     end
 
     if E.test == 3  % n-AFC: after retrieving a feature, find the alternative most similar to it
