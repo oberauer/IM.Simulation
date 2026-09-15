@@ -1,4 +1,4 @@
-function [response, rt, Map, W, GateClosed, Focus, CWcolor, maxFX, maxW] = IMretrieve(Map, W, GateClosed, Focus, Afocus, probed, cueing, L, F, probestim, probeIdx, overTime)
+function [response, rt, Map, W, GateClosed, Focus, CWcolor, maxFX, maxW, maxFXprobe] = IMretrieve(Map, W, GateClosed, Focus, Afocus, probed, cueing, L, F, probestim, probeIdx, overTime)
 % Retrieves one item
 
 if nargin < 12, overTime = 0; end
@@ -53,6 +53,7 @@ if ismember(E.test, 1:3)
         featureFromW = retrievedVec((C.nLocCat+1):(C.nLocCat+C.nCat)) * C.Mapping'; % the strength with which each color is bound to the location cue through W
         maxFX = featureFromFX(C.feature(F(Focus)));
         maxW = featureFromW(C.feature(F(Focus)));
+        maxFXprobe = featureFromFX(C.feature(probeIdx)); 
         Afocus = Afocus + featureFromFX + featureFromW;
         Adrift = Afocus;
     end

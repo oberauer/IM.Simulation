@@ -50,6 +50,10 @@ PyesXDelta_IntrusCount = zeros(E.nsubj, E.maxsetsize, nbins);
 
 LDsame = NaN(E.nsubj, E.maxsetsize);  % Length of the region of similarity between retrieved feature and probe for which "Same" will be responded
 
+MaxFX = zeros(E.nsubj, E.maxsetsize, 3);    % Strength of Content read out of FX
+MaxW = zeros(E.nsubj, E.maxsetsize, 3);     % Strength of Content read out of W
+MaxPr = zeros(E.nsubj, E.maxsetsize, 3);     % Strength of Probe read out of FX
+
 for id = 1:E.nsubj
     
     % extract parameter values for each subject - for those parameters that vary between subjects
@@ -72,6 +76,10 @@ for id = 1:E.nsubj
         Conditionvector = Conditionvector(randperm(length(Conditionvector)));  % shuffle the order of design cells
         ConditionCount = zeros(1,nCells);                                           % running counter of trials in each condition
         LengthDSame = zeros(1,nCells*E.ntrials);                                    % length of region of similarity for which "same" is responded
+        maxFX = zeros(E.ntrials, nCells);
+        maxW = zeros(E.ntrials, nCells);
+        maxFXprobe = zeros(E.ntrials, nCells);
+
         for trial = 1:(nCells*E.ntrials)
             condition = Conditionvector(trial);         % pick the condition of this trial
             ConditionCount(condition) = ConditionCount(condition) + 1;  % increment trial count for the current trial's condition
@@ -96,6 +104,9 @@ for id = 1:E.nsubj
                 PyesXDelta_Intrus(id, setsize, bin) = PyesXDelta_Intrus(id, setsize, bin) + (2-output.response(1)); % response is coded Yes=1/No=2, so here we add 1 for Yes, and 0 for No
                 PyesXDelta_IntrusCount(id, setsize, bin) = PyesXDelta_IntrusCount(id, setsize, bin) + 1;         % counting up the number of observations in each bin
             end
+            maxFX(ConditionCount(condition), condition) = output.maxFX;  % the strength of FX at the target feature
+            maxW(ConditionCount(condition), condition) = output.maxW;  % the strength of retrieved vector from W at the target feature
+            maxFXprobe(ConditionCount(condition), condition) = output.maxFXprobe; % the strength of FX at the probe feature
         end
         
         % now loop over the 4 design cells to read out the summary statistics of simulated data in each cell
@@ -108,6 +119,9 @@ for id = 1:E.nsubj
                 PC(id, setsize, ptype) = 1-Pyes(id, setsize, ptype);
             end
             RT(id, setsize, ptype) = mean(rt(:,condition));
+            MaxFX(id, setsize, ptype) = mean(maxFX(:, condition)); 
+            MaxW(id, setsize, ptype) = mean(maxW(:, condition)); 
+            MaxPr(id, setsize, ptype) = mean(maxFXprobe(:, condition));
         end
         
         LDsame(id, setsize) = mean(LengthDSame);
@@ -155,6 +169,13 @@ for setsize = 1:E.maxsetsize
 end
 plot([0, binBounds(2:end)-7.5], pyes');
 PostFigure([0, 180, 0, 1], 'D(probe, target)', 'P(yes)', 'Intrus', vec2legend(1:setsize));
+
+% Support for target from FX and from W
+PreFigure;
+plotvector = squeeze(mean(mean(MaxFX,3)))';
+plotvector = [plotvector, squeeze(mean(mean(MaxW,3)))', squeeze(mean(mean(MaxPr,3)))'];
+plot(1:E.maxsetsize, plotvector);
+PostFigure([0.5, E.maxsetsize+0.5, 0, max(0.01, 1.1*max(plotvector(:)))], 'Set Size', 'Strength', [], {'FX', 'W', 'FX-Probe'});
 
 D.PC = PC;
 D.Pyes = Pyes;

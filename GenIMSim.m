@@ -130,10 +130,6 @@ P.pMax = 1.0;        % the initial proportion of binding units recruited
 P.pBase = 0.4;       % .30 minimal (base) strength of bindings (lower asymptote)
 P.keepFocus = 0.3;   % probability of keeping the last-presented item in the FoA until test
 P.a = 0.1;           % strength of item memory - implemented as "C.locationnoise" in CreateStimuli: all location cues receive some baseline activation
-
-P.a = 0.3; 
-
-
 P.nb = 100;          % number of units in the binding layer
 P.nbNorm = sqrt(P.nb); % normalization constant depends on mean P.nb, not on individual P.nb (and not on manipulation of P.nb in simulation 33)
 P.maskWindow = 0.05;  % mean of time window within which a mask or a cue is integrated with the current feature Map
