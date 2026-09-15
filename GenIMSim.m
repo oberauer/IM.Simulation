@@ -3,7 +3,7 @@
 % Version using the KO/Manohar mediated-binding mechanism
 
 clear all
-%close all
+close all
 
 global E
 global C
@@ -64,7 +64,7 @@ model = 1;  % 1 = IMSim
 % 50 = SetsizeCD from Archive 2026.3.rapidConsolidation
 
 saveResults = 0;
-Exp = 29;
+Exp = 21;
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 1;   % fit mixture model?
 fitIMSim = 0; % fit IM?
@@ -147,6 +147,11 @@ P.cRateSD = 0.5;     % SD of consolidation rates (as proportion of mean)
 P.cStrength = 0.9;   % proportion of maximal strength that consolidation aims for - when that strength is reached, consolidation stops
 P.cBallistic = 0.5;  % probability of consolidation being ballistic
 P.filter = [0.1, 0.1, 0.1, 0.1]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
+
+P.filter = [0.05, 0.05, 0.05, 0.05]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
+
+
+
 P.rad1 = 0.7;        % proportion of radius of memory array to radius of color wheel (for computation of color-wheel interference as a function of distance between wheel and target location)
 P.outputinterference = 0; % proportion of reduction of W
 P.wnoise = 0.12;      % rate at which noise variance added to W increases with time (in seconds) 
