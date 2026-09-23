@@ -68,14 +68,13 @@ for id = 1:E.nsubj
 
 
     for trial = 1:(nfactor*E.ntrials)
-        [~, L, F, ~, ~, ~, ~, ~, ~, eegW, eegfx] = IMtrackSignals(setsize, Map, eW, eNoise);
+        [~, ~, L, F, ~, ~, ~, ~, ~, ~, eegW, eegfx] = IMtrackSignals(setsize, Map, eW, eNoise);
         EEG_FX(trial,:,:) = eegfx; % read out locations (averaging over features) from feature map
         StimMask(trial, round(C.Location(L(1:setsize)))) = 1; % stimulus mask: codes the stimulus location (set to 1 at presented location(s), and 0 everywhere else)
     end
     for t = 1:E.RI/C.tstep
         IEM(t).Wfx = TrainIEM(StimMask, basisSet, squeeze(EEG_FX(:,t,:)));    % train IEM at each time point
     end
-
     
     for interrupt = 1:2
         CDAw = zeros(E.ntrials, length(Timepoints));

@@ -107,7 +107,8 @@ for id = 1:E.nsubj
                         
             % encode memory set
             [Map, w, G, GW, Focus, Afocus, content, context, Inpos, Strength, ~, ~] = IMencoding(Map, w, G, GW, L, F, setsize); 
-            %Cangle(trial,:) = round(nChannels*F(1:setsize)/C.nc);
+            usedTime = setsize*CTime + P.maskWindow; %CTime is the mean consolidation time taken
+            overTime = max(0, usedTime - (E.RI + E.prestime));
             Cangle(trial,:) = F(1:setsize);
             %StimMask(trial, round(C.Location(L(1:setsize)))) = 1; % stimulus mask: codes the stimulus location (set to 1 at presented location(s), and 0 everywhere else)
             EEG_WX(1, trial,:) = (((context * w(1:C.nLocCat, :)) * w((C.nLocCat+1):end, :)') * C.Mapping') * eW + randn(1,nElectrodes)*eNoise;  % feed last-consolidated context (including stimnoise) into weight matrix -> reactivate content -> project onto electrodes
@@ -116,7 +117,7 @@ for id = 1:E.nsubj
             % first cue, first test
             [probestim, probeIdx] = IMprepareProbe(F, setsize);
             E.cuevalidity = 1/setsize;  % although the first cue is 100% valid, people don't know whether the not-cued item will become relevant again -> be conservative with removal!
-            [Map, w, G, GW, Focus, Afocus, ~] = IMcueing(Map, w, G, GW, Strength, Focus, Afocus, L, F, setsize, cueing, 0);  
+            [Map, w, G, GW, Focus, Afocus, ~] = IMcueing(Map, w, G, GW, Strength, Focus, Afocus, L, F, setsize, cueing, 0, overTime);  
             AfocusLoc = C.location(L(Focus),:); % use currently focused location as retrieval cue (= CuedLoc)
             context = AfocusLoc * C.MappingC + C.locationnoise;
             EEG_WX(2, trial,:) = (((context * w(1:C.nLocCat, :)) * w((C.nLocCat+1):end, :)') * C.Mapping') * eW + randn(1,nElectrodes)*eNoise;  % feed stimnoise into weight matrix -> reactivate locations -> project onto electrode             
@@ -134,7 +135,7 @@ for id = 1:E.nsubj
             [probestim, probeIdx] = IMprepareProbe(F, setsize);
             % second cue, second test
             E.cuevalidity = 1; 
-            [Map, w, G, GW, Focus, Afocus, ~] = IMcueing(Map, w, G, GW, Strength, Focus, Afocus, L, F, setsize, cueing, 0);  % 2 = valid retro-cue
+            [Map, w, G, GW, Focus, Afocus, ~] = IMcueing(Map, w, G, GW, Strength, Focus, Afocus, L, F, setsize, cueing, 0, 0);  % 2 = valid retro-cue
             AfocusLoc = C.location(L(Focus),:); % use currently focused location as retrieval cue (= CuedLoc)
             context = AfocusLoc * C.MappingC + C.locationnoise;
             EEG_WX(3, trial,:) = (((context * w(1:C.nLocCat, :)) * w((C.nLocCat+1):end, :)') * C.Mapping') * eW + randn(1,nElectrodes)*eNoise;  % feed stimnoise into weight matrix -> reactivate locations -> project onto electrodes
