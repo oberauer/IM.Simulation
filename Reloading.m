@@ -15,6 +15,7 @@ E.cuevalidity = 1;
 E.material = 2; 
 E.mask = 3;
 E.ntrials = round(E.ntrials/12);  % because we're running 32 design cells
+C.nstim = 9; 
 IMprepareRecog;
 
 % Calibrate amplification factor on population level, if desired
