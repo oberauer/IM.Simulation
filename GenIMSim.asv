@@ -61,8 +61,10 @@ model = 1;  % 1 = IMSim
 % 46 = Generic Parameter-Sensitivity simulation for continuous reproduction (simultaneous, set size 6, fit MM and SDM)
 % 47 = Generic Parameter-Sensitivity simulation for change detection (simultaneous, set-size 6)
 
+% 50 = SetsizeCD from Archive 2026.3.rapidConsolidation
+
 saveResults = 0;
-Exp = 15;
+Exp = 26;
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 1;   % fit mixture model?
 fitIMSim = 0; % fit IM?
@@ -70,7 +72,7 @@ fitIMSim = 0; % fit IM?
 %%% Experimental Constants/Defaults
 
 E.ntrials = 200;     % number of trials to run per subject and condition
-E.nsubj = 50;       % number of subjects
+E.nsubj = 100;       % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -144,7 +146,7 @@ P.cRateFactor = 1;   % proportional reduction of cRate for Ricker's dots on a ri
 P.cRateSD = 0.5;     % SD of consolidation rates (as proportion of mean)
 P.cStrength = 0.9;   % proportion of maximal strength that consolidation aims for - when that strength is reached, consolidation stops
 P.cBallistic = 0.5;  % probability of consolidation being ballistic
-P.filter = [0.1, 0.1, 0.1, 0.1]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
+P.filter = [0.05, 0.05, 0.05, 0.05]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
 P.rad1 = 0.7;        % proportion of radius of memory array to radius of color wheel (for computation of color-wheel interference as a function of distance between wheel and target location)
 P.outputinterference = 0; % proportion of reduction of W
 P.wnoise = 0.12;      % rate at which noise variance added to W increases with time (in seconds) 
@@ -156,7 +158,7 @@ P.inhib = 0;         % global inhibition of activation during retrieval
 P.cuerate = 5;       % rate of using the cue
 P.dnoise = 1;        % SD of noise added to each accumulator in recall/recollection of a feature
 P.driftnoise = 1;    % SD of noise added to each accumulator for recognition decision
-P.boundary = [30, 30]; % boundary for retrieval of a feature / for recognition decision
+P.boundary = [30, 10]; % boundary for retrieval of a feature / for recognition decision
 P.sz = 0;             % starting point variability for yes/no accumulators for recognition
 P.kappacrit = 1;      % proportion of kappa_feat: meta-cognitive estimate of average precision -> used in Bayesian optimal decision rule for same-change decision in Change Detection
 
@@ -178,7 +180,7 @@ if Exp == 1, D = SetsizeSPC(Model, 1, Setsize, 0); end  % sequential presentatio
 if Exp == 2, D = SetsizeSPC(Model, 2, Setsize, 0); end  % sequential presentation, continuous reproduction with serial-position effects
 if Exp == 3, D = SetsizeSerialRecall(Model, Setsize); end
 if Exp == 4, D = SimSeqAlphaCDA(Model, Setsize); end % sequential or simultaneous presentation, CDA and Alpha power suppression
-if Exp == 5, D = SetsizeRI(Model, 1, [2,6], fitMM, fitIMSim); end  % set size and retention-interval variation (3rd argument: Setsizes)
+if Exp == 5, D = SetsizeRI(Model, 1, [1:6], fitMM, fitIMSim); end  % set size and retention-interval variation (3rd argument: Setsizes)
 if Exp == 6, D = SimSeq(Model, fitMM); end % sequential/simultaneous encoding of 2 objects with 2 features
 if Exp == 7, D = SimSeqPresentationRate(Model, P.cRate, fitMM); end % simultaneous encoding vs. sequential encoding with varying presentation rates (2nd parameter: consolidation rate)
 if Exp == 8, P.cStrength = 0.6; D = SimSeqPresentationRate(Model, P.cRate, fitMM); end  % with P.cStrength for Prolific participants
@@ -214,7 +216,7 @@ if Exp == 37, D = DualTaskSetsizePRP(0); end  % Stevanovski & Jolicoeur (2007); 
 if Exp == 38, D = DiscreteWholeReport(Model); end    % Adam et al. (2017, APP)
 
 
-if Exp == 40, D = RetroCueSeparateMechanisms(Model, [6:7], 1, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
+if Exp == 40, D = RetroCueSeparateMechanisms(Model, [1:7], 1, 1:3, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
 if Exp == 41, D = RetroCueFullDesign(Model, 1, C.indVar, fitMM); end  % second argument = Tasks (1=CR, 2=CD)
 if Exp == 42, D = RetroCueStrength(Model, fitMM); end  % Retro-cue exploration
 if Exp == 43, D = SetsizeAlpha(@IMSimAlpha, 8); end
@@ -223,3 +225,4 @@ if Exp == 45, D = ParameterSensitivity(Model, 'dnoise', [1:5]); end
 if Exp == 46, D = ParameterSensitivity2(Model, 'a', [0, 0.05, 0.1, 0.2, 0.3, 0.4]); end
 if Exp == 47, D = ParameterSensitivityCD(Model, 'nCat', [8, 12, 16, 20, 28]); end
 
+if Exp == 50, E.test = 2; E.wheel = 0; SetsizeCD(Model); end  % CD for retro-cue and set-size manipulation

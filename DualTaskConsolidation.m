@@ -44,6 +44,7 @@ for id = 1:E.nsubj
     % for each subject, create stimuli, and an individual set of feature categories, and the corresponding mappings
     CreateStimuli;  % large number of colors to create the mask
     CreateMapping(E.calibrateAmp==2);
+    Cos = 1; 
     while Cos > 0.2
         Stimulus = randn(2, C.nLocCat);  % stimuli for decision task
         Response = randn(2, C.nCat);     % responses for decision task

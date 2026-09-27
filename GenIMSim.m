@@ -64,7 +64,7 @@ model = 1;  % 1 = IMSim
 % 50 = SetsizeCD from Archive 2026.3.rapidConsolidation
 
 saveResults = 0;
-Exp = 26;
+Exp = 40;
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 1;   % fit mixture model?
 fitIMSim = 0; % fit IM?
@@ -105,6 +105,10 @@ C.nCat = 8;       % number of content categories
 C.nLocCat = 8;    % number of context categories
 C.x = pi*(1:C.nc)./180;  % x axis for the distributions of population codes in circular color space / orientation space
 C.tstep = 0.05;    % time steps for simulation (in s)
+
+C.tstep = 0.02; 
+
+
 C.nsamples = 100;  % number of samples in multinomial accumulator
 C.ContentFun = @VonMises;
 C.ContextFun = @VonMises;
@@ -216,7 +220,7 @@ if Exp == 37, D = DualTaskSetsizePRP(0); end  % Stevanovski & Jolicoeur (2007); 
 if Exp == 38, D = DiscreteWholeReport(Model); end    % Adam et al. (2017, APP)
 
 
-if Exp == 40, D = RetroCueSeparateMechanisms(Model, [6:7], 1, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
+if Exp == 40, D = RetroCueSeparateMechanisms(Model, [1:7], 1, 1:3, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
 if Exp == 41, D = RetroCueFullDesign(Model, 1, C.indVar, fitMM); end  % second argument = Tasks (1=CR, 2=CD)
 if Exp == 42, D = RetroCueStrength(Model, fitMM); end  % Retro-cue exploration
 if Exp == 43, D = SetsizeAlpha(@IMSimAlpha, 8); end
