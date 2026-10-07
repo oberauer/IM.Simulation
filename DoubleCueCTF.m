@@ -106,7 +106,7 @@ for id = 1:E.nsubj
             F(1,:) = randperm(C.nstim);
                         
             % encode memory set
-            [Map, w, G, GW, Focus, Afocus, content, context, Inpos, Strength, ~, ~] = IMencoding(Map, w, G, GW, L, F, setsize); 
+            [Map, w, G, GW, Focus, Afocus, ~, context, ~, Strength, ~, CTime, ~] = IMencoding(Map, w, G, GW, L, F, setsize); 
             usedTime = setsize*CTime + P.maskWindow; %CTime is the mean consolidation time taken
             overTime = max(0, usedTime - (E.RI + E.prestime));
             Cangle(trial,:) = F(1:setsize);
