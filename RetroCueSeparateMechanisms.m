@@ -21,11 +21,9 @@ if E.calibrateAmp == 1
 end
 
 % keep default values
-%cueStrength = P.cueingStrength;
-%retroCueConsolid = C.retroCueConsolid;
+PP = P; 
 filter = P.filter;
 removalThreshold = P.removalThreshold;
-eraseFX = P.eraseFX;
 CueRate = P.cuerate;   % remember for re-instatement (because it is not an individual-differences variable that will be re-instated from ParX)
 
 for task = Tasks
@@ -39,17 +37,19 @@ for task = Tasks
 
     for mechanism = Mechanisms
 
-        % eliminate all retro-cue mechanisms
-        P.cueingStrength = 0;
-        P.removalThreshold = 0;
-        P.filter = zeros(1,3);
-        C.retroCueConsolid = 0;
-        E.CTI(2) = 0;
-        C.eraseFXbyCue = 1; 
+        P = PP; % default parameters need to be loaded again to neutralize individual differences from previous mechanism
 
-        % re-introduce individual mechanisms
+        % eliminate all retro-cue mechanisms
+        P.cueingStrength = 0;   % eliminate strengthening
+        P.removalThreshold = 0;  % eliminate removal
+        P.filter = zeros(1,3);   % eliminate visual interference
+        C.retroCueConsolid = 0;  % eliminate consolidation
+        E.CTI(2:3) = 0;          % eliminate head start 
+        C.eraseFXbyCue = 1;      % eliminate read-out from FX after cue
+
+        % re-introduce individual mechanisms        
         if mechanism == 1, P.cueingStrength = 1; end  % leave only strengthening
-        if mechanism == 2, C.retroCueConsolid = 1; end  % leave ony consolidation for retrieval
+        if mechanism == 2, C.retroCueConsolid = 1; C.eraseFXbyCue = 0; end  % leave only consolidation for retrieval, and FX as its basis
         if mechanism == 3, P.removalThreshold = removalThreshold; end  % leave only removal
         if mechanism == 4, E.CTI(2) = 1; P.filter = filter; end  % leave only visual interference + headstart for escaping it
         if mechanism == 5, E.CTI(2) = 1; C.eraseFXbyCue = 0; end  % leave only read-out from FX + headstart for doing so

@@ -35,19 +35,15 @@ if E.targetDim == 2  % if the target dimension is orientation, ...
     UpdateFX(Map, 1);  % the cue erases the target feature map, because that is the target feature map
 end
 
-% for analysis of the causes of retro-cue effects: this eliminates FX
-if C.eraseFXbyCue == 1, Map(1).FX = 0*Map(1).FX; end
-
-if (ismember (cueing, [1:3, 5]))  % if the cueing condition is NOT "refreshing", and NOT multi-cueing
+if (ismember (cueing, [2:3, 5]))  % if the cueing condition is NOT "refreshing", and NOT multi-cueing
 
     %During retention interval - focus on a single item
-    if (cueing == 1), CuedIdx = 0; end  % no cue - no cued item is yet defined
     if (cueing == 2 || cueing == 5), CuedIdx = 1; end  % valid retro-cue: always on target
     if (cueing == 3)
         if (setsize == 1), CuedIdx = 1; else, CuedIdx = 1+randperm(setsize-1,1); end  % invalid retro-cue: never on target (except when setsize = 1)
     end
 
-    if CuedIdx > 0 && CuedIdx ~= Focus    % if a location was cued and forced the focus to shift during the RI...
+    if CuedIdx ~= Focus    % if a location was cued and forced the focus to shift during the RI...
         Focus = CuedIdx;          % ...update focus location, and ...
         Afocus = zeros(1,C.nc);   % ... drop content of the feature focus
         cRate = gamrnd(P.cRate^2/(P.cRate*P.cRateSD)^2, (P.cRate*P.cRateSD)^2/P.cRate);

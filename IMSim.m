@@ -53,6 +53,11 @@ fx1 = Map(1).FX;
 
 %%%%%%%%%%%% Now do all the retro-cueing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+if C.eraseFXbyCue == 1, Map(1).FX = 0*Map(1).FX; end
+% for analysis of the causes of retro-cue effects: this eliminates FX in
+% all conditions, including the neutral-cue condition, to ensure that in
+% the absence of any mechanism FX is erased in all cueing conditions. 
+
 if cueing > 1 && E.PreRetro == 2
     [Map, W, G, GW, Focus, Afocus, lastrefreshed, CuedIdx, Strength, overTime, maxFX, maxW] = IMcueing(Map, W, G, GW, Strength, Focus, Afocus, L, F, setsize, cueing, refreshings, overTime);
     if isnan(maxW)

@@ -3,7 +3,7 @@
 % Version using the KO/Manohar mediated-binding mechanism
 
 clear all
-close all
+%close all
 
 global E
 global C
@@ -71,7 +71,7 @@ fitIMSim = 0; % fit IM?
 
 %%% Experimental Constants/Defaults
 
-E.ntrials = 200;     % number of trials to run per subject and condition
+E.ntrials = 100;     % number of trials to run per subject and condition
 E.nsubj = 100;       % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
@@ -107,7 +107,6 @@ C.x = pi*(1:C.nc)./180;  % x axis for the distributions of population codes in c
 C.tstep = 0.05;    % time steps for simulation (in s)
 
 C.tstep = 0.02; 
-
 
 C.nsamples = 100;  % number of samples in multinomial accumulator
 C.ContentFun = @VonMises;
@@ -220,7 +219,7 @@ if Exp == 37, D = DualTaskSetsizePRP(0); end  % Stevanovski & Jolicoeur (2007); 
 if Exp == 38, D = DiscreteWholeReport(Model); end    % Adam et al. (2017, APP)
 
 
-if Exp == 40, D = RetroCueSeparateMechanisms(Model, [1:7], 1, 1:3, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
+if Exp == 40, D = RetroCueSeparateMechanisms(Model, [1:7], 1, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
 if Exp == 41, D = RetroCueFullDesign(Model, 1, C.indVar, fitMM); end  % second argument = Tasks (1=CR, 2=CD)
 if Exp == 42, D = RetroCueStrength(Model, fitMM); end  % Retro-cue exploration
 if Exp == 43, D = SetsizeAlpha(@IMSimAlpha, 8); end
