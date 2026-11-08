@@ -3,7 +3,7 @@
 % Version using the KO/Manohar mediated-binding mechanism
 
 clear all
-%close all
+close all
 
 global E
 global C
@@ -219,7 +219,7 @@ if Exp == 37, D = DualTaskSetsizePRP(0); end  % Stevanovski & Jolicoeur (2007); 
 if Exp == 38, D = DiscreteWholeReport(Model); end    % Adam et al. (2017, APP)
 
 
-if Exp == 40, D = RetroCueSeparateMechanisms(Model, [1:7], 1, 1:2, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
+if Exp == 40, D = RetroCueSeparateMechanisms(Model, [1:7], 1:2, 1:3, fitMM); end  % Retro-cue exploration. Arguments are Mechanisms, Tasks (1=CR, 2=CD), Cueing conditions (1=neutral, 2=valid, 3=invalid)
 if Exp == 41, D = RetroCueFullDesign(Model, 1, C.indVar, fitMM); end  % second argument = Tasks (1=CR, 2=CD)
 if Exp == 42, D = RetroCueStrength(Model, fitMM); end  % Retro-cue exploration
 if Exp == 43, D = SetsizeAlpha(@IMSimAlpha, 8); end
