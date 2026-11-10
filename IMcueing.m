@@ -64,7 +64,7 @@ if (ismember (cueing, [2:3, 5]))  % if the cueing condition is NOT "refreshing",
                 if E.context == 1, context = C.locationnoise + AfocusLoc * C.MappingC; end  %
                 if E.context == 2, context = C.stimnoise + (AfocusLoc./sum(AfocusLoc) * Map(2).FX) * C.Mapping; end
                 content = C.stimnoise + Afocus * C.Mapping;
-                [W, GateClosed, gWeight, cIdx, bStrength] = IMencodeStim(W, context, content, GateClosed, gWeight, cRate(Focus), cTime(Focus), E.CTI(cueing)-overTime);
+                [W, GateClosed, gWeight, cIdx, bStrength] = IMencodeStim(W, context, content, GateClosed, gWeight, cRate(Focus), cTime(Focus), max(0, E.CTI(cueing)-overTime));
             end
         end
         if P.cueingStrength > 0, W = Strengthen(W); end   % strengthening happens after retrieval, so it has no consequence for the cued item any more
@@ -85,7 +85,7 @@ if (cueing == 4)    % "refreshing" experiments guiding the focus to several item
             if E.context == 1, context = C.locationnoise + AfocusLoc * C.MappingC; end  %
             if E.context == 2, context = C.stimnoise + (AfocusLoc./sum(AfocusLoc) * Map(2).FX) * C.Mapping; end
             for ff = 1:E.nfeat, content(ff,:) = C.stimnoise + Afocus(ff,:) * C.Mapping; end
-            [W, GateClosed, gWeight, cIdx, bStrength] = IMencodeStim(W, context, content, GateClosed, gWeight, cRate(Focus), cTime(Focus), E.CTI(cueing)-overTime);
+            [W, GateClosed, gWeight, cIdx, bStrength] = IMencodeStim(W, context, content, GateClosed, gWeight, cRate(Focus), cTime(Focus), max(0, E.CTI(cueing)-overTime));
             if C.retroCueConsolid == 1, cTime(Focus) = 0; end % now P.cStrength has certainly been reached, so no further consolidation is called for
         end
         if ref == length(refsequence) && Focus==1
@@ -121,7 +121,7 @@ if (cueing == 6)    % multi-cueing (Rerko & Oberauer, 2013)
             if E.context == 1, context = C.locationnoise + AfocusLoc * C.MappingC; end  %
             if E.context == 2, context = C.stimnoise + (AfocusLoc./sum(AfocusLoc) * Map(2).FX) * C.Mapping; end
             for ff = 1:E.nfeat, content(ff,:) = C.stimnoise + Afocus(ff,:) * C.Mapping; end
-            [W, GateClosed, gWeight, cIdx, bStrength] = IMencodeStim(W, context, content, GateClosed, gWeight, cRate(Focus), cTime(Focus), E.CTI(cueing)-overTime);
+            [W, GateClosed, gWeight, cIdx, bStrength] = IMencodeStim(W, context, content, GateClosed, gWeight, cRate(Focus), cTime(Focus), max(0, E.CTI(cueing)-overTime));
             if C.retroCueConsolid == 1, cTime(Focus) = 0; end % now P.cStrength has certainly been reached, so no further consolidation is called for
         end
         if cueNum == length(E.cuesequence) && Focus==1
