@@ -319,7 +319,7 @@ disp(mean(AllParmsXT));
 
 %%% Save results
 if E.saveResults == 1
-    fid = fopen('IMSim.SimSeqPresentationTime.dat', 'w');
+    fid = fopen([pwd(), '\dat\IMSim.SimSeqPresentationTime.dat'], 'w');
     for id = 1:E.nsubj
         for simseq = 1:2
             for iii = 1:length(InterItemInterval)

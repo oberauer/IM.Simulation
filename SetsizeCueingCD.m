@@ -148,6 +148,20 @@ D.PC = PC;
 D.Pyes = Pyes;
 D.RT = RT;
 
+if E.saveResults == 1
+    filename = [pwd(), '\dat\IMSim.SetsizeCueingCD', mat2str(E.material), '.dat'];
+    fid = fopen(filename, 'w');
+    for id = 1:E.nsubj
+        for setsize = 1:E.maxsetsize
+            for ptype = 1:3
+                for cueing = 1:2
+                    fprintf(fid, '%d %d %d %d %d %d %d \n', id, setsize, ptype, cueing, PC(id, ptype, setsize, cueing), Pyes(id, ptype, setsize, cueing), RT(id, ptype, setsize, cueing));
+                end
+            end
+        end
+    end
+    fclose(fid);
+
 output = 0; 
 
 

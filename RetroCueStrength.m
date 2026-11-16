@@ -229,7 +229,7 @@ end
 
 %%% Save results
 if E.saveResults == 1
-    fid = fopen('IMSim.RetroCueStrength.dat', 'w');
+    fid = fopen([pwd(), '\dat\IIMSim.RetroCueStrength.dat'], 'w');
     for id = 1:E.nsubj
         for str = 1:length(Strength)
             for cueing = 1:3

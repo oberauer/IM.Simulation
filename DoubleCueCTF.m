@@ -243,7 +243,7 @@ D.PC2 = PC2;
 
 %%% Save results
 if E.saveResults == 1
-    filename = ['IMSim.DoubleCueCTF', mat2str(E.material), '.dat'];
+    filename = [pwd(), '\dat\IMSim.DoubleCueCTF', mat2str(E.material), '.dat'];
     fid = fopen(filename, 'w');
     for id = 1:E.nsubj
         for setsize = 1:2

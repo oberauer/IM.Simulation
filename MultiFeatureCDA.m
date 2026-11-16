@@ -197,7 +197,7 @@ D.meanAlpha = meanAlpha;
 
 if E.saveResults == 1
     
-    fid = fopen('IMSim.MultiFeatError.dat', 'w');
+    fid = fopen([pwd(), '\dat\IMSim.MultiFeatError.dat'], 'w');
     for id = 1:E.nsubj
         for setsize = 1:E.maxsetsize
             for nfeat = 1:maxFeat
@@ -210,7 +210,7 @@ if E.saveResults == 1
     end
     fclose(fid);
     
-    fid = fopen('IMSim.;ultiFeatCDA.dat', 'w');
+    fid = fopen([pwd(), '\dat\IMSim.MultiFeatCDA.dat'], 'w');
     for id = 1:E.nsubj
         for setsize = 1:E.maxsetsize
             for nfeat = 1:4
@@ -221,7 +221,7 @@ if E.saveResults == 1
     end
     fclose(fid);
     
-    fid = fopen('IMSim.MultiFeatCTF.dat', 'w');
+    fid = fopen([pwd(), '\dat\IMSim.MultiFeatCTF.dat'], 'w');
     for id = 1:E.nsubj
         for setsize = 1:E.maxsetsize
             for nfeat = 1:maxFeat

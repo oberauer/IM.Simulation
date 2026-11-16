@@ -177,7 +177,7 @@ end  % for test ...
 
 %%% Save results (only of test = 2)
 if E.saveResults == 1
-    filename = ['IMSim.MultiCueABA.dat'];
+    filename = [pwd(), '\dat\IMSim.MultiCueABA.dat'];
     fid = fopen(filename, 'w');
     for id = 1:E.nsubj
         for ptype = 1:3

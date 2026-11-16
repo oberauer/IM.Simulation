@@ -258,7 +258,7 @@ end
 
 %%% Save results
 if E.saveResults == 1
-    fid = fopen('IMSim.WheelAttraction.dat', 'w');
+    fid = fopen([pwd(), '\dat\IMSim.WheelAttraction.dat'], 'w');
     for id = 1:E.nsubj
         for wheel = 1:2
             for cueing = 1:2
@@ -269,7 +269,7 @@ if E.saveResults == 1
         end
     end
     fclose(fid);
-    fid2 = fopen('IMSim.WheelAttractionDetails.dat', 'w');
+    fid2 = fopen([pwd(), '\dat\IMSim.WheelAttractionDetails.dat'], 'w');
     for trial = 1:size(Conditions,1)
         fprintf(fid2, '%d  %d %d ', Conditions(trial), Target(trial), Response(trial));
         for item = 1:(setsize+1)   % column setsize+1 contains color spatially closest to the target in the color wheel

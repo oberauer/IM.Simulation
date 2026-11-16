@@ -329,7 +329,7 @@ D.GroupPar = GroupPar;
 save IMSim.SetsizeIndDiff.mat
 
 if E.saveResults == 1
-    fid = fopen('IMSim.SetsizeIndDiff.dat', 'w');
+    fid = fopen([pwd(), '\dat\IMSim.SetsizeIndDiff.dat]', 'w');
     for group = 1:E.ngroups
         for id = 1:E.nsubj
             for setsize = 1:E.maxsetsize

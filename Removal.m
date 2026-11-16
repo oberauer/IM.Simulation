@@ -250,7 +250,7 @@ end
 
 %%% Save results
 if E.saveResults == 1
-    fid = fopen(['IMSim.Removal', mat2str(setsize), '.dat'], 'w');
+    fid = fopen([pwd(), '\dat\IMSim.Removal', mat2str(setsize), '.dat'], 'w');
     for id = 1:E.nsubj
         for cval = 1:length(Cueval)
             for cueing = 1:3

@@ -148,6 +148,7 @@ plot(1:E.maxsetsize, plotvector);
 PostFigure([0.5, E.maxsetsize+0.5, 0, 2], 'Set Size', 'RT', [], {'Positive', 'New', 'Intrusion'});
 
 % P(yes) by distance between probe and target feature
+pyes = NaN(E.maxsetsize, nbins);
 PreFigure([], [], 2);
 for setsize = 1:E.maxsetsize
     pyes(setsize,:) = squeeze(mean(PyesXDelta(:,setsize,:),1)./mean(PyesXDcount(:,setsize,:),1));
@@ -156,18 +157,21 @@ plot([0, binBounds(2:end)-7.5], pyes');
 PostFigure([0, 180, 0, 1], 'D(probe, target)', 'P(yes)', [], vec2legend(1:setsize));
 
 % P(yes) by distance between probe and target feature, separately for new and intrusion lures
+pyesNew = NaN(E.maxsetsize, nbins);
 PreFigure([], [], 2);
 subplot(1,2,1);
 for setsize = 1:E.maxsetsize
-    pyes(setsize,:) = squeeze(mean(PyesXDelta_New(:,setsize,:),1)./mean(PyesXDelta_NewCount(:,setsize,:),1));
+    pyesNew(setsize,:) = squeeze(mean(PyesXDelta_New(:,setsize,:),1)./mean(PyesXDelta_NewCount(:,setsize,:),1));
 end
-plot([0, binBounds(2:end)-7.5], pyes');
+plot([0, binBounds(2:end)-7.5], pyesNew');
+
+pyesIntru = NaN(E.maxsetsize, nbins);
 PostFigure([0, 180, 0, 1], 'D(probe, target)', 'P(yes)', 'New', vec2legend(1:setsize));
 subplot(1,2,2);
 for setsize = 1:E.maxsetsize
-    pyes(setsize,:) = squeeze(mean(PyesXDelta_Intrus(:,setsize,:),1)./mean(PyesXDelta_IntrusCount(:,setsize,:),1));
+    pyesIntru(setsize,:) = squeeze(mean(PyesXDelta_Intrus(:,setsize,:),1)./mean(PyesXDelta_IntrusCount(:,setsize,:),1));
 end
-plot([0, binBounds(2:end)-7.5], pyes');
+plot([0, binBounds(2:end)-7.5], pyesIntru');
 PostFigure([0, 180, 0, 1], 'D(probe, target)', 'P(yes)', 'Intrus', vec2legend(1:setsize));
 
 % Support for target from FX and from W
@@ -180,23 +184,30 @@ PostFigure([0.5, E.maxsetsize+0.5, 0, max(0.01, 1.1*max(plotvector(:)))], 'Set S
 D.PC = PC;
 D.Pyes = Pyes;
 D.RT = RT;
+D.PyesXDelta = PyesXDelta;
+D.PyesXDcount = D.PyesXDcount;
 
 %%% Save results
 if E.saveResults == 1
-    filename = ['IMSim.SetsizeCD', mat2str(E.material), '.dat'];
+    filename = [pwd(), '\dat\IMSim.SetsizeDeltaCD', mat2str(E.material), '.dat'];
     fid = fopen(filename, 'w');
     for id = 1:E.nsubj
         for setsize = 1:E.maxsetsize
             for ptype = 1:3
-                    fprintf(fid, '%d %d %d %d %d \n', id, setsize, ptype, PC(id, setsize, ptype), RT(id, setsize, ptype));
+                fprintf(fid, '%d %d %d %d %d \n', id, setsize, ptype, PC(id, setsize, ptype), RT(id, setsize, ptype));
             end
         end
     end
     fclose(fid);
-    filename = ['IMSim.SetsizeCD.PYesByBin.', mat2str(E.material), '.dat'];
+    filename = [pwd(), '\dat\IMSim.SetsizeCD.PYesByBin.', mat2str(E.material), '.dat'];
     fid = fopen(filename, 'w');
     for setsize = 1:E.maxsetsize
+        fprintf(fid, '%d  ', setsize);
         for bin = 1:nbins, fprintf(fid, '%d ', pyes(setsize, bin)); end
+        fprintf(fid, '  ');
+        for bin = 1:nbins, fprintf(fid, '%d ', pyesNew(setsize, bin)); end
+        fprintf(fid, '  ');
+        for bin = 1:nbins, fprintf(fid, '%d ', pyesIntru(setsize, bin)); end
         fprintf(fid, '\n');
     end
     fclose(fid);

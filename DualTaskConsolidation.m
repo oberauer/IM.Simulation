@@ -175,3 +175,20 @@ D.MCorrect = MCorrect;
 
 halt = 1;
 end
+
+
+%%% Save results
+if E.saveResults == 1
+    filename = [pwd(), '\dat\IMSim.DualTaskConsolidation', mat2str(E.material), '.dat'];
+    fid = fopen(filename, 'w');
+    for id = 1:E.nsubj
+        for singleDual = 1:2
+            for masking = 1:2
+                for iii = 1:length(SOA)
+                    fprintf(fid, '%d %d %d %d %d %5.3f %3.2f \n', id, singleDual, masking, iii, Mdevobs(id, singleDual, masking, iii), MRT(id, masking, iii), MCorrect(id, masking, iii));
+                end
+            end
+        end
+    end
+    fclose(fid);
+end

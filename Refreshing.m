@@ -341,7 +341,7 @@ end
 fclose(fid); 
 
 %%% Save results (with last-refreshed item)
-fid = fopen('IMSim.RefreshingLast.dat', 'w');
+fid = fopen(pwd(), '\dat\IMSim.RefreshingLast.dat', 'w');
 for id = 1:E.nsubj
     for lastref = 1:4
         for refreshings = 1:2

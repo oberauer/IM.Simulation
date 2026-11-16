@@ -222,7 +222,7 @@ end
 
 %%% Save results
 if E.saveResults == 1
-    fid = fopen(['IMSim.SimSeq.dat'], 'w');
+    fid = fopen([pwd(), '\dat\IMSim.SimSeq.dat'], 'w');
     for id = 1:E.nsubj
         for simseq = 1:2
             for overlap = 1:2

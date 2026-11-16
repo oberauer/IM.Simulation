@@ -217,7 +217,7 @@ disp(corrXT);
 
 %%% Save results
 if E.saveResults == 1
-    fid = fopen('IMSim.RetroCueDecayInter.dat', 'w');
+    fid = fopen([pwd(), '\dat\IIMSim.RetroCueDecayInter.dat'], 'w');
     for id = 1:E.nsubj
         for ri = 1:length(RI)
             for cueing = 1:2

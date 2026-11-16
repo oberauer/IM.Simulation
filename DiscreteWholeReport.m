@@ -59,6 +59,24 @@ PostFigure([-0.5, setsize+0.5, 0, 1], 'Number Correct', 'Proportion of Trials');
 
 D.ProportionK = ProportionK;
 
+%%% Save results
+if E.saveResults == 1
+    filename = [pwd(), '\dat\IMSim.DiscreteReport', mat2str(E.material), '.dat'];
+    fid = fopen(filename, 'w');
+    for id = 1:E.nsubj
+        for ptype = 1:3
+            for cueing = 1:3
+                fprintf(fid, '%d ', id);
+                for k = 1:(setsize+1)
+                   fprintf(fid, '%2.3f ', ProportionK(k));
+                end
+                fprintf(fid, '\n');
+            end
+        end
+    end
+    fclose(fid);
+end
+
 
 halt = 1;
 end

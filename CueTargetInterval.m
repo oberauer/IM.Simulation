@@ -254,7 +254,7 @@ end
 
 %%% Save results
 if E.saveResults == 1
-    fid = fopen('IMSim.CTI.dat', 'w');
+    fid = fopen([pwd(), '\dat\IMSim.CTI.dat'], 'w');
     for id = 1:E.nsubj
         for cti = 1:length(CTI)
             for cueing = 1:3

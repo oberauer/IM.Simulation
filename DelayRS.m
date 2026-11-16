@@ -137,7 +137,7 @@ D.RT = RT;
 
 %%% Save results
 if E.saveResults == 1
-    filename = ['IMSim.DelayRS', mat2str(E.material), '.dat'];
+    filename = [pwd(), '\dat\IMSim.DelayRS', mat2str(E.material), '.dat'];
     fid = fopen(filename, 'w');
     for id = 1:E.nsubj
         for ptype = 1:3

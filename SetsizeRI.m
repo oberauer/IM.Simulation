@@ -288,7 +288,7 @@ end
 
 %%% Save results
 if E.saveResults == 1
-    fid = fopen('IMSim.SetsizeRI.dat', 'w');
+    fid = fopen([pwd(), '\dat\IMSim.SetsizeRI.dat'], 'w');
     for id = 1:E.nsubj
         for setsize = 1:E.maxsetsize
             for ri = 1:length(RI)

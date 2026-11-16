@@ -155,3 +155,16 @@ D.Mdevobs = Mdevobs;
 D.MMguessing = MMguessing;
 D.MMtranspos = MMtranspos;
 D.MMSD = MMSD;
+
+%%% Save results
+if E.saveResults == 1
+    filename = [pwd(), '\dat\IMSim.Masking', mat2str(E.material), '.dat'];
+    fid = fopen(filename, 'w');
+    for id = 1:E.nsubj
+        for soaIdx = 1:length(SOA)
+            fprintf(fid, '%d %d %d %5.3f %d \n', id, soaIdx, Mdevobs(id, soaIdx), CircSD(id, soaIdx), DevFromMask(id, soaIdx));
+            if (fitMM == 1), fprintf(fid, '%d %d %d %d', MMtranspos(id, soaIdx), MMguessing(id, soaIdx), MMcwattraction(id, soaIdx), MMSD(id, soaIdx)); end
+        end
+    end
+    fclose(fid);
+end

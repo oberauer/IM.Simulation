@@ -205,6 +205,23 @@ for task = Tasks
                         plot(mean(MMcwattraction,1));
                         PostFigure([0.5, 3.5, 0, 1], 'Cueing Condition', 'Mean P(wheel)', 'P(wheel attraction)');
                     end
+
+                    %%% Save results
+                    if E.saveResults == 1
+                        fid = fopen([pwd(), '\dat\IMSim.RetroCueFullDesign', mat2str(PreRetro), '.dat'], 'w');
+                        for id = 1:E.nsubj
+                            for cueingIdx = 1:2
+                                fprintf(fid, '%d %d %d %d %d %d %d %5.2f ', id, task, cueTarget, str, rem, inter, cueing, Accuracy(id, cueingIdx));
+                                for ii = 1:length(indVar)
+                                    fprintf(fid, '%d ', ParX(id, ii));
+                                end
+                                if (fitMM == 1), fprintf(fid, '%d %d %d %d', MMtranspos(id, cueingIdx), MMguessing(id, cueingIdx), MMcwattraction(id, cueingIdx), MMSD(id, cueingIdx)); end
+                                fprintf(fid, '\n');
+                            end
+                        end
+                        fclose(fid);
+                    end
+
                 end % interference
             end  % removal
         end  % strengthening
@@ -243,24 +260,11 @@ for task = Tasks
 
 end  % task
 
-%
-% %%% Save results
-% if E.saveResults == 1
-%     fid = fopen(['IMSim.SetsizeCueing', mat2str(PreRetro), '.dat'], 'w');
-%     for id = 1:E.nsubj
-%         for setsize = 1:E.maxsetsize
-%             for cueing = 1:3
-%                 fprintf(fid, '%d %d %d %d  ', id, setsize, cueing, Mdevobs(id, cueing, setsize));
-%                 for ii = 1:length(indVar)
-%                     fprintf(fid, '%d ', ParX(id, ii));
-%                 end
-%                 if (fitMM == 1), fprintf(fid, '%d %d %d %d', MMtranspos(id, cueing, setsize), MMguessing(id, cueing, setsize), MMcwattraction(id, cueing, setsize), MMSD(id, cueing, setsize)); end
-%                 fprintf(fid, '\n');
-%             end
-%         end
-%     end
-%     fclose(fid);
-% end
+if E.saveResults == 1
+    fclose(fid);
+end
+
+end
 
 
 

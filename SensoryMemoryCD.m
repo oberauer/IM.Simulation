@@ -159,7 +159,7 @@ D.ParmsPlus = ParmsPlus;
 
 %%% Save results
 if E.saveResults == 1
-    filename = ['IMSim.SensoryMemoryCD', mat2str(E.material), '.dat'];
+    filename = [pwd(), '\dat\IMSim.SensoryMemoryCD', mat2str(E.material), '.dat'];
     fid = fopen(filename, 'w');
     for id = 1:E.nsubj
         for soa = 1:length(SOA)

@@ -281,7 +281,7 @@ end
 
 %%% Save results
 if E.saveResults == 1
-    fid = fopen(['IMSim.SetsizeCueing', mat2str(PreRetro), '.dat'], 'w');
+    fid = fopen([pwd(), '\dat\IMSim.SetsizeCueing', mat2str(PreRetro), '.dat'], 'w');
     for id = 1:E.nsubj
         for setsize = 1:E.maxsetsize
             for cueing = 1:3

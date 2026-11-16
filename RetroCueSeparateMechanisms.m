@@ -12,6 +12,10 @@ setsize = 6;
 Titletext = {'Strength. Only', 'Consolid. Only', 'Removal Only', 'Visual Interf. + Headstart', 'FX + Headstart', 'Headstart Only', 'None'};
 option = optimset('Display','off','TolFun',1e-10, 'FunValCheck','on', 'MaxIter', 2000);
 
+if E.saveResults == 1
+    fid = fopen([pwd(), '\dat\IMSim.SetsizeCueing', mat2str(PreRetro), '.dat'], 'w');
+end
+
 meanAcc = zeros(2, 4, 3);  % task, mechanism, cueing condition
 
 % Calibrate amplification factor on population level, if desired
@@ -21,7 +25,7 @@ if E.calibrateAmp == 1
 end
 
 % keep default values
-PP = P; 
+PP = P;
 filter = P.filter;
 removalThreshold = P.removalThreshold;
 CueRate = P.cuerate;   % remember for re-instatement (because it is not an individual-differences variable that will be re-instated from ParX)
@@ -44,10 +48,10 @@ for task = Tasks
         P.removalThreshold = 0;  % eliminate removal
         P.filter = zeros(1,3);   % eliminate visual interference
         C.retroCueConsolid = 0;  % eliminate consolidation
-        E.CTI(2:3) = 0;          % eliminate head start 
+        E.CTI(2:3) = 0;          % eliminate head start
         C.eraseFXbyCue = 1;      % eliminate read-out from FX after cue
 
-        % re-introduce individual mechanisms        
+        % re-introduce individual mechanisms
         if mechanism == 1, P.cueingStrength = 1; end  % leave only strengthening
         if mechanism == 2, C.retroCueConsolid = 1; C.eraseFXbyCue = 0; end  % leave only consolidation for retrieval, and FX as its basis
         if mechanism == 3, P.removalThreshold = removalThreshold; end  % leave only removal
@@ -60,10 +64,10 @@ for task = Tasks
 
         Mdevobs = NaN(E.nsubj, 3);  % mean observed deviation of responses from target feature for subjects, cueing conditions,
         Mrt = NaN(E.nsubj, 3);      % mean RT
-        MMSD = NaN(E.nsubj, 3);     % Mixture Model SD parameter
-        MMguessing = NaN(E.nsubj, 3);  % Mixture Model Guessing parameter
-        MMtranspos = NaN(E.nsubj, 3);  % Mixture Model Transposition parameter (swap error proportion)
-        MMcwattraction = NaN(E.nsubj, 3);  % Mixture Model colorwheel-attraction strength parameter
+        MMSD = zeros(E.nsubj, 3);     % Mixture Model SD parameter
+        MMguessing = zeros(E.nsubj, 3);  % Mixture Model Guessing parameter
+        MMtranspos = zeros(E.nsubj, 3);  % Mixture Model Transposition parameter (swap error proportion)
+        MMcwattraction = zeros(E.nsubj, 3);  % Mixture Model colorwheel-attraction strength parameter
         Pcorrect = NaN(E.nsubj, 3, 3);       % mean accuracy in change detection for 3 cueing conditions and 3 probe types
 
         % for each set-size level, for each trial, generate a vector of 360 color
@@ -192,6 +196,20 @@ for task = Tasks
 
         P.cuerate = CueRate;
 
+        %%% Save results
+        if E.saveResults == 1
+            for id = 1:E.nsubj
+                for cueing = 1:3
+                    fprintf(fid, '%d %d %d %d  %d %d  %5.3f ', id, setsize, task, mechanism, cueing, Accuracy(id, cueing), Mrt(id, cueing));
+                    for ii = 1:length(indVar)
+                        fprintf(fid, '%d ', ParX(id, ii));
+                    end
+                    if (fitMM == 1), fprintf(fid, '%d %d %d %d', MMtranspos(id, cueing), MMguessing(id, cueing), MMcwattraction(id, cueing), MMSD(id, cueing)); end
+                    fprintf(fid, '\n');
+                end
+            end
+        end
+
     end % mechanism
 end  % task
 
@@ -223,24 +241,8 @@ D.meanAcc = meanAcc;
 out = 1;
 
 
-%
-% %%% Save results
-% if E.saveResults == 1
-%     fid = fopen(['IMSim.SetsizeCueing', mat2str(PreRetro), '.dat'], 'w');
-%     for id = 1:E.nsubj
-%         for setsize = 1:E.maxsetsize
-%             for cueing = 1:3
-%                 fprintf(fid, '%d %d %d %d  ', id, setsize, cueing, Mdevobs(id, cueing, setsize));
-%                 for ii = 1:length(indVar)
-%                     fprintf(fid, '%d ', ParX(id, ii));
-%                 end
-%                 if (fitMM == 1), fprintf(fid, '%d %d %d %d', MMtranspos(id, cueing, setsize), MMguessing(id, cueing, setsize), MMcwattraction(id, cueing, setsize), MMSD(id, cueing, setsize)); end
-%                 fprintf(fid, '\n');
-%             end
-%         end
-%     end
-%     fclose(fid);
-% end
-
+if E.saveResults == 1
+    fclose(fid);
+end
 
 

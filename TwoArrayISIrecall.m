@@ -193,5 +193,25 @@ for SS1 = 1:3
     end
 end
 
+
+%%% Save results
+if E.saveResults == 1
+    fid = fopen([pwd(), '\dat\IMSim.TwoArrayISIrecall.dat'], 'w');
+    for id = 1:E.nsubj
+        for SS1 = 1:3
+            for SS2 = 1:3
+                for testedArray = 1:2
+                    for iii = 1:length(InterArrayInterval)
+                        fprintf(fid, '%d %d %d %d %d %d %d ', id, SS1, SS2, testedArray, iii, Mdevobs(id, SS1, SS2, testedArray, iii));
+                        fprintf(fid, '\n');
+                    end
+                end
+            end
+        end
+    end
+    fclose(fid);
+end
+
+
 halt = 1;
 end

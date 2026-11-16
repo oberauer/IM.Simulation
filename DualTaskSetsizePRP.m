@@ -29,8 +29,8 @@ IMprepareRecog; % set up criterion for expected size of change
 
 MemAccuracy = NaN(E.nsubj, 2, length(Setsize), length(DecisionSetsize), length(SOA));  % id, singleDual, setsize, decision-task setsize, III
 RetrievalStrength = NaN(E.nsubj, 2, length(Setsize), length(DecisionSetsize), length(SOA));  % id, singleDual, setsize, decision-task setsize, III
-MRT = NaN(E.nsubj, length(Setsize), length(DecisionSetsize), length(SOA));  % id, setsize, decision-task setsize, III
-MCorrect = NaN(E.nsubj, length(Setsize), length(DecisionSetsize), length(SOA));  % id, setsize, decision-task setsize, III
+MRT = -ones(E.nsubj, length(Setsize), length(DecisionSetsize), length(SOA));  % id, setsize, decision-task setsize, III
+MCorrect = -ones(E.nsubj, length(Setsize), length(DecisionSetsize), length(SOA));  % id, setsize, decision-task setsize, III
 MBindingResource = NaN(E.nsubj, length(Setsize), length(DecisionSetsize), length(SOA));  % id, setsize, decision-task setsize, III
 OT = struct('times', []);
 OverTime = repmat(OT, length(Setsize), length(SOA));
@@ -187,6 +187,25 @@ D.MRT = MRT;
 D.MCorrect = MCorrect; 
 D.MBindingResource = MBindingResource;
 D.RetrievalStrength = RetrievalStrength;
+
+%%% Save results
+if E.saveResults == 1
+    filename = [pwd(), '\dat\IMSim.DualTaskPRP', mat2str(E.material), '.dat'];
+    fid = fopen(filename, 'w');
+    for id = 1:E.nsubj
+        for dssIdx = 1:length(DecisionSetsize)
+            for singleDual = 1:2
+                for ssIdx = 1:length(Setsize)
+                    for soaIdx = 1:length(SOA)
+                    fprintf(fid, '%d %d %d %d %d %d %5.3f %d \n', id, dssIdx, singleDual, ssIdx, soaIdx, MemAccuracy(id, singleDual, ssIdx, dssIdx, soaIdx), ...
+                        MRT(id, ssIdx, dssIdx, soaIdx), MCorrect(id, ssIdx, dssIdx, soaIdx));
+                    end
+                end
+            end
+        end
+    end
+    fclose(fid);
+end
 
 halt = 1;
 end

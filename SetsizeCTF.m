@@ -208,7 +208,7 @@ ResponseDistrib(Array, Target, Response);
 
 % plot CTFs for location from W
 
-if E.saveResults == 1, fid = fopen('IMSim.SetsizeCTF.CTF.W2loc.dat', 'w'); end
+if E.saveResults == 1, fid = fopen([pwd(), '\dat\IMSim.SetsizeCTF.CTF.W2loc.dat'], 'w'); end
 PreFigure([], [], 2);
 for setsize = 1:E.maxsetsize
     nItems = 1 + (2-items4CTF)*(setsize-1);
@@ -227,7 +227,7 @@ if (E.saveResults == 1), fclose(fid); end
 
 % plot CTFs for feature from W
 
-if E.saveResults == 1, fid = fopen('IMSim.SetsizeCTF.CTF.W2feat.dat', 'w'); end
+if E.saveResults == 1, fid = fopen([pwd(), '\dat\IMSim.SetsizeCTF.CTF.W2feat.dat'], 'w'); end
 PreFigure([], [], 2);
 for setsize = 1:E.maxsetsize
     nItems = 1 + (2-items4CTF)*(setsize-1);
@@ -246,7 +246,7 @@ if (E.saveResults == 1), fclose(fid); end
 
 % plot CTFs for locations from feature maps
 
-if E.saveResults == 1, fid = fopen('IMSim.SetsizeCTF.CTF.FX2loc.dat', 'w'); end
+if E.saveResults == 1, fid = fopen([pwd(), '\dat\IMSim.SetsizeCTF.CTF.FX2loc.dat'], 'w'); end
 PreFigure([], [], 2);
 for setsize = 1:E.maxsetsize
     nItems = 1 + (2-items4CTF)*(setsize-1);
@@ -286,7 +286,7 @@ end
 
 %%% Save results
 if E.saveResults == 1
-    fid = fopen('IMSim.SetsizeCTF.Behav.dat', 'w');
+    fid = fopen([pwd(), '\dat\IMSim.SetsizeCTF.Behav.dat'], 'w');
     for id = 1:E.nsubj
         for setsize = 1:E.maxsetsize
             fprintf(fid, '%d %d   %d %d  ', id, setsize, Mdevobs(id, setsize), Mrt(id, setsize));

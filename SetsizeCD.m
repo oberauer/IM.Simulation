@@ -169,7 +169,7 @@ PostFigure([0.5, E.maxsetsize+0.5, 0, 2], 'Set Size', 'RT', 'Big changes only', 
 
 %%% Save results
 if E.saveResults == 1
-    filename = ['IMSim.SetsizeCD', mat2str(E.material), '.dat'];
+    filename = [[pwd(), '\dat\IMSim.SetsizeCD', mat2str(E.material), '.dat'];
     fid = fopen(filename, 'w');
     for id = 1:E.nsubj
         for setsize = 1:E.maxsetsize

@@ -103,3 +103,18 @@ D.PC = PC;
 D.RT = RT; 
 output = 1; 
 
+%%% Save results
+if E.saveResults == 1
+    fid = fopen([pwd(), '\dat\IMSim.ROC.dat'], 'w');
+    for id = 1:E.nsubj
+        fprintf(fid, '%d  ', id);
+        for r = 1:(max(ResponseSetSize) + 1)
+            fprintf(fid, '%d ', CumPhit(id,r));
+        end
+        for r = 1:(max(ResponseSetSize) + 1)
+            fprintf(fid, '%d ', CumPFA(id,r));
+        end
+        fprintf(fid, '\n');
+    end
+    fclose(fid);
+end

@@ -204,5 +204,24 @@ D.Mstrength = Mstrength;
 D.MmaxFX = MmaxFX;
 D.MmaxW = MmaxW;
 
+%%% Save results
+if E.saveResults == 1
+    fid = fopen([pwd(), '\dat\IMSim.TwoArrayISI.dat'], 'w');
+    for id = 1:E.nsubj
+        for SS1 = 1:3
+            for SS2 = 1:3
+                for testedArray = 1:2
+                    for iii = 1:length(InterArrayInterval)
+                        fprintf(fid, '%d %d %d %d %d %d %3.2f %5.3f ', id, SS1, SS2, testedArray, iii, Maccuracy(id, SS1, SS2, testedArray, iii), MRT(id, SS1, SS2, testedArray, iii));
+                        fprintf(fid, '\n');
+                    end
+                end
+            end
+        end
+    end
+    fclose(fid);
+end
+
+
 halt = 1;
 end

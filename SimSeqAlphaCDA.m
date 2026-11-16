@@ -245,7 +245,7 @@ D.CTF = CTF;
 
 if E.saveResults == 1
     
-    fid = fopen('IMSim.SimSeqError.dat', 'w');
+    fid = fopen([pwd(), '\dat\IMSim.SimSeqError.dat'], 'w');
     for id = 1:E.nsubj
         for setsize = 1:E.maxsetsize
             for simseq = 1:2
@@ -260,7 +260,7 @@ if E.saveResults == 1
     end
     fclose(fid);
     
-    fid = fopen('IMSim.SimSeqAlphaCDA.dat', 'w');
+    fid = fopen([pwd(), '\dat\IMSim.SimSeqAlphaCDA.dat'], 'w');
     for id = 1:E.nsubj
         for setsize = 1:E.maxsetsize
             for simseq = 1:2
@@ -271,7 +271,7 @@ if E.saveResults == 1
     end
     fclose(fid);
     
-    fid = fopen('IMSim.SimSeqCTF.dat', 'w');
+    fid = fopen([pwd(), '\dat\IMSim.SimSeqCTF.dat'], 'w');
     for id = 1:E.nsubj
         for setsize = 1:E.maxsetsize
             for simseq = 1:2

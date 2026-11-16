@@ -95,7 +95,7 @@ D.RT = RT;
 
 %%% Save results
 if E.saveResults == 1
-    fid = fopen(['IMSim.MultiCueIntrusion.dat'], 'w');
+    fid = fopen([pwd(), '\dat\IMSim.MultiCueIntrusion.dat'], 'w');
     for id = 1:E.nsubj
         for ptype = 1:5
             fprintf(fid, '%d %d %d %d \n', id, ptype, PC(id, ptype), RT(id, ptype));

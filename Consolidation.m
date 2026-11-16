@@ -179,7 +179,7 @@ D.Mdevobs = Mdevobs;
 
 %%% Save results
 if E.saveResults == 1
-    fid = fopen(['IMSim.Consolidation.dat'], 'w');
+    fid = fopen([pwd(), '\dat\IMSim.Consolidation.dat'], 'w');
     for id = 1:E.nsubj
         for mtime = 1:length(MaskSOA)
             for ptime = 1:length(Ptime)

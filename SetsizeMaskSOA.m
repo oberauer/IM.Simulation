@@ -241,7 +241,7 @@ end
 
 %%% Save results
 if E.saveResults == 1
-    fid = fopen(['IMSim.MaskSOA.dat'], 'w');
+    fid = fopen([pwd(), '\dat\IMSim.MaskSOA.dat'], 'w');
     for id = 1:E.nsubj
         for setsize = 1:E.maxsetsize
             for soa = 1:length(SOA)
