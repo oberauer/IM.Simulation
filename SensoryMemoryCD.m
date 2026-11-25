@@ -110,7 +110,7 @@ PreFigure;
 plotvector = zeros(length(SOA), 2); 
 plotvector(:,1) = squeeze(mean(PC(:,1,:), 1));  % positive probes
 plotvector(:,2) = squeeze(mean(PC(:,2,:), 1));  % new probes
-K = setsize.*(squeeze(Pyes(:,1,:))-squeeze(Pyes(:,2,:)));
+K = setsize.*(squeeze(Pyes(:,1,:))-squeeze(Pyes(:,2,:)));  % setsize * (hits - FAs)
 meanK = mean(K, 1); 
 
 subplot(1,2,1);
@@ -130,6 +130,12 @@ plotvector = squeeze(mean(mean(MaxFX)));
 plotvector = [plotvector, squeeze(mean(mean(MaxW)))];
 plot(SOA, plotvector);
 PostFigure([0, 1, 0, max(0.01, 1.1*max(plotvector(:)))], 'SOA', 'Strength', [], {'FX', 'W'});
+
+% plot individual trajectories of K over SOA, as in Pratte & Greene
+PreFigure([], 2, []);
+plot(SOA, K);
+PostFigure([0, 1, 0, setsize], 'SOA', 'K');
+
 
 % Correlation matrix
 
@@ -164,11 +170,24 @@ if E.saveResults == 1
     for id = 1:E.nsubj
         for soa = 1:length(SOA)
             for ptype = 1:2
-                fprintf(fid, '%d %d %d %d %d \n', id, SOA(soa), ptype, PC(id, ptype, soa), RT(id, ptype, soa));
+                fprintf(fid, '%d %d %d %d %d %d\n', id, SOA(soa), ptype, PC(id, ptype, soa), RT(id, ptype, soa), K(id, soa));
             end
         end
     end
     fclose(fid);
+
+    % save individual parameters
+    fid = fopen('IMSim.SensoryMemoryCD.Parms.dat', 'w');
+    for ii = 1:length(C.indVar), fprintf(fid, '%s ', C.indVar{ii}); end   % parameter names as column labels in first row
+    fprintf(fid, '\n');
+    for id = 1:size(ParX,1)  % goes across individuals
+        for ii = 1:length(C.indVar)
+            fprintf(fid, '%d ', ParX(id, ii));
+        end
+        fprintf(fid, '\n');
+    end
+    fclose(fid);
+
 end
 
 
