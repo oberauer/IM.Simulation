@@ -12,7 +12,12 @@ if nargin < 8, cueing = 0; end
 %  consolidation times
 cRateSD = P.cRateSD*P.cRate;
 cRate = gamrnd(P.cRate^2/cRateSD^2, cRateSD^2/P.cRate, 1, setsize);  % generate the vector of consolidation rates
-cStrength = repmat(P.cStrength, 1, setsize);
+if isscalar(P.cStrength) 
+    cStrength = repmat(P.cStrength, 1, setsize); 
+else   % for when participants only try to encode a subset of items (e.g., DiscreteWholeReport)
+    cStrength = P.cStrength;  
+    P.cStrength = P.cStrength(1); % the first entry in the vector P.cStrength is always the standard P.cStrength parameter, which is needed as a scalar again later (at retrieval)
+end
 % if CuedIdx > 0
 %     cStrength(CuedIdx) = P.cStrength + (1-P.cStrength)*0.7; % pre-cued item receives higher cStrength -> longer consolidation
 %     cStrength(setdiff(1:setsize, CuedIdx)) = 0.5*P.cStrength; % not pre-cued items receive reduced cStrength
@@ -75,7 +80,7 @@ if E.presentation == 1
         if ballistic == 1
             firstNotStarted = find([cTime, 0]==0, 1); % first consolidation event that does not even start because RI is exceeded
             extended = max(1, firstNotStarted-1); % --> give the preceding consolidation event (if there is one) an extension
-            cTime(extended) = -log(1-P.cStrength)/cRate(extended);  % give that consolidation event the full time it needs to achieve the target strength
+            cTime(extended) = -log(1-cStrength(extended))./cRate(extended);  % give that consolidation event the full time it needs to achieve the target strength
         end
     end
     if C.fullArrayBallistic == 1
