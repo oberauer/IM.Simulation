@@ -17,7 +17,7 @@ if ismember(E.test, 1:3)
     if E.PreRetro == 2 && E.CTI(cueing) > 0
         % drift before probe
         Adrift = Afocus; % cueing already includes retrieval into Afocus
-        nsteps = round((E.CTI(cueing)-overTime)./C.tstep);
+        nsteps = round((E.CTI(cueing)-overTime)./C.tstepR);
         drate = ones(nsteps, 1);
         A = sum(drate * Adrift + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
         [Map, W] = IMdecayFX(Map, W, E.CTI(cueing));
@@ -66,7 +66,7 @@ if ismember(E.test, 1:3)
     % maxW = retrievedW(F(Focus));
     %Adrift = Afocus + retrievedW; % vector of drift rates (one for each of the 360 colors) 
     
-    nsteps = round(5./C.tstep);   % that should be more than enough (5 sec)
+    nsteps = round(5./C.tstepR);   % that should be more than enough (5 sec)
     drate = ones(nsteps, 1);
     A = A + cumsum(drate * Adrift + randn(nsteps, C.nc)*P.dnoise);  % outer product of drate and Adrift -> matrix of tstep rows and 360 columns, each row = addition to to the 360 accumulators
     maxA = max(A, [], 2); % maximum value in each row of A = maximum after each time step
@@ -76,7 +76,7 @@ if ismember(E.test, 1:3)
     %%% If recall test: give the retrieved response %%%
     if E.test == 1   % recall test
         response = find(A(t,:)==max(A(t,:)), 1);  % responses are ordered by output position ("probed" is incremented from 1 to E.outsize)
-        rt = t.*C.tstep + (E.CTI(cueing)==0)*overTime;
+        rt = t.*C.tstepR + (E.CTI(cueing)==0)*overTime;
     end
 
     if E.test == 2  % old-new recognition: after deciding on which feature is retrieved, now decide on which response to give
@@ -94,7 +94,7 @@ if ismember(E.test, 1:3)
         t2 = find(maxEvidence > P.boundary(2), 1);
         if isempty(t2), t2=nsteps; end
         response(1) = find(YesNo(t2,:)==max(YesNo(t2,:)), 1);
-        rt = (t + t2).*C.tstep + (E.CTI(cueing)==0)*overTime;
+        rt = (t + t2).*C.tstepR + (E.CTI(cueing)==0)*overTime;
         response(2) = retrieved1;
         delta = abs(wrap(C.feature(F(1))-C.feature(probeIdx), 180)); % record the size of change of the probe relative to the target feature
     end
@@ -116,14 +116,14 @@ if ismember(E.test, 1:3)
         t2 = find(maxEvidence > P.boundary(2), 1);
         if isempty(t2), t2=nsteps; end
         response(1) = find(Evidence(t2,:)==max(Evidence(t2,:)), 1);
-        rt = (t + t2).*C.tstep + (E.CTI(cueing)==0)*overTime;
+        rt = (t + t2).*C.tstepR + (E.CTI(cueing)==0)*overTime;
         response(2) = retrieved1;
     end
 
 end
 
 if E.test == 4  % change localization
-    nsteps = round(5./C.tstep);   % that should be more than enough (5 sec)
+    nsteps = round(5./C.tstepR);   % that should be more than enough (5 sec)
     drate = ones(nsteps, 1);
     Delta = zeros(1, E.rss);
     rt = 0; 
@@ -150,7 +150,7 @@ if E.test == 4  % change localization
             retrieved1 = find(A(t,:)==max(A(t,:)), 1);
             probefeature = find(probestim(probe,:) == max(probestim(probe,:)), 1);
             Delta(probe) = abs(wrap(retrieved1 - probefeature, 180));
-            rt = rt + t*C.tstep;
+            rt = rt + t*C.tstepR;
         end
         response = find(Delta==max(Delta),1);  % the location with the largest deviation between retrieved feature and probe is the change location
         rt = rt + (E.CTI(cueing)==0)*overTime;
@@ -173,7 +173,7 @@ if E.test == 4  % change localization
         t = find(maxA > P.boundary(1), 1);
         if isempty(t), t=nsteps; end
         response = find(A(t,:)==max(A(t,:)), 1);
-        rt = t*C.tstep + (E.CTI(cueing)==0)*overTime;
+        rt = t*C.tstepR + (E.CTI(cueing)==0)*overTime;
 
         %if response ~= 1
             PreFigure([],[],2);

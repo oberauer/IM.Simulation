@@ -16,7 +16,6 @@ E.outsize = setsize;
 % P.kappaf_feat = 40;  
 % P.kappa_feat = 40; 
 
-
 % Calibrate amplification factor on population level, if desired
 if E.calibrateAmp == 1
     CreateStimuli;
@@ -74,6 +73,30 @@ plot(0:setsize, squeeze(mean(ProportionK,1)));
 PostFigure([-0.5, setsize+0.5, 0, 1], 'Number Correct', 'Proportion of Trials', [], vec2legend(1:setsize));
 
 D.ProportionK = ProportionK;
+
+% Correlation matrix
+
+K3plus = squeeze(sum(ProportionK(:,setsize,3:setsize),3));  % proportion of trials with 3 or more correct when goal = 6, for each subject
+
+
+ParmsPlus = [ParX, K3plus];
+corrX = corrcoef(ParmsPlus);
+varnames = [C.indVar, {'K3plus'}];
+corrXT = array2table(round(corrX, 2), 'VariableNames', varnames, ...
+    'RowNames', varnames);
+disp(corrXT);
+
+maxK3plus = max(K3plus, [], 2); 
+GoodParms = ParmsPlus(maxK3plus > 0.5, :); 
+GoodParmsXT = array2table(round(GoodParms,3), 'VariableNames', varnames); 
+AllParmsXT = array2table(round(ParmsPlus,3), 'VariableNames', varnames); 
+disp(GoodParmsXT);
+disp('Mean of subset of best parameters');
+disp(mean(GoodParmsXT));
+disp('Mean of all parameters');
+disp(mean(AllParmsXT)); 
+
+
 
 %%% Save results
 if E.saveResults == 1

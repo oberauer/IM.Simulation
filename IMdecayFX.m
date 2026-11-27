@@ -1,5 +1,6 @@
 function [Map, W] = IMdecayFX(Map, W, delay, tstep, input)
-% decay of the feature map and the weight matrix
+% "decay" of the feature map by the competition between self-activation and
+% global inhibition, and of the weight matrix by adding noise
 global C
 global P
 

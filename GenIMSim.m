@@ -72,7 +72,7 @@ fitIMSim = 0; % fit IM?
 %%% Experimental Constants/Defaults
 
 E.ntrials = 20;     % number of trials to run per subject and condition
-E.nsubj = 20;       % number of subjects
+E.nsubj = 60;       % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -105,7 +105,8 @@ C.nCat = 8;       % number of content categories
 C.nLocCat = 8;    % number of context categories
 C.binding = 2;    % mechanism of binding-unit selection: 1 = sorting of not-committed units, 2 = thresholding + inhibition of committed units
 C.x = pi*(1:C.nc)./180;  % x axis for the distributions of population codes in circular color space / orientation space
-C.tstep = 0.02; 
+C.tstep = 0.05;   % time step for dynamics of FX updating 
+C.tstepR = 0.02;  % time step for evidence accumulation at response
 C.nsamples = 100;  % number of samples in multinomial accumulator
 C.ContentFun = @VonMises;
 C.ContextFun = @VonMises;
