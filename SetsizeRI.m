@@ -6,7 +6,7 @@ global P
 global E
 global C
 
-RI = [0.2, 0.5, 1, 2, 4]; 
+RI = [0.033, 0.08, 0.17, 0.3, 0.5, 1, 2, 4]; % short RIs aligned with Greene & Pratte
 E.maxsetsize = max(Setsizes); 
 E.PreRetro = PreRetro;
 E.cuevalidity = 1;
