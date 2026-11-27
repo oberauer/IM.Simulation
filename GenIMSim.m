@@ -16,7 +16,7 @@ model = 1;  % 1 = IMSim
 % 1: Continuous reproduction, sequential presentation in separate locations, cue by location, SPC, n responses (Oberauer & Lin, 2023)
 % 2: Continuous reproduction, sequential presentation in one location, cue by feature, SPC, 1 response (Gorgoraptis et al.)
 % 3: Continuous reproduction, forward serial recall
-% 4: Continuous reproduc%tion, sequential vs. simultaneous presentation, set size (+ CDA and alpha power)
+% 4: Continuous reproduction, sequential vs. simultaneous presentation, set size (+ CDA and alpha power)
 % 5: Continuous reproduction, setsize + RI (Pertzov)
 % 6: Continuous reproduction, seq. vs. sim. encoding of bindings between 2 features (Shepherdson et al., 2022)
 % 7: Continuous reproduction, sim. vs seq. with varying presentation rates: UZH students (Zepp & Oberauer, in prep)
@@ -63,16 +63,16 @@ model = 1;  % 1 = IMSim
 
 % 50 = SetsizeCD from Archive 2026.3.rapidConsolidation
 
-saveResults = 1;
-Exp = 5;
+saveResults = 0;
+Exp = 38;
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 1;   % fit mixture model?
 fitIMSim = 0; % fit IM?
 
 %%% Experimental Constants/Defaults
 
-E.ntrials = 200;     % number of trials to run per subject and condition
-E.nsubj = 200;       % number of subjects
+E.ntrials = 20;     % number of trials to run per subject and condition
+E.nsubj = 20;       % number of subjects
 E.ngroups = 1;       % number of groups of subjects
 E.material = 1;      % 1 = features on a continuous circular dimension (e.g., color wheel); 2 = highly distinct features; 3 = orientations with 180 degree scale
 E.targetDim = 1;     % feature dimension of the target stimuli: 1 = color, 2 = orientation, 3 = spatial location
@@ -103,6 +103,7 @@ C.nloc = 13;      %number of possible object locations (on a virtual circle arou
 C.nc = 360;       %number of units to represent color space (or orientation space)
 C.nCat = 8;       % number of content categories
 C.nLocCat = 8;    % number of context categories
+C.binding = 2;    % mechanism of binding-unit selection: 1 = sorting of not-committed units, 2 = thresholding + inhibition of committed units
 C.x = pi*(1:C.nc)./180;  % x axis for the distributions of population codes in circular color space / orientation space
 C.tstep = 0.02; 
 C.nsamples = 100;  % number of samples in multinomial accumulator
@@ -146,6 +147,7 @@ P.cRateFactor = 1;   % proportional reduction of cRate for Ricker's dots on a ri
 P.cRateSD = 0.5;     % SD of consolidation rates (as proportion of mean)
 P.cStrength = 0.9;   % proportion of maximal strength that consolidation aims for - when that strength is reached, consolidation stops
 P.cBallistic = 0.5;  % probability of consolidation being ballistic
+P.inhibB = 3;        % inhibition of committed binding units, in SD units of the binding unit activation
 P.filter = [0.05, 0.05, 0.05, 0.05]; % strength of encoding of the test display (colorwheel or probe) when attended (with probability P.eraseFX) 
 P.rad1 = 0.7;        % proportion of radius of memory array to radius of color wheel (for computation of color-wheel interference as a function of distance between wheel and target location)
 P.outputinterference = 0; % proportion of reduction of W

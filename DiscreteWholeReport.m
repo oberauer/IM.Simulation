@@ -20,7 +20,7 @@ end
 % generate parameters with individual differences
 ParX = CreateIndDiff;
 
-ProportionK = NaN(E.nsubj, setsize+1);  %
+ProportionK = NaN(E.nsubj, setsize, setsize+1);  %
 
 for id = 1:E.nsubj
 
@@ -28,34 +28,44 @@ for id = 1:E.nsubj
     for ii = 1:length(C.indVar)
         eval(['P.', C.indVar{ii}, ' = ParX(id, ii);']);
     end
+    CStrength = P.cStrength;  % keep the parameter
 
     % for each subject, create stimuli, and an individual set of feature categories, and the corresponding mappings
     CreateStimuli;  % large number of colors to create the mask
     CreateMapping(E.calibrateAmp==2);
 
-    accuracy = zeros(E.ntrials, setsize);  % correctness
-    retrieved = zeros(E.ntrials, setsize); 
+    for goal = 1:setsize
 
-    for trial = 1:E.ntrials
-        testorder = randperm(E.outsize);
-        output = Model(P, setsize, 1);  % cueing = 1 (no cue)
-        for probe = testorder
-            accuracy(trial, probe) = output.response(1, probe)==probe;  % probes 1:setsize are memory items F(1:setsize)
-            retrieved(trial, probe) = output.response(2, probe); 
+        accuracy = zeros(E.ntrials, setsize);  % correctness
+        retrieved = zeros(E.ntrials, setsize);
+
+        for trial = 1:E.ntrials
+            P.cStrength = [repmat(CStrength, 1, goal), 0.1*ones(1,setsize-goal)]; % aspiration level for items exceeding the goal is set to 0.1
+            testorder = [1, goal, 1+randperm(goal-1), goal+randperm(setsize-goal)];  % report primacy and recency items first, then the ones in between, then the not-encoded ones (= guessing)
+            output = Model(P, setsize, 1);  % goal instead of set size: participants only encode as many items as they are asked to remember
+            for probe = testorder
+                accuracy(trial, probe) = output.response(1, probe)==probe;  % probes 1:setsize are memory items F(1:setsize)
+                retrieved(trial, probe) = output.response(2, probe);
+            end
         end
+        NumberCorrect = sum(accuracy, 2);
+        for k = 0:setsize
+            ProportionK(id, goal, k+1) = mean(NumberCorrect==k);  % proportion of trials with k correct responses
+        end
+
+        if goal == setsize
+            disp('    ID        0         1         2         3         4         5         6   ');
+            disp([id, squeeze(ProportionK(id,setsize,:))']);
+        end
+
     end
-    NumberCorrect = sum(accuracy, 2);
-    for k = 0:setsize
-        ProportionK(id, k+1) = mean(NumberCorrect==k);  % proportion of trials with k correct responses
-    end
-    disp('    ID        0         1         2         3         4         5         6   ');
-    disp([id, ProportionK(id,:)]);
+
 end  % for ID
 
 % Plot Proportion of Number of Correct Responses
 PreFigure;
-plot(0:setsize, mean(ProportionK));
-PostFigure([-0.5, setsize+0.5, 0, 1], 'Number Correct', 'Proportion of Trials');
+plot(0:setsize, squeeze(mean(ProportionK,1)));
+PostFigure([-0.5, setsize+0.5, 0, 1], 'Number Correct', 'Proportion of Trials', [], vec2legend(1:setsize));
 
 D.ProportionK = ProportionK;
 
@@ -64,14 +74,12 @@ if E.saveResults == 1
     filename = [pwd(), '\dat\IMSim.DiscreteReport', mat2str(E.material), '.dat'];
     fid = fopen(filename, 'w');
     for id = 1:E.nsubj
-        for ptype = 1:3
-            for cueing = 1:3
-                fprintf(fid, '%d ', id);
-                for k = 1:(setsize+1)
-                   fprintf(fid, '%2.3f ', ProportionK(k));
-                end
-                fprintf(fid, '\n');
+        for goal = 1:setsize
+            fprintf(fid, '%d %d', id, goal);
+            for k = 1:(setsize+1)
+                fprintf(fid, '%2.3f ', ProportionK(id, goal, k));
             end
+            fprintf(fid, '\n');
         end
     end
     fclose(fid);
