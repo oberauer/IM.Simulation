@@ -64,7 +64,7 @@ model = 1;  % 1 = IMSim
 % 50 = SetsizeCD from Archive 2026.3.rapidConsolidation
 
 saveResults = 1;
-Exp = 5;
+Exp = 1;
 Setsize = 6;  % default value (can be overwritten later)
 fitMM = 1;   % fit mixture model?
 fitIMSim = 0; % fit IM?

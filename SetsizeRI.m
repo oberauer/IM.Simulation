@@ -137,7 +137,8 @@ for id = 1:E.nsubj
                     [MMparms, MMloglik] = fminsearchbnd(@(x) MM(x, ssData, 2), startparms(1:npar), lb(1:npar), ub(1:npar), option);
                     itercount = itercount + 1;
                 end
-                disp([id, setsize, itercount, MMloglik]);
+                disp('     ID     iter      MM LogLik/1000');
+                disp([id, setsize, itercount, MMloglik./1000]);
                 MMSD(id, ri, setsize) = MMparms(1);
                 MMguessing(id, ri, setsize) = MMparms(2);
                 if npar > 2, MMtranspos(id, ri, setsize) = MMparms(3); end
@@ -161,7 +162,8 @@ for id = 1:E.nsubj
             [IMparms(id,:), IMloglik] = fminsearchbnd(@(x) IM(x, Data, 2), startparms, lb, ub, option);
             itercount = itercount + 1;
         end
-        disp([id, itercount, IMloglik]);
+        disp('     ID     iter      IM LogLik/1000');
+        disp([id, itercount, IMloglik./1000]);
         pred = IM(IMparms(id,:), Data, 1);
         Dev = abs(wrap(repmat(1:360, size(Data.response,1), 1) - repmat(Data.response, 1, 360), 180));
         predDev = sum(Dev .* pred, 2); % Weights deviation from each possible angle with that angle's predicted probability (of being the response). Computes weighted average deviation for predicted SD
