@@ -326,7 +326,7 @@ for experiment = Experiment
 
     %%% Save results
     if E.saveResults == 1
-        fid = fopen(['IMSim.SetsizeSPC', mat2str(experiment), '.dat'], 'w');
+        fid = fopen([pwd(), '\dat\IMSim.SetsizeSPC', mat2str(experiment), '.dat'], 'w');
         for id = 1:E.nsubj
             for setsize = 1:E.maxsetsize
                 if experiment==1, outsize = setsize; else, outsize = 1; end

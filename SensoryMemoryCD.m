@@ -177,7 +177,7 @@ if E.saveResults == 1
     fclose(fid);
 
     % save individual parameters
-    fid = fopen('IMSim.SensoryMemoryCD.Parms.dat', 'w');
+    fid = fopen([pwd(), '\dat\IMSim.SensoryMemoryCD.Parms', mat2str(E.material), '.dat'], 'w');
     for ii = 1:length(C.indVar), fprintf(fid, '%s ', C.indVar{ii}); end   % parameter names as column labels in first row
     fprintf(fid, '\n');
     for id = 1:size(ParX,1)  % goes across individuals
