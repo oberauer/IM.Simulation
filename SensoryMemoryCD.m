@@ -132,7 +132,7 @@ plot(SOA, plotvector);
 PostFigure([0, 1, 0, max(0.01, 1.1*max(plotvector(:)))], 'SOA', 'Strength', [], {'FX', 'W'});
 
 % plot individual trajectories of K over SOA, as in Pratte & Greene
-PreFigure([], 2, []);
+PreFigure([], [], 2);
 plot(SOA, K);
 PostFigure([0, 1, 0, setsize], 'SOA', 'K');
 
