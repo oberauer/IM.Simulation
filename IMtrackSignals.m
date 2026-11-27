@@ -18,7 +18,7 @@ for ff = 1:C.nfeatures
     F(ff,:) = randperm(C.nstim);      %shuffle object features
 end
 
-P.asyFX = 5;
+%P.asyFX = 5;
 Timepoints = round(E.RI/C.tstep) + 1;
 CDAg = zeros(1,Timepoints);
 CDAw = zeros(1,Timepoints);
@@ -114,7 +114,7 @@ while t < E.RI  % continue until end of RI
                     if masking(1) == 1  % masking is all-or-none for simultaneous array
                         for item = 1:setsize
                             %Map(ff).FX = Map(ff).FX + (P.asyFX - maxFX) * P.stimDrive * C.location(L(item),:)' * C.maskStim;
-                            MapInput = MaxInput + C.location(L(item),:)' * C.maskStim;
+                            MapInput = MapInput + C.location(L(item),:)' * C.maskStim;
                         end
                     end
                 end

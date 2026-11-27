@@ -136,9 +136,10 @@ P.nbNorm = sqrt(P.nb); % normalization constant depends on mean P.nb, not on ind
 P.maskWindow = 0.05;  % mean of time window within which a mask or a cue is integrated with the current feature Map
 P.maskWindowSD = 0.75; % SD (as porportion of mean) of time window of integration
 P.SDstrengthFX = 0.1; % SD of encoding strength into FX
-P.stimDrive = 3; 
+P.stimDrive = 3;     % stimulus drive multiplied with input in the differential equation for the dynamics of FX
 P.selfactFX = 1;     % self-activation of FX
 P.inhibFX = 0.0025;   % 0.002 global inhibition in FX that causes decay
+P.asyFX = 5;         % asymptote for activation of units in feature maps
 P.IOR = 0.2; 
 P.eraseFX = 0.2;     % degree to which FX is erased by onset of a new attended stimulus (1 = not at all, 0 = completely)
 P.cRate = 10;        % rate of short-term consolidation (gain in strength of bindings)

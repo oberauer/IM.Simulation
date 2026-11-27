@@ -11,6 +11,12 @@ E.material = 2;
 E.respAlt = [1, 3*ones(1, setsize-1), 2*ones(1, 9-setsize)]; % correct and extraset lure
 E.outsize = setsize;
 
+% check whether higher precision leads to a larger modal number of items
+% recalled. That is not the case
+% P.kappaf_feat = 40;  
+% P.kappa_feat = 40; 
+
+
 % Calibrate amplification factor on population level, if desired
 if E.calibrateAmp == 1
     CreateStimuli;

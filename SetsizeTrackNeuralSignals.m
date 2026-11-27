@@ -19,7 +19,7 @@ if simSeq == 2
     E.RI = E.maxsetsize*(E.prestime+E.ISI); 
 end
 Timepoints = 0:C.tstep:E.RI;
-P.asyFX = 5;  % initialization
+%P.asyFX = 5;  % initialization
 
 % Calibrate amplification factor on population level, if desired
 if E.calibrateAmp == 1
